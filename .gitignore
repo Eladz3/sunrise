@@ -43,3 +43,76 @@ coverage
 *.local
 
 claude.txt
+
+# =========================
+# Build output (.NET)
+# =========================
+SunriseApi/bin/
+SunriseApi/obj/
+
+# =========================
+# User-specific files
+# =========================
+SunriseApi/*.user
+SunriseApi/*.suo
+SunriseApi/*.userosscache
+SunriseApi/*.sln.docstates
+
+# =========================
+# VS Code (scoped)
+# =========================
+SunriseApi/.vscode/*
+!SunriseApi/.vscode/settings.json
+!SunriseApi/.vscode/launch.json
+!SunriseApi/.vscode/tasks.json
+!SunriseApi/.vscode/extensions.json
+
+# =========================
+# Logs
+# =========================
+SunriseApi/*.log
+
+# =========================
+# OS files
+# =========================
+SunriseApi/.DS_Store
+SunriseApi/Thumbs.db
+
+# =========================
+# .NET / NuGet
+# =========================
+SunriseApi/*.nupkg
+SunriseApi/*.snupkg
+SunriseApi/.nuget/
+SunriseApi/packages/
+
+# =========================
+# Environment / secrets
+# =========================
+SunriseApi/.env
+SunriseApi/.env.*
+SunriseApi/appsettings.*.json
+!SunriseApi/appsettings.json
+
+# =========================
+# Rider / JetBrains
+# =========================
+SunriseApi/.idea/
+
+# =========================
+# Test results
+# =========================
+SunriseApi/TestResults/
+
+# =========================
+# Coverage reports
+# =========================
+SunriseApi/coverage/
+SunriseApi/*.coverage
+SunriseApi/*.coveragexml
+
+# =========================
+# Temporary files
+# =========================
+SunriseApi/*.tmp
+SunriseApi/*.temp
