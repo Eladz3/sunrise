@@ -17,6 +17,26 @@ namespace SunriseApi.Data
         public DbSet<UserGroup> UserGroups => Set<UserGroup>();
         public DbSet<Goal> Goals => Set<Goal>();
 
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries<BaseEntity>();
+
+            foreach (var entry in entries)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedOn = DateTime.UtcNow;
+                }
+
+                if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.ModifiedOn = DateTime.UtcNow;
+                }
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
