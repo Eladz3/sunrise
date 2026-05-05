@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAllResolutions } from '@/services/resolutions';
+import { getAllGoals } from '@/services/goals';
 import type { GlobalStats } from '@/types';
 
 interface UseGlobalStatsReturn {
@@ -17,16 +17,16 @@ export function useGlobalStats(): UseGlobalStatsReturn {
   useEffect(() => {
     let cancelled = false;
 
-    getAllResolutions()
-      .then((resolutions) => {
+    getAllGoals()
+      .then((goals) => {
         if (cancelled) return;
-        const totalGoals = resolutions.length;
-        const totalGoalsCompleted = resolutions.filter(
+        const totalGoals = goals.length;
+        const totalGoalsCompleted = goals.filter(
           (r) => r.current_value >= r.target_value
         ).length;
         setStats({
           id: 'current',
-          totalUsers: new Set(resolutions.map((r) => r.user_id)).size,
+          totalUsers: new Set(goals.map((r) => r.user_id)).size,
           totalGoals,
           totalGoalsCompleted,
           totalGoalsInProgress: totalGoals - totalGoalsCompleted,

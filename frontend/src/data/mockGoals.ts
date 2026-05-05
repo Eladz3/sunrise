@@ -1,24 +1,18 @@
-/**
- * Mock Goal Data
- *
- * 3 users with 2 goals each, matching the schema.
- */
+import type { GoalCategory } from '@/components';
 
-import type { GoalCategory } from '@/components'
-
-export interface Goal {
-  id: string
-  title: string
-  description: string
-  category: GoalCategory
-  target_value: number
-  current_value: number
-  unit: string
-  user_name: string
-  user_email: string
+export interface MockGoal {
+  id: string;
+  title: string;
+  description: string;
+  category: GoalCategory;
+  target_value: number;
+  current_value: number;
+  unit: string;
+  user_name: string;
+  user_email: string;
 }
 
-export const mockGoals: Goal[] = [
+export const mockGoals: MockGoal[] = [
   // User 1: Alice
   {
     id: '1',
@@ -90,47 +84,38 @@ export const mockGoals: Goal[] = [
     user_name: 'Carol',
     user_email: 'carol@example.com',
   },
-]
+];
 
-/**
- * Group goals by user
- */
-export function getGoalsByUser(): Record<string, Goal[]> {
+export function getGoalsByUser(): Record<string, MockGoal[]> {
   return mockGoals.reduce(
     (acc, goal) => {
-      const userName = goal.user_name
+      const userName = goal.user_name;
       if (!acc[userName]) {
-        acc[userName] = []
+        acc[userName] = [];
       }
-      acc[userName].push(goal)
-      return acc
+      acc[userName].push(goal);
+      return acc;
     },
-    {} as Record<string, Goal[]>
-  )
+    {} as Record<string, MockGoal[]>
+  );
 }
 
-/**
- * Get all goals as a flat list
- */
-export function getAllGoals(): Goal[] {
-  return mockGoals
+export function getAllMockGoals(): MockGoal[] {
+  return mockGoals;
 }
 
-/**
- * Calculate community progress stats
- */
 export function getCommunityProgress(): {
-  totalCurrent: number
-  totalTarget: number
-  percentage: number
+  totalCurrent: number;
+  totalTarget: number;
+  percentage: number;
 } {
-  const totalCurrent = mockGoals.reduce((sum, r) => sum + r.current_value, 0)
-  const totalTarget = mockGoals.reduce((sum, r) => sum + r.target_value, 0)
-  const percentage = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0
+  const totalCurrent = mockGoals.reduce((sum, g) => sum + g.current_value, 0);
+  const totalTarget = mockGoals.reduce((sum, g) => sum + g.target_value, 0);
+  const percentage = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
 
   return {
     totalCurrent,
     totalTarget,
     percentage: Math.round(percentage),
-  }
+  };
 }

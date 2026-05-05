@@ -1,10 +1,4 @@
-/**
- * Resolution Card Component
- *
- * Displays a single resolution with progress bar and category badge.
- */
-
-export type ResolutionCategory =
+export type GoalCategory =
   | 'health'
   | 'fitness'
   | 'finance'
@@ -15,17 +9,17 @@ export type ResolutionCategory =
   | 'mindfulness'
   | 'other';
 
-interface ResolutionCardProps {
+interface GoalCardProps {
   title: string;
   user_name?: string;
   current_value: number;
   target_value: number;
   unit: string;
-  category: ResolutionCategory;
+  category: GoalCategory;
   onEdit?: () => void;
 }
 
-const categoryColors: Record<ResolutionCategory, { bg: string; text: string }> = {
+const categoryColors: Record<GoalCategory, { bg: string; text: string }> = {
   health: { bg: 'bg-green-100', text: 'text-green-700' },
   fitness: { bg: 'bg-blue-100', text: 'text-blue-700' },
   finance: { bg: 'bg-yellow-100', text: 'text-yellow-700' },
@@ -37,7 +31,7 @@ const categoryColors: Record<ResolutionCategory, { bg: string; text: string }> =
   other: { bg: 'bg-gray-100', text: 'text-gray-700' },
 };
 
-export function ResolutionCard({
+export function GoalCard({
   title,
   user_name,
   current_value,
@@ -45,7 +39,7 @@ export function ResolutionCard({
   unit,
   category,
   onEdit,
-}: ResolutionCardProps) {
+}: GoalCardProps) {
   const progress = target_value > 0 ? (current_value / target_value) * 100 : 0;
   const progressClamped = Math.min(100, Math.max(0, progress));
   const colors = categoryColors[category];

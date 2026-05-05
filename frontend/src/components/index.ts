@@ -4,18 +4,18 @@
  */
 
 // UI Components
-export { Button } from './ui/Button';
-export { Spinner } from './ui/Spinner';
+export { Button } from './ui/Button'
+export { Spinner } from './ui/Spinner'
 
 // Layout Components
-export { Header } from './layout/Header';
+export { Header } from './layout/Header'
 
 // Community Components
-export { CommunityProgressBar } from './community/CommunityProgressBar';
+export { CommunityProgressBar } from './community/CommunityProgressBar'
 
-// Resolution Components
-export { ResolutionCard } from './resolution/ResolutionCard';
-export type { ResolutionCategory } from './resolution/ResolutionCard';
+// Goal Components
+export { GoalCard } from './goal/GoalCard'
+export type { GoalCategory } from './goal/GoalCard'
 
 // Form Components
 // export { TextInput } from './forms/TextInput';

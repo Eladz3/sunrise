@@ -35,7 +35,7 @@ export function SignIn() {
       <div className="w-full max-w-sm text-center">
         {/* App Title */}
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {import.meta.env.VITE_APP_TITLE || 'Resolution Tracker'}
+          {import.meta.env.VITE_APP_TITLE || 'Goal Tracker'}
         </h1>
         <p className="text-gray-600 mb-8">Track your goals together</p>
 

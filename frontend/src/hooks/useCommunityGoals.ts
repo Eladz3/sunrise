@@ -39,9 +39,7 @@ export function useCommunityGoals(): UseCommunityGoalsResult {
   };
 }
 
-export function groupGoalsByUser(
-  goals: Goal[]
-): Record<string, Goal[]> {
+export function groupGoalsByUser(goals: Goal[]): Record<string, Goal[]> {
   return goals.reduce(
     (acc, goal) => {
       const userName = goal.user_name;
@@ -60,8 +58,8 @@ export function calculateCommunityProgress(goals: Goal[]): {
   totalTarget: number;
   percentage: number;
 } {
-  const totalCurrent = goals.reduce((sum, r) => sum + r.current_value, 0);
-  const totalTarget = goals.reduce((sum, r) => sum + r.target_value, 0);
+  const totalCurrent = goals.reduce((sum, g) => sum + g.current_value, 0);
+  const totalTarget = goals.reduce((sum, g) => sum + g.target_value, 0);
   const percentage = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
 
   return {

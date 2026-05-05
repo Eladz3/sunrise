@@ -1,16 +1,10 @@
-/**
- * Goal Form Modal
- *
- * Modal for adding or editing a goal/resolution.
- */
-
 import { useState, useEffect } from 'react';
-import type { ResolutionCategory } from './ResolutionCard';
+import type { GoalCategory } from './GoalCard';
 
 export interface GoalFormData {
   title: string;
   description: string;
-  category: ResolutionCategory;
+  category: GoalCategory;
   target_value: number;
   unit: string;
 }
@@ -23,7 +17,7 @@ interface GoalFormModalProps {
   mode?: 'add' | 'edit';
 }
 
-const categories: { value: ResolutionCategory; label: string }[] = [
+const categories: { value: GoalCategory; label: string }[] = [
   { value: 'health', label: 'Health' },
   { value: 'fitness', label: 'Fitness' },
   { value: 'finance', label: 'Finance' },
@@ -56,7 +50,6 @@ export function GoalFormModal({
   const [errors, setErrors] = useState<Partial<Record<keyof GoalFormData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Reset form when modal opens/closes or initialData changes
   useEffect(() => {
     if (isOpen) {
       setFormData(initialData || defaultFormData);
@@ -110,7 +103,6 @@ export function GoalFormModal({
     value: string | number
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when field is changed
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
@@ -122,15 +114,12 @@ export function GoalFormModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Modal */}
       <div className="relative bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-md sm:mx-4 max-h-[90vh] overflow-y-auto animate-slide-up">
-        {/* Header */}
         <div className="sticky top-0 bg-white flex items-center justify-between p-4 border-b z-10">
           <h2 className="text-lg font-semibold text-gray-900">
             {mode === 'add' ? 'Add New Goal' : 'Edit Goal'}
@@ -146,9 +135,7 @@ export function GoalFormModal({
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="p-4 space-y-5">
-          {/* Title */}
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
               Title <span className="text-red-500">*</span>
@@ -169,7 +156,6 @@ export function GoalFormModal({
             )}
           </div>
 
-          {/* Description */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
               Description
@@ -184,7 +170,6 @@ export function GoalFormModal({
             />
           </div>
 
-          {/* Category */}
           <div>
             <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
               Category
@@ -192,7 +177,7 @@ export function GoalFormModal({
             <select
               id="category"
               value={formData.category}
-              onChange={(e) => handleChange('category', e.target.value as ResolutionCategory)}
+              onChange={(e) => handleChange('category', e.target.value as GoalCategory)}
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sunrise-500 focus:border-transparent text-base bg-white"
             >
               {categories.map((cat) => (
@@ -203,9 +188,7 @@ export function GoalFormModal({
             </select>
           </div>
 
-          {/* Target Value and Unit in a row */}
           <div className="grid grid-cols-2 gap-4">
-            {/* Target Value */}
             <div>
               <label htmlFor="target_value" className="block text-sm font-medium text-gray-700 mb-2">
                 Target <span className="text-red-500">*</span>
@@ -227,7 +210,6 @@ export function GoalFormModal({
               )}
             </div>
 
-            {/* Unit */}
             <div>
               <label htmlFor="unit" className="block text-sm font-medium text-gray-700 mb-2">
                 Unit <span className="text-red-500">*</span>
@@ -248,7 +230,6 @@ export function GoalFormModal({
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex gap-3 pt-2 pb-safe">
             <button
               type="button"
