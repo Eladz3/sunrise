@@ -13,6 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IGoalsService, GoalsService>();
 builder.Services.AddScoped<IGroupsService, GroupsService>();
+builder.Services.AddScoped<IMetricsService, MetricsService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(

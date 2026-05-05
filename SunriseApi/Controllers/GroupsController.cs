@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SunriseApi.Models.Entities;
 using SunriseApi.Models.Requests;
 using SunriseApi.Services.Interfaces;
 
@@ -15,6 +16,7 @@ namespace SunriseApi.Controllers
 
         [HttpGet]
         [Route("groups-by-user-id/{userId}")]
+        [ProducesResponseType(typeof(IEnumerable<Group>), 200)]
         public async Task<IActionResult> GetGroupsByUserIdAsync(int userId)
         {
             var groups = await _groupsService.GetGroupsByUserIdAsync(userId);
@@ -23,6 +25,7 @@ namespace SunriseApi.Controllers
 
         [HttpPost]
         [Route("groups")]
+        [ProducesResponseType(typeof(Group), 200)]
         public async Task<IActionResult> CreateNewGroupAsync(CreateNewGroupRequest request)
         {
             var newGroup = await _groupsService.CreateNewGroupAsync(request);
