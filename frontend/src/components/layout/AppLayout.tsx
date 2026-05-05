@@ -11,8 +11,12 @@ export function AppLayout() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <main className="flex-1 p-4 pb-20">
-        {activeTab === 'home' && <HomePage />}
-        {activeTab === 'goals' && <MyGoalsPage />}
+        <div className={activeTab !== 'home' ? 'hidden' : ''}>
+          <HomePage />
+        </div>
+        <div className={activeTab !== 'goals' ? 'hidden' : ''}>
+          <MyGoalsPage />
+        </div>
       </main>
       <BottomTabNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>

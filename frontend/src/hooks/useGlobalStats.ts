@@ -1,13 +1,5 @@
-/**
- * useGlobalStats Hook
- *
- * Real-time subscription to global community statistics.
- * Uses Firestore onSnapshot for live updates.
- */
-
 import { useState, useEffect } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '@/services/firebase';
+import { getAllResolutions } from '@/services/resolutions';
 import type { GlobalStats } from '@/types';
 
 interface UseGlobalStatsReturn {
@@ -17,50 +9,45 @@ interface UseGlobalStatsReturn {
   completionPercent: number;
 }
 
-/**
- * Hook for real-time global community stats
- *
- * @returns Global stats with live updates and computed completion percentage
- */
 export function useGlobalStats(): UseGlobalStatsReturn {
   const [stats, setStats] = useState<GlobalStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const docRef = doc(db, 'globalStats', 'current');
+    let cancelled = false;
 
-    const unsubscribe = onSnapshot(
-      docRef,
-      (snapshot) => {
-        if (snapshot.exists()) {
-          setStats({ id: snapshot.id, ...snapshot.data() } as GlobalStats);
-        } else {
-          setStats(null);
-        }
-        setLoading(false);
-        setError(null);
-      },
-      (err) => {
-        console.error('Error listening to global stats:', err);
+    getAllResolutions()
+      .then((resolutions) => {
+        if (cancelled) return;
+        const totalGoals = resolutions.length;
+        const totalGoalsCompleted = resolutions.filter(
+          (r) => r.current_value >= r.target_value
+        ).length;
+        setStats({
+          id: 'current',
+          totalUsers: new Set(resolutions.map((r) => r.user_id)).size,
+          totalGoals,
+          totalGoalsCompleted,
+          totalGoalsInProgress: totalGoals - totalGoalsCompleted,
+        } as GlobalStats);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error('Error fetching global stats:', err);
         setError('Failed to load community stats');
-        setLoading(false);
-      }
-    );
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
 
-    return () => unsubscribe();
+    return () => { cancelled = true; };
   }, []);
 
-  // Compute completion percentage
   const completionPercent =
     stats && stats.totalGoals > 0
       ? Math.round((stats.totalGoalsCompleted / stats.totalGoals) * 100)
       : 0;
 
-  return {
-    stats,
-    loading,
-    error,
-    completionPercent,
-  };
+  return { stats, loading, error, completionPercent };
 }

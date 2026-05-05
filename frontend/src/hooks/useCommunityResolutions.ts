@@ -1,13 +1,5 @@
-/**
- * useCommunityResolutions Hook
- *
- * Fetches all resolutions for community view with live updates.
- */
-
 import { useState, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, query } from 'firebase/firestore';
-import { db } from '@/services/firebase';
-import type { Resolution } from '@/services/resolutions';
+import { getAllResolutions, type Resolution } from '@/services/resolutions';
 
 interface UseCommunityResolutionsResult {
   resolutions: Resolution[];
@@ -21,50 +13,32 @@ export function useCommunityResolutions(): UseCommunityResolutionsResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchResolutions = useCallback(async () => {
     setLoading(true);
     setError(null);
-
-    const q = query(collection(db, 'resolutions'));
-
-    // Subscribe to real-time updates
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const data = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Resolution[];
-
-        setResolutions(data);
-        setLoading(false);
-      },
-      (err) => {
-        console.error('Error fetching community resolutions:', err);
-        setError('Failed to load community data');
-        setLoading(false);
-      }
-    );
-
-    return () => unsubscribe();
+    try {
+      const data = await getAllResolutions();
+      setResolutions(data);
+    } catch (err) {
+      console.error('Error fetching community resolutions:', err);
+      setError('Failed to load community data');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const refreshResolutions = useCallback(() => {
-    // The onSnapshot listener handles real-time updates automatically
-    // This is a no-op but kept for API consistency
-  }, []);
+  useEffect(() => {
+    fetchResolutions();
+  }, [fetchResolutions]);
 
   return {
     resolutions,
     loading,
     error,
-    refreshResolutions,
+    refreshResolutions: fetchResolutions,
   };
 }
 
-/**
- * Group resolutions by user
- */
 export function groupResolutionsByUser(
   resolutions: Resolution[]
 ): Record<string, Resolution[]> {
@@ -81,9 +55,6 @@ export function groupResolutionsByUser(
   );
 }
 
-/**
- * Calculate community progress
- */
 export function calculateCommunityProgress(resolutions: Resolution[]): {
   totalCurrent: number;
   totalTarget: number;
