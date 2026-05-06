@@ -49,6 +49,7 @@ import {
   type ReactNode,
 } from 'react';
 import { onAuthChange, signInWithGoogle, signOut } from './auth';
+import { syncUser } from '@/services/usersApi';
 import type { User } from 'firebase/auth';
 
 interface AuthContextValue {
@@ -72,18 +73,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // IMPORTANT: This is the ONE AND ONLY onAuthStateChanged listener.
     // Do not create additional listeners elsewhere in the app.
     const unsubscribe = onAuthChange((authUser) => {
-      // TEMPORARY: Debug logging for development only
-      // TODO: Remove these logs before production release
       if (import.meta.env.DEV) {
         if (authUser) {
-          console.log('[Auth Debug] User signed in:', {
-            uid: authUser.uid,
-            email: authUser.email,
-          });
-          // NOTE: Never log tokens or sensitive credentials
+          console.log('[Auth Debug] User signed in:', { uid: authUser.uid, email: authUser.email });
         } else {
           console.log('[Auth Debug] User signed out');
         }
+      }
+
+      if (authUser) {
+        syncUser(
+          authUser.uid,
+          authUser.displayName ?? authUser.email ?? 'Anonymous',
+          authUser.email ?? ''
+        ).catch((err) => console.error('[Auth] Failed to sync user with backend:', err));
       }
 
       setUser(authUser);

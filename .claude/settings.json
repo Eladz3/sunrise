@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet ef *)",
+      "Bash(dotnet restore *)",
+      "Bash(dotnet build *)",
+      "Bash(del \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\SunriseApi\\\\Migrations\\\\20260506221903_AddFirebaseUidAndEmailToUser.cs\")",
+      "Bash(del \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\SunriseApi\\\\Migrations\\\\20260506221903_AddFirebaseUidAndEmailToUser.Designer.cs\")"
+    ]
+  }
+}
