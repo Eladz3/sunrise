@@ -3,13 +3,13 @@
 Application configuration and initialization.
 
 ## What belongs here:
-- **Firebase config** - Firebase initialization and config
+- **Firebase config** - Firebase initialization for Auth only
 - **Environment variables** - Typed env var access
 - **App constants** - Large constant objects, feature flags
 - **Third-party configs** - Calendar API, analytics, etc.
 
 ## Examples:
-- `firebase.ts` - Initialize Firebase app, auth, firestore
+- `firebase.ts` - Initialize Firebase app and auth
 - `env.ts` - Typed environment variables
 - `calendar.ts` - Google Calendar API configuration
 - `constants.ts` - App-wide configuration values
@@ -19,7 +19,6 @@ Application configuration and initialization.
 // firebase.ts
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -30,10 +29,10 @@ const firebaseConfig = {
 
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app);
 ```
 
 ## Note:
+- Firebase is used **for authentication only** — do not initialize Firestore here
 - Never commit sensitive values - use .env files
 - Export initialized instances, not just config objects
 - Keep config separate from business logic

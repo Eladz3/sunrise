@@ -3,9 +3,8 @@
 TypeScript type definitions and interfaces.
 
 ## What belongs here:
-- **Domain models** - Core business entities (User, Event, Community, etc.)
-- **API types** - Request/response types for external APIs
-- **Firebase types** - Firestore document structures
+- **Domain models** - Core business entities (User, Goal, etc.)
+- **API types** - Request/response types for the REST API backend
 - **Shared types** - Types used across multiple modules
 
 ## Organization:
@@ -13,9 +12,8 @@ TypeScript type definitions and interfaces.
 types/
 ├── index.ts           # Re-export all types
 ├── models.ts          # Core domain models
-├── firebase.ts        # Firebase-specific types
 ├── calendar.ts        # Google Calendar types
-└── api.ts             # External API types
+└── api.ts             # REST API request/response types
 ```
 
 ## Examples:
@@ -29,7 +27,7 @@ export interface User {
   createdAt: Date;
 }
 
-export interface Event {
+export interface Goal {
   id: string;
   title: string;
   description: string;

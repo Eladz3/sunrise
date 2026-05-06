@@ -4,14 +4,13 @@ Custom React hooks used across the application.
 
 ## What belongs here:
 - **Shared custom hooks** - Hooks used in multiple places
-- **Firebase hooks** - Hooks for Firestore queries, real-time listeners
+- **API data hooks** - Hooks that fetch/mutate data via the REST API
 - **Calendar hooks** - Hooks for Google Calendar integration
 - **Auth hooks** - If used outside auth context (e.g., useAuth)
 
 ## Examples:
 - `useAuth.ts` - Access auth context and user state
-- `useFirestore.ts` - Generic Firestore CRUD operations
-- `useEvents.ts` - Fetch and manage events from Firestore
+- `useGoals.ts` - Fetch and manage goals via the REST API
 - `useCalendar.ts` - Google Calendar integration
 - `useDebounce.ts` - Debounce utility hook
 - `useLocalStorage.ts` - Local storage synchronization

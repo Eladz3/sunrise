@@ -223,7 +223,7 @@ VITE_FIREBASE_APP_ID=your_app_id
 Your authentication is complete! You can now:
 
 1. **Add more protected pages** - Use ProtectedRoute wrapper
-2. **Build user profiles** - Store user data in Firestore
+2. **Build user profiles** - Store user data via the REST API backend
 3. **Add role-based access** - Check user.uid or custom claims
 4. **Implement Calendar sync** - Use the stored Google access token
 5. **Create events** - Build CRUD operations for events

@@ -15,7 +15,7 @@ src/
 ├── hooks/            # Custom React hooks
 ├── pages/            # Route/page components
 ├── services/         # Business logic and API integrations
-│   ├── firebase/     # Firebase services
+│   ├── firebase/     # Firebase Auth helpers
 │   └── calendar/     # Google Calendar integration
 ├── types/            # TypeScript definitions
 ├── utils/            # Pure utility functions
@@ -98,35 +98,36 @@ import { formatDate, truncate } from '@/utils';
 
 ## 🔥 Firebase Integration
 
+Firebase is used **for authentication only**. All application data (goals, users, metrics) is managed by the .NET REST API backend.
+
 ### Configuration
 - Firebase initialization: `config/firebase.ts`
-- Export `auth`, `db` instances for use across the app
+- Export `auth` instance for use across the app
 
-### Services
-- Firestore operations: `services/firebase/firestore.ts`
-- Auth methods: `services/firebase/auth.ts`
+### Auth Service
+- Sign-in / sign-out methods: `services/firebase/auth.ts`
+- React context: `auth/AuthProvider.tsx`
 
 ### Hooks
-- Wrap Firebase services in hooks for reactive data
-- Example: `useEvents()` wraps Firestore event queries
+- Auth state access: `useAuth()` from `auth/AuthProvider.tsx`
 
 ## 🚀 Getting Started
 
 When adding a new feature:
 
 1. **Define types** in `types/models.ts`
-2. **Create services** in `services/` for data operations
+2. **Create services** in `services/` for REST API calls
 3. **Build hooks** in `hooks/` to consume services
 4. **Create components** in `components/` for UI
 5. **Build pages** in `pages/` that compose everything
 
 ## 📝 Naming Conventions
 
-- **Components**: PascalCase (`Button.tsx`, `EventCard.tsx`)
-- **Hooks**: camelCase with `use` prefix (`useAuth.ts`, `useEvents.ts`)
-- **Services**: camelCase (`firestore.ts`, `googleCalendar.ts`)
+- **Components**: PascalCase (`Button.tsx`, `GoalCard.tsx`)
+- **Hooks**: camelCase with `use` prefix (`useAuth.ts`, `useGoals.ts`)
+- **Services**: camelCase (`goals.ts`, `api.ts`)
 - **Utils**: camelCase (`date.ts`, `validation.ts`)
-- **Types**: PascalCase for interfaces/types (`User`, `Event`)
+- **Types**: PascalCase for interfaces/types (`User`, `Goal`)
 
 ## 🔍 Quick Reference
 
@@ -134,7 +135,7 @@ When adding a new feature:
 |------------|-------------|
 | Add a reusable button | `components/ui/Button.tsx` |
 | Create a new page | `pages/PageName.tsx` |
-| Add Firebase query | `services/firebase/firestore.ts` |
+| Add REST API call | `services/goals.ts` (or relevant service file) |
 | Create custom hook | `hooks/useHookName.ts` |
 | Define data model | `types/models.ts` |
 | Add date formatter | `utils/date.ts` |

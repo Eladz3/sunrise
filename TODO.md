@@ -18,7 +18,9 @@
 
 ### Medium
 
-- [ ] **Firestore vs SQL data split**: User profiles and stats live in Firestore; goals live in SQL. These stores are not synchronized. Define a single source of truth or a clear sync strategy.
+- [ ] **Migrate `frontend/src/services/users.ts` off Firestore**: Currently reads/writes user profiles directly to Firestore. Replace with REST API calls once a `/users` endpoint exists on the backend.
+- [ ] **Migrate `frontend/src/services/stats.ts` off Firestore**: Currently reads/writes global stats directly to Firestore. Replace with calls to the backend `MetricsController` endpoints.
+- [ ] **Remove Firestore SDK from frontend**: Once the service migrations above are done, remove `firebase/firestore` imports and the Firestore initializer from `config/firebase.ts`. Firebase should be auth-only.
 - [ ] **`AuthProvider.tsx` debug logs**: Remove the `console.log` statements marked `TODO` at [frontend/src/auth/AuthProvider.tsx:76](frontend/src/auth/AuthProvider.tsx#L76) before production.
 
 ### Low
