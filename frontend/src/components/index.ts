@@ -6,6 +6,8 @@
 // UI Components
 export { Button } from './ui/Button'
 export { Spinner } from './ui/Spinner'
+export { Icon, registerIcon, registerIcons } from './ui/Icon'
+export type { IconName, IconProps } from './ui/Icon'
 
 // Layout Components
 export { Header } from './layout/Header'
