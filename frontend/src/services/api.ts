@@ -14,7 +14,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const headers = await getAuthHeaders();
   const response = await fetch(`${BASE_URL}${path}`, {
     ...options,
-    headers: { ...headers, ...(options?.headers ?? {}) },
+    headers: { ...headers, ...(options?.headers ?? {}), Authorization: ""/* oauthIdToken token here */  },
   });
 
   if (!response.ok) {
