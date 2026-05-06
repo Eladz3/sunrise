@@ -5,7 +5,9 @@
       "Bash(npm install:*)",
       "Bash(npm run type-check:*)",
       "Bash(tree:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(dotnet nuget add *)",
+      "Bash(dotnet tool install *)"
     ]
   }
 }

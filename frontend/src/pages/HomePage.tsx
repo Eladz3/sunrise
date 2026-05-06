@@ -1,69 +1,69 @@
 /**
  * Home Page
  *
- * Community progress view with tabs for By User and By Resolution.
+ * Community progress view with tabs for By User and By Goal.
  * Connected to Firestore with live updates.
  */
 
-import { useState } from 'react';
-import { ResolutionCard, Spinner } from '@/components';
+import { useState } from 'react'
+import { GoalCard, Spinner } from '@/components'
 import {
-  useCommunityResolutions,
-  groupResolutionsByUser,
+  useCommunityGoals,
+  groupGoalsByUser,
   calculateCommunityProgress,
-} from '@/hooks/useCommunityResolutions';
+} from '@/hooks/useCommunityGoals'
 
-type HomeTab = 'byUser' | 'byResolution';
+type HomeTab = 'byUser' | 'byGoal'
 
 export function HomePage() {
-  const [activeTab, setActiveTab] = useState<HomeTab>('byUser');
-  const { resolutions, loading, error } = useCommunityResolutions();
+  const [activeTab, setActiveTab] = useState<HomeTab>('byUser')
+  const { goals, loading, error } = useCommunityGoals()
 
-  const resolutionsByUser = groupResolutionsByUser(resolutions);
-  const communityProgress = calculateCommunityProgress(resolutions);
+  const goalsByUser = groupGoalsByUser(goals)
+  const communityProgress = calculateCommunityProgress(goals)
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
         <Spinner size="lg" />
       </div>
-    );
+    )
   }
 
   return (
     <div className="space-y-6">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-sunrise-500 via-dawn-500 to-rose-500 rounded-2xl shadow-lg p-6 text-white">
-        <h1 className="text-2xl font-bold text-center mb-1">
+      <section className="rounded-2xl bg-gradient-to-br from-sunrise-500 via-dawn-500 to-rose-500 p-6 text-white shadow-lg">
+        <h1 className="mb-1 text-center text-2xl font-bold">
           Community Progress
         </h1>
-        <p className="text-sunrise-100 text-center text-sm mb-4">
+        <p className="mb-4 text-center text-sm text-sunrise-100">
           Rising together towards our goals
         </p>
-        <div className="w-full bg-white/30 rounded-full h-4">
+        <div className="h-4 w-full rounded-full bg-white/30">
           <div
-            className="bg-white h-4 rounded-full transition-all duration-500"
+            className="h-4 rounded-full bg-white transition-all duration-500"
             style={{ width: `${communityProgress.percentage}%` }}
           />
         </div>
-        <p className="text-center text-sunrise-100 mt-3 text-lg font-semibold">
+        <p className="mt-3 text-center text-lg font-semibold text-sunrise-100">
           {communityProgress.percentage}% complete
         </p>
       </section>
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
           <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
 
       {/* Tab Section */}
-      <section className="bg-white rounded-2xl shadow-sm p-4">
-        <div className="flex bg-gray-100 rounded-xl p-1 mb-4">
+      <section className="rounded-2xl bg-white p-4 shadow-sm">
+        <div className="mb-4 flex rounded-xl bg-gray-100 p-1">
           <button
             onClick={() => setActiveTab('byUser')}
-            className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${
+            className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
               activeTab === 'byUser'
                 ? 'bg-white text-sunrise-600 shadow-sm'
                 : 'text-warmGray-500 hover:text-warmGray-700'
@@ -72,97 +72,116 @@ export function HomePage() {
             By User
           </button>
           <button
-            onClick={() => setActiveTab('byResolution')}
-            className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all ${
-              activeTab === 'byResolution'
+            onClick={() => setActiveTab('byGoal')}
+            className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
+              activeTab === 'byGoal'
                 ? 'bg-white text-sunrise-600 shadow-sm'
                 : 'text-warmGray-500 hover:text-warmGray-700'
             }`}
           >
-            By Resolution
+            By Goal
           </button>
         </div>
 
         {/* Empty State */}
-        {resolutions.length === 0 && (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        {goals.length === 0 && (
+          <div className="py-12 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+              <svg
+                className="h-8 w-8 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
               </svg>
             </div>
-            <p className="text-gray-600 font-medium">No resolutions yet</p>
-            <p className="text-gray-400 text-sm mt-1">
+            <p className="font-medium text-gray-600">No goals yet</p>
+            <p className="mt-1 text-sm text-gray-400">
               Be the first to add a goal!
             </p>
           </div>
         )}
 
         {/* Tab Content - By User */}
-        {activeTab === 'byUser' && resolutions.length > 0 && (
+        {activeTab === 'byUser' && goals.length > 0 && (
           <div className="space-y-6">
-            {Object.entries(resolutionsByUser).map(([userName, userResolutions]) => {
-              const totalTarget = userResolutions.reduce((sum, r) => sum + r.target_value, 0);
-              const totalCurrent = userResolutions.reduce((sum, r) => sum + r.current_value, 0);
-              const userProgress = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
+            {Object.entries(goalsByUser).map(([userName, userGoals]) => {
+              const totalTarget = userGoals.reduce(
+                (sum, r) => sum + r.target_value,
+                0
+              )
+              const totalCurrent = userGoals.reduce(
+                (sum, r) => sum + r.current_value,
+                0
+              )
+              const userProgress =
+                totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0
 
               return (
                 <div key={userName} className="space-y-3">
                   {/* User Header */}
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-medium">
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <div className="mb-2 flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300 font-medium text-gray-600">
                         {userName.charAt(0).toUpperCase()}
                       </div>
-                      <span className="font-medium text-gray-700">{userName}</span>
+                      <span className="font-medium text-gray-700">
+                        {userName}
+                      </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="h-2 w-full rounded-full bg-gray-200">
                       <div
-                        className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                        className="h-2 rounded-full bg-green-500 transition-all duration-300"
                         style={{ width: `${Math.min(100, userProgress)}%` }}
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="mt-1 text-xs text-gray-500">
                       {Math.round(userProgress)}% overall progress
                     </p>
                   </div>
 
-                  {/* User's Resolutions */}
+                  {/* User's Goals */}
                   <div className="space-y-2 pl-4">
-                    {userResolutions.map((resolution) => (
-                      <ResolutionCard
-                        key={resolution.id}
-                        title={resolution.title}
-                        current_value={resolution.current_value}
-                        target_value={resolution.target_value}
-                        unit={resolution.unit}
-                        category={resolution.category}
+                    {userGoals.map((goal) => (
+                      <GoalCard
+                        key={goal.id}
+                        title={goal.title}
+                        current_value={goal.current_value}
+                        target_value={goal.target_value}
+                        unit={goal.unit}
+                        category={goal.category}
                       />
                     ))}
                   </div>
                 </div>
-              );
+              )
             })}
           </div>
         )}
 
-        {/* Tab Content - By Resolution */}
-        {activeTab === 'byResolution' && resolutions.length > 0 && (
+        {/* Tab Content - By Goal */}
+        {activeTab === 'byGoal' && goals.length > 0 && (
           <div className="space-y-3">
-            {resolutions.map((resolution) => (
-              <ResolutionCard
-                key={resolution.id}
-                title={resolution.title}
-                user_name={resolution.user_name}
-                current_value={resolution.current_value}
-                target_value={resolution.target_value}
-                unit={resolution.unit}
-                category={resolution.category}
+            {goals.map((goal) => (
+              <GoalCard
+                key={goal.id}
+                title={goal.title}
+                user_name={goal.user_name}
+                current_value={goal.current_value}
+                target_value={goal.target_value}
+                unit={goal.unit}
+                category={goal.category}
               />
             ))}
           </div>
         )}
       </section>
     </div>
-  );
+  )
 }
