@@ -91,7 +91,7 @@ SunriseApi/packages/
 # =========================
 SunriseApi/.env
 SunriseApi/.env.*
-SunriseApi/Properties/
+SunriseApi/Properties/*
 SunriseApi/appsettings.*.json
 !SunriseApi/appsettings.json
 
