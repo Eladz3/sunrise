@@ -4,14 +4,15 @@
 
 ### Auth / Token Verification
 
-- [ ] **Firebase JWT verification middleware**: All protected REST endpoints must verify the Firebase ID token sent as `Authorization: Bearer <token>`. Install `FirebaseAdmin` NuGet package, initialize `FirebaseApp` with service account credentials, and call `FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token)` in middleware or a filter. Reject requests with missing/invalid tokens with 401.
-- [ ] **Extract `uid` from verified token**: After verification, read `decodedToken.Uid` and attach it to the request context (e.g. `HttpContext.Items["uid"]`) so controllers can identify the caller without trusting client-supplied user IDs.
+- [x] **Firebase JWT verification middleware**: All protected REST endpoints must verify the Firebase ID token sent as `Authorization: Bearer <token>`. Install `FirebaseAdmin` NuGet package, initialize `FirebaseApp` with service account credentials, and call `FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token)` in middleware or a filter. Reject requests with missing/invalid tokens with 401.
+- [x] **`User.FirebaseId` must be `string`, not `int`**: Changed `User.cs`, `CreateNewUserRequest.cs`, `IUsersService`, `UsersService`, and `UsersController` to use `string`. Added migration `20260507000000_FirebaseIdToString` (`nvarchar(128)`).
+- [ ] **Extract `uid` from verified token to enforce user data access**: After verification, read `decodedToken.Uid` and attach it to the request context (e.g. `HttpContext.Items["uid"]`) so controllers can identify the caller without trusting client-supplied user IDs.
 
 ### Critical
 
-- [ ] **Firebase UID → SQL User ID mapping**: Backend uses integer SQL user IDs; frontend identifies users by Firebase UID. Need either a dedicated lookup endpoint (`GET /users/by-firebase-uid/{uid}`) or a user sync endpoint that creates/returns a SQL user record on first sign-in.
+- [x] **Firebase UID → SQL User ID mapping**: `GET /api/users/by-firebase-id/{firebaseId}` exists and now accepts string UIDs. Frontend `getUserByFirebaseUid()` and `syncBackendUser()` provide the mapping layer.
 - [ ] **`GET /goals/by-firebase-uid/{uid}` endpoint missing**: `frontend/src/services/goals.ts` calls this endpoint but it does not exist on the backend. Backend only has `GET /goals-by-user-id/{userId}` (integer ID). This breaks all goal loading.
-- [ ] **User creation on sign-in**: When a Firebase user signs in for the first time, a corresponding SQL user record must be created (or confirmed to exist) before any goal operations can succeed.
+- [x] **User creation on sign-in**: `AuthProvider` calls `syncBackendUser` on every auth state change — GET to check for an existing record, POST to create one if missing. Backend `CreateUserAsync` has idempotent upsert logic.
 
 ### High
 
@@ -37,7 +38,7 @@
 
 ## Real-Time (SignalR)
 
-### Backend — Setup *(prerequisite for all items below)*
+### Backend — Setup _(prerequisite for all items below)_
 
 - [ ] **Add SignalR to the .NET backend**: Install `Microsoft.AspNetCore.SignalR` and register it in `Program.cs` / `Startup.cs`. Map at least one hub endpoint (e.g. `/hubs/goals`).
 
@@ -47,7 +48,7 @@
 - [ ] **`MetricsHub`**: Push live community/group metric updates so progress bars update without polling.
 - [ ] **Auth on hubs**: Validate the Firebase JWT on SignalR connection (same auth middleware as REST endpoints).
 
-### Frontend — Setup *(prerequisite for all items below)*
+### Frontend — Setup _(prerequisite for all items below)_
 
 - [ ] **Add `@microsoft/signalr` client**: Install the npm package and create a singleton connection manager (connect on sign-in, disconnect on sign-out, auto-reconnect on drop).
 
@@ -55,7 +56,7 @@
 
 - [ ] **Live goal list**: Subscribe to `GoalsHub` and update the `useGoals` hook state in real time instead of requiring a manual refresh.
 - [ ] **Live community progress**: Subscribe to `MetricsHub` so `CommunityProgressBar` reflects changes as other users log progress.
-- [ ] **Presence / activity feed** *(stretch)*: Show when group members update goals (e.g. "Alice just hit 50% on Run a 5K").
+- [ ] **Presence / activity feed** _(stretch)_: Show when group members update goals (e.g. "Alice just hit 50% on Run a 5K").
 - [ ] **Connection status indicator**: Display a subtle banner or icon when the SignalR connection is lost or reconnecting.
 
 ---
