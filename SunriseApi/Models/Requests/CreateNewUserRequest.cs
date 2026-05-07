@@ -7,6 +7,6 @@ namespace SunriseApi.Models.Requests
         public string LastName { get; set; } = "";
         public string Email { get; set; } = "";
         public string ProfilePhoto { get; set; } = "";
-        public int FirebaseId { get; set; }
+        public string FirebaseUid { get; set; } = "";
     }
 }
