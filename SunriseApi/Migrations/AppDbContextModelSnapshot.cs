@@ -153,8 +153,9 @@ namespace SunriseApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("FirebaseId")
-                        .HasColumnType("int");
+                    b.Property<string>("FirebaseUid")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()

@@ -22,7 +22,7 @@ namespace SunriseApi.Services
         {
             // 🔍 check if user already exists (important for Firebase login flow)
             var existingUser = await _dbContext.Users
-                .FirstOrDefaultAsync(u => u.FirebaseId == request.FirebaseId);
+                .FirstOrDefaultAsync(u => u.FirebaseUid == request.FirebaseUid);
 
             if (existingUser != null)
                 return existingUser;
@@ -38,13 +38,13 @@ namespace SunriseApi.Services
             return newUser;
         }
 
-        public async Task<User> GetUserByFirebaseIdAsync(int firebaseId)
+        public async Task<User> GetUserByFirebaseIdAsync(string firebaseUid)
         {
             var user = await _dbContext.Users
-                .FirstOrDefaultAsync(u => u.FirebaseId == firebaseId);
+                .FirstOrDefaultAsync(u => u.FirebaseUid == firebaseUid);
 
             if (user == null)
-                throw new InvalidOperationException($"User with FirebaseId {firebaseId} not found.");
+                throw new InvalidOperationException($"User with FirebaseUid {firebaseUid} not found.");
 
             return user;
         }

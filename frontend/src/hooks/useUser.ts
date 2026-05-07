@@ -1,28 +1,21 @@
 /**
  * useUser Hook
  *
- * React hook for managing user profile data.
+ * React hook for fetching the authenticated user's SQL record via the REST API.
  */
 
 import { useState, useEffect } from 'react';
-import type { User } from '@/types';
-import { getUserProfile } from '@/services';
+import { getUserByFirebaseUid, type ApiUser } from '@/services/users';
 
 interface UseUserReturn {
-  profile: User | null;
+  profile: ApiUser | null;
   loading: boolean;
   error: string | null;
   refreshProfile: () => Promise<void>;
 }
 
-/**
- * Hook for accessing user profile
- *
- * @param userId - User's Firebase Auth UID
- * @returns User profile state
- */
 export function useUser(userId: string | null): UseUserReturn {
-  const [profile, setProfile] = useState<User | null>(null);
+  const [profile, setProfile] = useState<ApiUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,7 +29,7 @@ export function useUser(userId: string | null): UseUserReturn {
     try {
       setLoading(true);
       setError(null);
-      const userProfile = await getUserProfile(userId);
+      const userProfile = await getUserByFirebaseUid(userId);
       setProfile(userProfile);
     } catch (err) {
       console.error('Error fetching user profile:', err);

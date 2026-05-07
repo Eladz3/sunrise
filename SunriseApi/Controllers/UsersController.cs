@@ -26,11 +26,11 @@ namespace SunriseApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/users/by-firebase-id/{firebaseId}")]
+        [Route("api/users/by-firebase-id/{firebaseUid}")]
         [ProducesResponseType(typeof(User), 200)]
-        public async Task<IActionResult> GetUserByFirebaseIdAsync(int firebaseId)
+        public async Task<IActionResult> GetUserByFirebaseIdAsync(string firebaseUid)
         {
-            var user = await _usersService.GetUserByFirebaseIdAsync(firebaseId);
+            var user = await _usersService.GetUserByFirebaseIdAsync(firebaseUid);
             return Ok(user);
         }
     }

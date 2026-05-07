@@ -13,6 +13,48 @@ import {
   limit,
 } from './firebase/firestore';
 import { Timestamp } from 'firebase/firestore';
+import { api } from './api';
+
+// Shape returned by the backend UserResponse (SQL user table)
+export interface ApiUser {
+  id: number;
+  displayName: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  profilePhoto: string;
+}
+
+export async function getUserByFirebaseUid(firebaseUid: string): Promise<ApiUser | null> {
+  try {
+    return await api.get<ApiUser>(`/api/users/by-firebase-id/${encodeURIComponent(firebaseUid)}`);
+  } catch (error) {
+    if ((error as Error).message.startsWith('API 404')) return null;
+    throw error;
+  }
+}
+
+// Ensures a SQL user record exists for the given Firebase user, creating one on first sign-in.
+// NOTE: depends on backend migrating User.FirebaseId from int → string (see TODO.md).
+export async function syncBackendUser(firebaseUser: {
+  uid: string;
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
+}): Promise<ApiUser> {
+  const existing = await getUserByFirebaseUid(firebaseUser.uid);
+  if (existing) return existing;
+
+  const nameParts = (firebaseUser.displayName ?? '').trim().split(/\s+/);
+  return api.post<ApiUser>('/api/users', {
+    displayName: firebaseUser.displayName ?? '',
+    firstName: nameParts[0] ?? '',
+    lastName: nameParts.slice(1).join(' '),
+    email: firebaseUser.email ?? '',
+    profilePhoto: firebaseUser.photoURL ?? '',
+    firebaseUid: firebaseUser.uid,
+  });
+}
 import type { User, CreateUser, UpdateUser } from '@/types';
 
 /**

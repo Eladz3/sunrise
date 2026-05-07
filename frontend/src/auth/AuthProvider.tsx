@@ -47,73 +47,110 @@ import {
   useState,
   useCallback,
   type ReactNode,
-} from 'react';
-import { onAuthChange, signInWithGoogle, signOut } from './auth';
-import { syncUser } from '@/services/usersApi';
-import type { User } from 'firebase/auth';
+} from 'react'
+import { onAuthChange, signInWithGoogle, signOut } from './auth'
+import type { User } from 'firebase/auth'
+import { syncBackendUser } from '@/services/users'
 
 interface AuthContextValue {
-  user: User | null;
-  loading: boolean;
-  login: () => Promise<void>;
-  logout: () => Promise<void>;
+  user: User | null
+  loading: boolean
+  login: () => Promise<void>
+  logout: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
 interface AuthProviderProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  // Schedule a token refresh 5 minutes before the token's actual expiry.
+  // Uses getIdTokenResult() to read the real expirationTime rather than assuming a fixed lifetime.
+  // Reschedules itself after each refresh so the timing stays accurate across multiple cycles.
+  useEffect(() => {
+    if (!user) return
+
+    let timeoutId: ReturnType<typeof setTimeout>
+
+    async function scheduleRefresh() {
+      try {
+        const tokenResult = await user!.getIdTokenResult()
+        const expiresAt = new Date(tokenResult.expirationTime).getTime()
+        const delay = Math.max(expiresAt - Date.now() - 5 * 60 * 1000, 0)
+
+        timeoutId = setTimeout(async () => {
+          try {
+            await user!.getIdToken(true)
+            scheduleRefresh()
+          } catch (error) {
+            console.error('[Auth] Token refresh failed:', error)
+          }
+        }, delay)
+      } catch (error) {
+        console.error('[Auth] Failed to schedule token refresh:', error)
+      }
+    }
+
+    scheduleRefresh()
+    return () => clearTimeout(timeoutId)
+  }, [user])
 
   useEffect(() => {
     // IMPORTANT: This is the ONE AND ONLY onAuthStateChanged listener.
     // Do not create additional listeners elsewhere in the app.
-    const unsubscribe = onAuthChange((authUser) => {
+    const unsubscribe = onAuthChange(async (authUser) => {
+      // TEMPORARY: Debug logging for development only
+      // TODO: Remove these logs before production release
       if (import.meta.env.DEV) {
         if (authUser) {
-          console.log('[Auth Debug] User signed in:', { uid: authUser.uid, email: authUser.email });
+          console.log('[Auth Debug] User signed in:', {
+            uid: authUser.uid,
+            email: authUser.email,
+          })
+          // NOTE: Never log tokens or sensitive credentials
         } else {
-          console.log('[Auth Debug] User signed out');
+          console.log('[Auth Debug] User signed out')
         }
       }
 
       if (authUser) {
-        syncUser(
-          authUser.uid,
-          authUser.displayName ?? authUser.email ?? 'Anonymous',
-          authUser.email ?? ''
-        ).catch((err) => console.error('[Auth] Failed to sync user with backend:', err));
+        try {
+          await syncBackendUser(authUser)
+        } catch (error) {
+          console.error('[Auth] Backend user sync failed:', error)
+        }
       }
 
-      setUser(authUser);
-      setLoading(false);
-    });
+      setUser(authUser)
+      setLoading(false)
+    })
 
-    return () => unsubscribe();
-  }, []);
+    return () => unsubscribe()
+  }, [])
 
   const login = useCallback(async () => {
-    await signInWithGoogle();
+    await signInWithGoogle()
     // User state will be updated automatically via onAuthChange
-  }, []);
+  }, [])
 
   const logout = useCallback(async () => {
-    await signOut();
+    await signOut()
     // User state will be updated automatically via onAuthChange
-  }, []);
+  }, [])
 
   const value: AuthContextValue = {
     user,
     loading,
     login,
     logout,
-  };
+  }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 /**
@@ -125,11 +162,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
  * @throws Error if used outside AuthProvider
  */
 export function useAuth(): AuthContextValue {
-  const context = useContext(AuthContext);
+  const context = useContext(AuthContext)
 
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider')
   }
 
-  return context;
+  return context
 }
