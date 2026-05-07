@@ -52,7 +52,7 @@ export async function syncBackendUser(firebaseUser: {
     lastName: nameParts.slice(1).join(' '),
     email: firebaseUser.email ?? '',
     profilePhoto: firebaseUser.photoURL ?? '',
-    firebaseId: firebaseUser.uid,
+    firebaseUid: firebaseUser.uid,
   });
 }
 import type { User, CreateUser, UpdateUser } from '@/types';
