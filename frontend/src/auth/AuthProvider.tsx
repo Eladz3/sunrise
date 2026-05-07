@@ -68,6 +68,37 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Schedule a token refresh 5 minutes before the token's actual expiry.
+  // Uses getIdTokenResult() to read the real expirationTime rather than assuming a fixed lifetime.
+  // Reschedules itself after each refresh so the timing stays accurate across multiple cycles.
+  useEffect(() => {
+    if (!user) return;
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    async function scheduleRefresh() {
+      try {
+        const tokenResult = await user!.getIdTokenResult();
+        const expiresAt = new Date(tokenResult.expirationTime).getTime();
+        const delay = Math.max(expiresAt - Date.now() - 5 * 60 * 1000, 0);
+
+        timeoutId = setTimeout(async () => {
+          try {
+            await user!.getIdToken(true);
+            scheduleRefresh();
+          } catch (error) {
+            console.error('[Auth] Token refresh failed:', error);
+          }
+        }, delay);
+      } catch (error) {
+        console.error('[Auth] Failed to schedule token refresh:', error);
+      }
+    }
+
+    scheduleRefresh();
+    return () => clearTimeout(timeoutId);
+  }, [user]);
+
   useEffect(() => {
     // IMPORTANT: This is the ONE AND ONLY onAuthStateChanged listener.
     // Do not create additional listeners elsewhere in the app.
