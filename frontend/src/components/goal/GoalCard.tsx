@@ -95,12 +95,15 @@ export function GoalCard({
 
   if (onEdit) {
     return (
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={onEdit}
-        className="w-full text-left p-4 bg-white rounded-xl shadow-sm border border-warmGray-100 hover:border-sunrise-200 hover:shadow-md active:bg-warmGray-50 transition-all min-h-[100px]"
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onEdit(); }}
+        className="w-full text-left p-4 bg-white rounded-xl shadow-sm border border-warmGray-100 hover:border-sunrise-200 hover:shadow-md active:bg-warmGray-50 transition-all min-h-[100px] cursor-pointer"
       >
         {cardContent}
-      </button>
+      </div>
     );
   }
 
