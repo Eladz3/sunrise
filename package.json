@@ -6,11 +6,13 @@
     "backend"
   ],
   "scripts": {
-    "start": "wt.exe -w new new-tab --startingDirectory \"%CD%\" cmd /k \"npm run be\" ; new-tab --startingDirectory \"%CD%\" cmd /k \"npm run fe\"",
-    "fe": "npm run dev --workspace=frontend",
-    "be": "dotnet run --project ./SunriseApi/SunriseApi.csproj",
+    "start": "npm run dev --workspace=frontend",
+    "backend": "dotnet run --project ./SunriseApi/SunriseApi.csproj",
     "build": "npm run build --workspace=frontend",
-    "db:migrate:local": "cd SunriseApi && set ASPNETCORE_ENVIRONMENT=Local&& dotnet ef database update",
-    "db:migrate:dev": "cd SunriseApi && set ASPNETCORE_ENVIRONMENT=Development&& dotnet ef database update"
+    "update-db-local": "cross-env ASPNETCORE_ENVIRONMENT=Local dotnet ef database update --project SunriseApi/SunriseApi.csproj",
+    "update-db-dev": "cross-env ASPNETCORE_ENVIRONMENT=Development dotnet ef database update --project SunriseApi/SunriseApi.csproj"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0"
   }
 }
