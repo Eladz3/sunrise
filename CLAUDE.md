@@ -175,15 +175,22 @@ npm run dev
 ### Frontend → Backend service map
 | Frontend service | File | Backend endpoint |
 |-----------------|------|-----------------|
-| `getUserGoals` | `services/goals.ts` | `GET /goals/by-firebase-uid/{uid}` |
-| `getAllGoals` | `services/goals.ts` | `GET /goals` |
+| `getUserByFirebaseUid` | `services/users.ts` | `GET /api/users/by-firebase-id/{uid}` |
+| `syncBackendUser` | `services/users.ts` | `POST /api/users` (idempotent) |
+| `getUserGoals` | `services/goals.ts` | `GET /goals-by-user-id/{sqlUserId}` |
+| `getAllGoals` | `services/goals.ts` | `GET /goals` *(backend endpoint not yet implemented)* |
 | `createGoal` | `services/goals.ts` | `POST /goals` |
 | `updateGoal` | `services/goals.ts` | `PUT /goals/{id}` |
-| `syncUser` | `services/usersApi.ts` | `POST /users/sync` |
+| `deleteGoal` | `services/goals.ts` | `DELETE /goals/{id}` |
+| `getUserMetrics` | `services/metricsApi.ts` | `GET /metrics/by-user-id/{sqlUserId}` |
+
+### Auth → SQL user ID bridge
+`AuthProvider` calls `syncBackendUser` on every sign-in. The returned `ApiUser.id` (SQL integer) is stored as `sqlUserId` in auth context and exposed via `useAuth()`. All goal and metrics calls use this integer, not the Firebase UID string.
 
 ### Hooks consuming the API
-- `useGoals(userId)` — personal goals CRUD (`hooks/useGoals.ts`)
-- `useCommunityGoals()` — all goals for the community page (`hooks/useCommunityGoals.ts`)
+- `useGoals(sqlUserId)` — personal goals CRUD with optimistic updates (`hooks/useGoals.ts`)
+- `useUserMetrics(sqlUserId)` — fetches `progressPercentage` for the header bar (`hooks/useUserMetrics.ts`)
+- `useCommunityGoals()` — calls `GET /goals` which is not yet implemented on the backend
 
 ---
 

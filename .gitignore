@@ -36,6 +36,7 @@ backend/dist
 *.njsproj
 *.sln
 *.sw?
+.ideation/
 
 # Build
 coverage

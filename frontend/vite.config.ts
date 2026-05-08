@@ -12,6 +12,13 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    proxy: {
+      '/api': 'http://localhost:5000',
+      '/goals': 'http://localhost:5000',
+      '/metrics': 'http://localhost:5000',
+      '/groups': 'http://localhost:5000',
+      '/health': 'http://localhost:5000',
+    },
   },
   build: {
     outDir: 'dist',

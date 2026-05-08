@@ -17,6 +17,7 @@ interface GoalCardProps {
   unit: string;
   category: GoalCategory;
   onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 const categoryColors: Record<GoalCategory, { bg: string; text: string }> = {
@@ -39,6 +40,7 @@ export function GoalCard({
   unit,
   category,
   onEdit,
+  onDelete,
 }: GoalCardProps) {
   const progress = target_value > 0 ? (current_value / target_value) * 100 : 0;
   const progressClamped = Math.min(100, Math.max(0, progress));
@@ -73,9 +75,20 @@ export function GoalCard({
         <p className="text-sm text-gray-600">
           {current_value.toLocaleString()} / {target_value.toLocaleString()} {unit}
         </p>
-        <p className={`text-sm font-medium ${isComplete ? 'text-green-600' : 'text-gray-500'}`}>
-          {Math.round(progressClamped)}%
-        </p>
+        <div className="flex items-center gap-2">
+          <p className={`text-sm font-medium ${isComplete ? 'text-green-600' : 'text-gray-500'}`}>
+            {Math.round(progressClamped)}%
+          </p>
+          {onDelete && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              className="text-gray-300 hover:text-red-400 transition-colors"
+              aria-label="Delete goal"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
     </>
   );

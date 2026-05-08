@@ -17,7 +17,7 @@ export interface Goal extends GoalDocument {
   id: string;
 }
 
-// Shape returned by the backend GoalResponse DTO
+// Shape returned by the backend Goal entity
 interface ApiGoal {
   id: number;
   title: string;
@@ -27,7 +27,6 @@ interface ApiGoal {
   currentValue: number;
   unit: string;
   userId: number;
-  userName: string;
   year: number;
 }
 
@@ -41,13 +40,13 @@ function mapApiGoal(g: ApiGoal): Goal {
     current_value: g.currentValue,
     unit: g.unit,
     user_id: String(g.userId),
-    user_name: g.userName,
+    user_name: '',
     user_email: '',
   };
 }
 
-export async function getUserGoals(firebaseUid: string): Promise<Goal[]> {
-  const goals = await api.get<ApiGoal[]>(`/goals/by-firebase-uid/${encodeURIComponent(firebaseUid)}`);
+export async function getUserGoals(sqlUserId: number): Promise<Goal[]> {
+  const goals = await api.get<ApiGoal[]>(`/goals-by-user-id/${sqlUserId}`);
   return goals.map(mapApiGoal);
 }
 
@@ -67,7 +66,7 @@ export async function createGoal(
     currentValue: data.current_value ?? 0,
     unit: data.unit,
     year: new Date().getFullYear(),
-    firebaseUid: data.user_id,
+    userId: Number(data.user_id),
   };
   const created = await api.post<ApiGoal>('/goals', body);
   return String(created.id);
@@ -85,4 +84,8 @@ export async function updateGoal(
   if (data.current_value !== undefined) body.currentValue = data.current_value;
   if (data.unit !== undefined) body.unit = data.unit;
   await api.put(`/goals/${goalId}`, body);
+}
+
+export async function deleteGoal(goalId: string): Promise<void> {
+  await api.delete(`/goals/${goalId}`);
 }

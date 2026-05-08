@@ -1,4 +1,6 @@
-type Tab = 'home' | 'goals';
+import { useAuth } from '@/hooks/useAuth';
+
+type Tab = 'home' | 'goals' | 'settings';
 
 interface BottomTabNavProps {
   activeTab: Tab;
@@ -6,6 +8,8 @@ interface BottomTabNavProps {
 }
 
 export function BottomTabNav({ activeTab, onTabChange }: BottomTabNavProps) {
+  const { user } = useAuth();
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-area-pb">
       <div className="flex">
@@ -54,6 +58,40 @@ export function BottomTabNav({ activeTab, onTabChange }: BottomTabNavProps) {
             />
           </svg>
           My Goals
+        </button>
+        <button
+          onClick={() => onTabChange('settings')}
+          className={`flex-1 flex flex-col items-center justify-center min-h-[56px] py-2 text-sm font-medium transition-colors ${
+            activeTab === 'settings'
+              ? 'text-sunrise-600 border-t-2 border-sunrise-500 bg-sunrise-50'
+              : 'text-warmGray-500 hover:text-warmGray-700 hover:bg-warmGray-50 active:bg-warmGray-100'
+          }`}
+        >
+          {user?.photoURL ? (
+            <img
+              src={user.photoURL}
+              alt="Profile"
+              referrerPolicy="no-referrer"
+              className={`w-6 h-6 mb-1 rounded-full object-cover ${
+                activeTab === 'settings' ? 'ring-2 ring-sunrise-500' : ''
+              }`}
+            />
+          ) : (
+            <svg
+              className="w-6 h-6 mb-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+          )}
+          Profile
         </button>
       </div>
     </nav>

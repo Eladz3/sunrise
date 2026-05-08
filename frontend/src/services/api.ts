@@ -1,6 +1,6 @@
 import { getIdToken } from '@/auth/auth';
 
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? 'http://localhost:5000';
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '';
 
 async function getAuthHeaders(forceRefresh = false): Promise<HeadersInit> {
   const token = await getIdToken(forceRefresh);

@@ -3,6 +3,7 @@ import {
   getUserGoals,
   createGoal,
   updateGoal,
+  deleteGoal,
   type Goal,
   type GoalDocument,
 } from '@/services/goals';
@@ -13,16 +14,17 @@ interface UseGoalsResult {
   error: string | null;
   addGoal: (data: Omit<GoalDocument, 'current_value' | 'user_id'>) => Promise<void>;
   editGoal: (id: string, data: Partial<GoalDocument>) => Promise<void>;
+  removeGoal: (id: string) => Promise<void>;
   refreshGoals: () => Promise<void>;
 }
 
-export function useGoals(userId: string | null): UseGoalsResult {
+export function useGoals(sqlUserId: number | null): UseGoalsResult {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchGoals = useCallback(async () => {
-    if (!userId) {
+    if (!sqlUserId) {
       setGoals([]);
       setLoading(false);
       return;
@@ -31,7 +33,7 @@ export function useGoals(userId: string | null): UseGoalsResult {
     try {
       setLoading(true);
       setError(null);
-      const data = await getUserGoals(userId);
+      const data = await getUserGoals(sqlUserId);
       setGoals(data);
     } catch (err) {
       setError('Failed to fetch goals');
@@ -39,7 +41,7 @@ export function useGoals(userId: string | null): UseGoalsResult {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [sqlUserId]);
 
   useEffect(() => {
     fetchGoals();
@@ -47,18 +49,18 @@ export function useGoals(userId: string | null): UseGoalsResult {
 
   const addGoal = useCallback(
     async (data: Omit<GoalDocument, 'current_value' | 'user_id'>) => {
-      if (!userId) return;
+      if (!sqlUserId) return;
 
       const optimisticGoal: Goal = {
         id: `temp-${Date.now()}`,
         ...data,
-        user_id: userId,
+        user_id: String(sqlUserId),
         current_value: 0,
       };
       setGoals((prev) => [...prev, optimisticGoal]);
 
       try {
-        const newId = await createGoal({ ...data, user_id: userId });
+        const newId = await createGoal({ ...data, user_id: String(sqlUserId) });
         setGoals((prev) =>
           prev.map((g) => (g.id === optimisticGoal.id ? { ...g, id: newId } : g))
         );
@@ -68,7 +70,7 @@ export function useGoals(userId: string | null): UseGoalsResult {
         console.error('Error creating goal:', err);
       }
     },
-    [userId]
+    [sqlUserId]
   );
 
   const editGoal = useCallback(
@@ -89,12 +91,29 @@ export function useGoals(userId: string | null): UseGoalsResult {
     [goals]
   );
 
+  const removeGoal = useCallback(
+    async (id: string) => {
+      const originalGoals = goals;
+      setGoals((prev) => prev.filter((g) => g.id !== id));
+
+      try {
+        await deleteGoal(id);
+      } catch (err) {
+        setGoals(originalGoals);
+        setError('Failed to delete goal');
+        console.error('Error deleting goal:', err);
+      }
+    },
+    [goals]
+  );
+
   return {
     goals,
     loading,
     error,
     addGoal,
     editGoal,
+    removeGoal,
     refreshGoals: fetchGoals,
   };
 }

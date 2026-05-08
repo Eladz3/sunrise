@@ -54,6 +54,7 @@ import { syncBackendUser } from '@/services/users'
 
 interface AuthContextValue {
   user: User | null
+  sqlUserId: number | null
   loading: boolean
   login: () => Promise<void>
   logout: () => Promise<void>
@@ -67,6 +68,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null)
+  const [sqlUserId, setSqlUserId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
 
   // Schedule a token refresh 5 minutes before the token's actual expiry.
@@ -120,10 +122,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (authUser) {
         try {
-          await syncBackendUser(authUser)
+          const apiUser = await syncBackendUser(authUser)
+          setSqlUserId(apiUser.id)
         } catch (error) {
           console.error('[Auth] Backend user sync failed:', error)
+          setSqlUserId(null)
         }
+      } else {
+        setSqlUserId(null)
       }
 
       setUser(authUser)
@@ -145,6 +151,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const value: AuthContextValue = {
     user,
+    sqlUserId,
     loading,
     login,
     logout,

@@ -28,9 +28,9 @@ export interface ApiUser {
 export async function getUserByFirebaseUid(firebaseUid: string): Promise<ApiUser | null> {
   try {
     return await api.get<ApiUser>(`/api/users/by-firebase-id/${encodeURIComponent(firebaseUid)}`);
-  } catch (error) {
-    if ((error as Error).message.startsWith('API 404')) return null;
-    throw error;
+  } catch {
+    // Backend returns 500 (not 404) when user doesn't exist yet; POST /api/users is idempotent
+    return null;
   }
 }
 

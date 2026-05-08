@@ -1,10 +1,3 @@
-/**
- * My Goals Page
- *
- * User's personal goals view with ability to add and edit goals.
- * Connected to Firestore with optimistic UI updates.
- */
-
 import { useState } from 'react'
 import { GoalCard, Spinner } from '@/components'
 import {
@@ -13,30 +6,20 @@ import {
 } from '@/components/goal/GoalFormModal'
 import { useAuth } from '@/hooks/useAuth'
 import { useGoals } from '@/hooks/useGoals'
+import { useUserMetrics } from '@/hooks/useUserMetrics'
 
 export function MyGoalsPage() {
-  const { user } = useAuth()
-  const { goals, loading, error, addGoal, editGoal } = useGoals(
-    user?.uid ?? null
-  )
+  const { user, sqlUserId } = useAuth()
+  const { goals, loading, error, addGoal, editGoal, removeGoal } = useGoals(sqlUserId)
+  const { progressPercentage } = useUserMetrics(sqlUserId)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingGoalId, setEditingGoalId] = useState<string | null>(null)
 
-  // Get the goal being edited
-  const editingGoal = editingGoalId
-    ? goals.find((r) => r.id === editingGoalId)
-    : null
-
-  // Calculate user's overall progress
-  const totalTarget = goals.reduce((sum, r) => sum + r.target_value, 0)
-  const totalCurrent = goals.reduce((sum, r) => sum + r.current_value, 0)
-  const overallProgress =
-    totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0
+  const editingGoal = editingGoalId ? goals.find((r) => r.id === editingGoalId) : null
 
   const handleAddGoal = async (data: GoalFormData) => {
     if (!user) return
-
     await addGoal({
       title: data.title,
       description: data.description,
@@ -50,7 +33,6 @@ export function MyGoalsPage() {
 
   const handleEditGoal = async (data: GoalFormData) => {
     if (!editingGoalId) return
-
     await editGoal(editingGoalId, {
       title: data.title,
       description: data.description,
@@ -83,7 +65,6 @@ export function MyGoalsPage() {
     setEditingGoalId(null)
   }
 
-  // Convert goal to form data for editing
   const getInitialFormData = (): GoalFormData | undefined => {
     if (!editingGoal) return undefined
     return {
@@ -108,22 +89,18 @@ export function MyGoalsPage() {
       {/* Header */}
       <header className="rounded-2xl bg-gradient-to-br from-sunrise-500 via-dawn-500 to-rose-500 p-6 text-white shadow-lg">
         <h1 className="mb-1 text-2xl font-bold">My Goals</h1>
-        <p className="mb-4 text-sm text-sunrise-100">
-          Your path to a brighter you
-        </p>
+        <p className="mb-4 text-sm text-sunrise-100">Your path to a brighter you</p>
 
         {/* Overall Progress Bar */}
         <div>
           <div className="mb-2 flex justify-between text-sm">
             <span className="text-sunrise-100">Overall Progress</span>
-            <span className="font-semibold">
-              {Math.round(overallProgress)}%
-            </span>
+            <span className="font-semibold">{Math.round(progressPercentage)}%</span>
           </div>
           <div className="h-3 w-full rounded-full bg-white/30">
             <div
               className="h-3 rounded-full bg-white transition-all duration-500"
-              style={{ width: `${Math.min(100, overallProgress)}%` }}
+              style={{ width: `${Math.min(100, progressPercentage)}%` }}
             />
           </div>
         </div>
@@ -175,6 +152,7 @@ export function MyGoalsPage() {
                 unit={goal.unit}
                 category={goal.category}
                 onEdit={() => openEditModal(goal.id)}
+                onDelete={() => removeGoal(goal.id)}
               />
             ))}
           </div>
@@ -190,7 +168,6 @@ export function MyGoalsPage() {
         +
       </button>
 
-      {/* Goal Form Modal (Add/Edit) */}
       <GoalFormModal
         isOpen={isModalOpen}
         onClose={closeModal}
