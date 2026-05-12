@@ -1,21 +1,16 @@
-/**
- * useUser Hook
- *
- * React hook for fetching the authenticated user's SQL record via the REST API.
- */
-
 import { useState, useEffect } from 'react';
-import { getUserByFirebaseUid, type ApiUser } from '@/services/users';
+import { getUserByFirebaseUid } from '@/services/users';
+import type { User } from '@/types/user.types';
 
 interface UseUserReturn {
-  profile: ApiUser | null;
+  profile: User | null;
   loading: boolean;
   error: string | null;
   refreshProfile: () => Promise<void>;
 }
 
 export function useUser(userId: string | null): UseUserReturn {
-  const [profile, setProfile] = useState<ApiUser | null>(null);
+  const [profile, setProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

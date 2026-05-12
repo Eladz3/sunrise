@@ -1,9 +1,3 @@
-/**
- * User Service
- *
- * Firestore operations for user profiles and management.
- */
-
 import {
   getDocument,
   setDocument,
@@ -14,20 +8,14 @@ import {
 } from './firebase/firestore';
 import { Timestamp } from 'firebase/firestore';
 import { api } from './api';
+import type { User } from '@/types/user.types';
+import type { User as FirestoreUser, CreateUser, UpdateUser } from '@/types/models';
 
-// Shape returned by the backend UserResponse (SQL user table)
-export interface ApiUser {
-  id: number;
-  displayName: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  profilePhoto: string;
-}
+// --- REST API (SQL backend) ---
 
-export async function getUserByFirebaseUid(firebaseUid: string): Promise<ApiUser | null> {
+export async function getUserByFirebaseUid(firebaseUid: string): Promise<User | null> {
   try {
-    return await api.get<ApiUser>(`/api/users/by-firebase-id/${encodeURIComponent(firebaseUid)}`);
+    return await api.get<User>(`/api/users/by-firebase-id/${encodeURIComponent(firebaseUid)}`);
   } catch (error) {
     if ((error as Error).message.startsWith('API 404')) return null;
     throw error;
@@ -41,12 +29,12 @@ export async function syncBackendUser(firebaseUser: {
   displayName: string | null;
   email: string | null;
   photoURL: string | null;
-}): Promise<ApiUser> {
+}): Promise<User> {
   const existing = await getUserByFirebaseUid(firebaseUser.uid);
   if (existing) return existing;
 
   const nameParts = (firebaseUser.displayName ?? '').trim().split(/\s+/);
-  return api.post<ApiUser>('/api/users', {
+  return api.post<User>('/api/users', {
     displayName: firebaseUser.displayName ?? '',
     firstName: nameParts[0] ?? '',
     lastName: nameParts.slice(1).join(' '),
@@ -55,30 +43,18 @@ export async function syncBackendUser(firebaseUser: {
     firebaseUid: firebaseUser.uid,
   });
 }
-import type { User, CreateUser, UpdateUser } from '@/types';
 
-/**
- * Get user profile by ID
- *
- * @param userId - User's Firebase Auth UID
- * @returns User profile or null if not found
- */
-export async function getUserProfile(userId: string): Promise<User | null> {
+// --- Firestore ---
+
+export async function getUserProfile(userId: string): Promise<FirestoreUser | null> {
   try {
-    return await getDocument<User>('users', userId);
+    return await getDocument<FirestoreUser>('users', userId);
   } catch (error) {
     console.error('Error getting user profile:', error);
     throw new Error(`Failed to get user profile: ${(error as Error).message}`);
   }
 }
 
-/**
- * Create a new user profile
- *
- * @param userId - User's Firebase Auth UID
- * @param userData - User data (without id, createdAt, updatedAt)
- * @returns void
- */
 export async function createUserProfile(
   userId: string,
   userData: CreateUser
@@ -91,13 +67,6 @@ export async function createUserProfile(
   }
 }
 
-/**
- * Update user profile
- *
- * @param userId - User's Firebase Auth UID
- * @param updates - Partial user data to update
- * @returns void
- */
 export async function updateUserProfile(
   userId: string,
   updates: UpdateUser
@@ -110,84 +79,45 @@ export async function updateUserProfile(
   }
 }
 
-/**
- * Increment user's goal count
- *
- * @param userId - User's Firebase Auth UID
- * @returns void
- */
 export async function incrementGoalCount(userId: string): Promise<void> {
   try {
     const user = await getUserProfile(userId);
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    await updateUserProfile(userId, {
-      goalsCount: user.goalsCount + 1,
-    });
+    if (!user) throw new Error('User not found');
+    await updateUserProfile(userId, { goalsCount: user.goalsCount + 1 });
   } catch (error) {
     console.error('Error incrementing goal count:', error);
     throw new Error(`Failed to increment goal count: ${(error as Error).message}`);
   }
 }
 
-/**
- * Decrement user's goal count
- *
- * @param userId - User's Firebase Auth UID
- * @returns void
- */
 export async function decrementGoalCount(userId: string): Promise<void> {
   try {
     const user = await getUserProfile(userId);
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    await updateUserProfile(userId, {
-      goalsCount: Math.max(0, user.goalsCount - 1),
-    });
+    if (!user) throw new Error('User not found');
+    await updateUserProfile(userId, { goalsCount: Math.max(0, user.goalsCount - 1) });
   } catch (error) {
     console.error('Error decrementing goal count:', error);
     throw new Error(`Failed to decrement goal count: ${(error as Error).message}`);
   }
 }
 
-/**
- * Update user streak after completing a goal
- *
- * @param userId - User's Firebase Auth UID
- * @returns Updated streak value
- */
 export async function updateUserStreak(userId: string): Promise<number> {
   try {
     const user = await getUserProfile(userId);
-    if (!user) {
-      throw new Error('User not found');
-    }
+    if (!user) throw new Error('User not found');
 
     const now = new Date();
     const lastCompletion = user.lastCompletionDate?.toDate();
-
     let newStreak = user.currentStreak;
 
     if (!lastCompletion) {
-      // First goal completion
       newStreak = 1;
     } else {
       const daysDiff = Math.floor(
         (now.getTime() - lastCompletion.getTime()) / (1000 * 60 * 60 * 24)
       );
-
-      if (daysDiff === 1) {
-        // Consecutive day - increment streak
-        newStreak = user.currentStreak + 1;
-      } else if (daysDiff > 1) {
-        // Streak broken - reset to 1
-        newStreak = 1;
-      }
-      // daysDiff === 0 means same day - keep current streak
+      if (daysDiff === 1) newStreak = user.currentStreak + 1;
+      else if (daysDiff > 1) newStreak = 1;
     }
 
     const updates: UpdateUser = {
@@ -198,7 +128,6 @@ export async function updateUserStreak(userId: string): Promise<number> {
     };
 
     await updateUserProfile(userId, updates);
-
     return newStreak;
   } catch (error) {
     console.error('Error updating user streak:', error);
@@ -206,15 +135,9 @@ export async function updateUserStreak(userId: string): Promise<number> {
   }
 }
 
-/**
- * Get users with highest streaks (leaderboard)
- *
- * @param limitCount - Number of users to return
- * @returns Array of users sorted by streak
- */
-export async function getTopStreakUsers(limitCount: number = 10): Promise<User[]> {
+export async function getTopStreakUsers(limitCount: number = 10): Promise<FirestoreUser[]> {
   try {
-    return await getDocuments<User>(
+    return await getDocuments<FirestoreUser>(
       'users',
       orderBy('currentStreak', 'desc'),
       limit(limitCount)
@@ -225,15 +148,9 @@ export async function getTopStreakUsers(limitCount: number = 10): Promise<User[]
   }
 }
 
-/**
- * Get users with most completed goals (leaderboard)
- *
- * @param limitCount - Number of users to return
- * @returns Array of users sorted by completed goals
- */
-export async function getTopCompletedGoalsUsers(limitCount: number = 10): Promise<User[]> {
+export async function getTopCompletedGoalsUsers(limitCount: number = 10): Promise<FirestoreUser[]> {
   try {
-    return await getDocuments<User>(
+    return await getDocuments<FirestoreUser>(
       'users',
       orderBy('goalsCompletedCount', 'desc'),
       limit(limitCount)
@@ -244,14 +161,6 @@ export async function getTopCompletedGoalsUsers(limitCount: number = 10): Promis
   }
 }
 
-/**
- * Update user's Google access token
- *
- * @param userId - User's Firebase Auth UID
- * @param accessToken - Google OAuth access token
- * @param expiresIn - Token expiry time in seconds
- * @returns void
- */
 export async function updateGoogleAccessToken(
   userId: string,
   accessToken: string,
@@ -259,7 +168,6 @@ export async function updateGoogleAccessToken(
 ): Promise<void> {
   try {
     const expiryDate = new Date(Date.now() + expiresIn * 1000);
-
     await updateUserProfile(userId, {
       googleAccessToken: accessToken,
       tokenExpiresAt: Timestamp.fromDate(expiryDate),
@@ -271,12 +179,6 @@ export async function updateGoogleAccessToken(
   }
 }
 
-/**
- * Check if user exists
- *
- * @param userId - User's Firebase Auth UID
- * @returns true if user exists, false otherwise
- */
 export async function userExists(userId: string): Promise<boolean> {
   try {
     const user = await getUserProfile(userId);
