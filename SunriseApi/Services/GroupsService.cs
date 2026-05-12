@@ -22,7 +22,12 @@ namespace SunriseApi.Services
         {
             var userGroups = await _dbContext.UserGroups.Where(ug => ug.UserId == userId).ToListAsync();
             var groupIds = userGroups.Select(ug => ug.GroupId);
-            var groups = await _dbContext.Groups.Where(g => groupIds.Contains(g.Id)).ToListAsync();
+            
+            var groups = await _dbContext.Groups
+                .Include(g => g.UserGroups)
+                .ThenInclude(ug => ug.User)
+                .Where(g => groupIds.Contains(g.Id))
+                .ToListAsync();
 
             return groups;
         }
