@@ -93,15 +93,18 @@ export function MyGoalsPage() {
         <h2 className="px-1 text-lg font-semibold text-gray-800">Your Goals ({goals.length})</h2>
 
         {goals.length === 0 ? (
-          <div className="rounded-xl bg-white p-8 text-center shadow-sm">
+          <button
+            onClick={() => { setEditingGoalId(null); setIsModalOpen(true); }}
+            className="w-full rounded-xl bg-white p-8 text-center shadow-sm transition-all hover:bg-sunrise-50 hover:shadow-md active:scale-95"
+          >
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sunrise-50">
               <svg className="h-8 w-8 text-sunrise-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </div>
             <p className="mb-1 font-medium text-warmGray-700">No goals yet</p>
-            <p className="text-sm text-warmGray-500">Tap the + button to add your first goal!</p>
-          </div>
+            <p className="text-sm text-warmGray-500">Tap here to add your first goal!</p>
+          </button>
         ) : (
           <div className="space-y-3">
             {goals.map((goal) => (
