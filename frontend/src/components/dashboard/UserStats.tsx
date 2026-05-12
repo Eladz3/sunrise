@@ -1,29 +1,24 @@
-/**
- * UserStats Component
- *
- * Displays user statistics on the dashboard.
- */
+import { useAuthStore } from '@/stores/authStore';
+import { useUserGoals } from '@/hooks/useUserGoals';
+import { useUserMetrics } from '@/hooks/useUserMetrics';
 
-import type { User, Goal } from '@/types';
-import { filterActiveGoals, calculateCompletionRate } from '@/utils';
+export function UserStats() {
+  const currentUserId = useAuthStore((state) => state.currentUserId);
+  const goals = useUserGoals(currentUserId ?? 0);
+  const metrics = useUserMetrics(currentUserId ?? 0);
 
-interface UserStatsProps {
-  user: User;
-  goals: Goal[];
-}
+  const activeGoals = goals.filter((g) => !g.completedOn);
+  const completedGoals = goals.filter((g) => !!g.completedOn);
 
-export function UserStats({ user, goals }: UserStatsProps) {
-  const activeGoals = filterActiveGoals(goals);
-  const completionRate = calculateCompletionRate(goals);
+  const totalTarget = goals.reduce((sum, g) => sum + g.targetValue, 0);
+  const totalCurrent = goals.reduce((sum, g) => sum + g.currentValue, 0);
+  const overallProgress = totalTarget > 0 ? Math.round((totalCurrent / totalTarget) * 100) : 0;
+
+  const completionRate =
+    metrics?.progressPercentage ??
+    (goals.length > 0 ? Math.round((completedGoals.length / goals.length) * 100) : 0);
 
   const stats = [
-    {
-      label: 'Current Streak',
-      value: `${user.currentStreak}`,
-      subtext: 'days',
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50',
-    },
     {
       label: 'Active Goals',
       value: `${activeGoals.length}`,
@@ -33,15 +28,22 @@ export function UserStats({ user, goals }: UserStatsProps) {
     },
     {
       label: 'Completed',
-      value: `${user.goalsCompletedCount}`,
+      value: `${metrics?.completedGoalsCount ?? completedGoals.length}`,
       subtext: 'all time',
       color: 'text-green-600',
       bgColor: 'bg-green-50',
     },
     {
+      label: 'Overall Progress',
+      value: `${overallProgress}%`,
+      subtext: `${totalCurrent.toLocaleString()} / ${totalTarget.toLocaleString()} total`,
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+    },
+    {
       label: 'Completion Rate',
-      value: `${completionRate.toFixed(0)}%`,
-      subtext: 'success rate',
+      value: `${completionRate}%`,
+      subtext: 'goals finished',
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
     },

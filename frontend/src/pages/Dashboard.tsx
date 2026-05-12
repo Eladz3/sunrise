@@ -103,7 +103,7 @@ export default function Dashboard() {
 
         {/* User Stats */}
         <div className="mb-8">
-          <UserStats user={profile} goals={goals} />
+          <UserStats />
         </div>
 
         {/* Error Message */}
