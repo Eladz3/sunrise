@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { getUserMetrics, getGroupMetrics, getGlobalMetrics } from '@/api/metrics.api';
 import { isCacheStale } from '@/utils/cache';
-import type { GoalMetrics } from '@/types/metrics.types';
+import type { GoalMetrics } from '@/types';
 
 type MetricsStore = {
   userMetricsByUserId: Record<number, GoalMetrics>;

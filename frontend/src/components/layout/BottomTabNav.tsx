@@ -1,6 +1,5 @@
 import { useAuth } from '@/hooks/useAuth';
-
-type Tab = 'home' | 'goals' | 'profile';
+import type { Tab } from '@/types';
 
 interface BottomTabNavProps {
   activeTab: Tab;

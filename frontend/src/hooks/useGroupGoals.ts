@@ -1,5 +1,5 @@
 import { useGoalStore } from '@/stores/goalStore';
-import type { Goal } from '@/types/goal.types';
+import type { Goal } from '@/types';
 
 export const useGroupGoals = (groupId: number): Goal[] => {
   return useGoalStore((state) =>

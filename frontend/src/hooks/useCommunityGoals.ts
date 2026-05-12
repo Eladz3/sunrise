@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getAllGoals } from '@/api/goals.api';
-import type { Goal } from '@/types/goal.types';
+import type { Goal } from '@/types';
 
 interface UseCommunityGoalsResult {
   goals: Goal[];

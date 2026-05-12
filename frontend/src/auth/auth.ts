@@ -14,7 +14,7 @@ import {
   type UserCredential,
 } from 'firebase/auth';
 import { auth } from './firebase';
-import type { AuthUser, FirebaseError } from '@/types/firebase';
+import type { AuthUser, FirebaseError } from '@/types';
 
 /**
  * Google OAuth Provider Configuration

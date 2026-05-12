@@ -1,3 +1,5 @@
+export type Tab = 'home' | 'goals' | 'profile';
+
 export type BaseEntity = {
   createdOn: string;
   createdBy: number;

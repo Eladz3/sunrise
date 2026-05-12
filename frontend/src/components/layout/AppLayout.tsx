@@ -3,8 +3,7 @@ import { BottomTabNav } from './BottomTabNav';
 import { HomePage } from '@/pages/HomePage';
 import { MyGoalsPage } from '@/pages/MyGoalsPage';
 import { ProfilePage } from '@/pages/ProfilePage';
-
-type Tab = 'home' | 'goals' | 'profile';
+import type { Tab } from '@/types';
 
 export function AppLayout() {
   const [activeTab, setActiveTab] = useState<Tab>('home');
