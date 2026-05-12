@@ -107,7 +107,7 @@ export const useGoalStore = create<GoalStore>()(
           }));
 
           try {
-            const created = await apiCreateGoal({ ...goalData, firebaseUid });
+            const created = await apiCreateGoal({ ...goalData, userId, firebaseUid });
 
             set((state) => {
               const { [tempId]: _, ...rest } = state.goalsById;
