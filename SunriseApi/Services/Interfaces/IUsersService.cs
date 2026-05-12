@@ -7,5 +7,6 @@ namespace SunriseApi.Services.Interfaces
     {
         Task<User> CreateUserAsync(CreateNewUserRequest request);
         Task<User> GetUserByFirebaseIdAsync(string firebaseUid);
+        Task<User> UpdateUserAsync(int userId, UpdateUserRequest request);
     }
 }

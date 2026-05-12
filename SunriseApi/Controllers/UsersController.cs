@@ -33,5 +33,14 @@ namespace SunriseApi.Controllers
             var user = await _usersService.GetUserByFirebaseIdAsync(firebaseUid);
             return Ok(user);
         }
+
+        [HttpPatch]
+        [Route("api/users/{userId}")]
+        [ProducesResponseType(typeof(User), 200)]
+        public async Task<IActionResult> UpdateUserAsync(int userId, [FromBody] UpdateUserRequest request)
+        {
+            var user = await _usersService.UpdateUserAsync(userId, request);
+            return Ok(user);
+        }
     }
 }
