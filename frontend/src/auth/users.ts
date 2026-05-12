@@ -15,7 +15,7 @@ export async function syncBackendUser(firebaseUser: { uid: string; displayName: 
   const existing = await getUserByFirebaseUid(firebaseUser.uid)
 
   if (existing) {
-    return client.patch<User>(`/api/users/${existing.id}`, {
+    return client.put<User>(`/api/users/${existing.id}`, {
       displayName: firebaseUser.displayName ?? '',
       profilePhoto: firebaseUser.photoURL ?? '',
       email: firebaseUser.email ?? '',

@@ -34,7 +34,7 @@ namespace SunriseApi.Controllers
             return Ok(user);
         }
 
-        [HttpPatch]
+        [HttpPut]
         [Route("{userId}")]
         [ProducesResponseType(typeof(User), 200)]
         public async Task<IActionResult> UpdateUserAsync(int userId, [FromBody] UpdateUserRequest request)

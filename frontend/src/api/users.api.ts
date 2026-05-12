@@ -15,4 +15,4 @@ export const createUser = (body: CreateUserRequest) => client.post<User>('/api/u
 
 export const getUserById = (userId: number) => client.get<User>(`/api/users/${userId}`)
 
-export const updateUser = (userId: number, body: UpdateUserRequest) => client.patch<User>(`/api/users/${userId}`, body)
+export const updateUser = (userId: number, body: UpdateUserRequest) => client.put<User>(`/api/users/${userId}`, body)
