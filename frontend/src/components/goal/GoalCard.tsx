@@ -2,9 +2,9 @@ import { GoalCategory } from '@/constants/goal-category.constants';
 
 interface GoalCardProps {
   title: string;
-  user_name?: string;
-  current_value: number;
-  target_value: number;
+  userName?: string;
+  currentValue: number;
+  targetValue: number;
   unit: string;
   category: GoalCategory;
   onEdit?: () => void;
@@ -22,16 +22,8 @@ const categoryColors: Record<GoalCategory, { bg: string; text: string }> = {
   [GoalCategory.Other]: { bg: 'bg-gray-100', text: 'text-gray-700' },
 };
 
-export function GoalCard({
-  title,
-  user_name,
-  current_value,
-  target_value,
-  unit,
-  category,
-  onEdit,
-}: GoalCardProps) {
-  const progress = target_value > 0 ? (current_value / target_value) * 100 : 0;
+export function GoalCard({ title, userName, currentValue, targetValue, unit, category, onEdit }: GoalCardProps) {
+  const progress = targetValue > 0 ? (currentValue / targetValue) * 100 : 0;
   const progressClamped = Math.min(100, Math.max(0, progress));
   const colors = categoryColors[category];
   const isComplete = progressClamped >= 100;
@@ -40,16 +32,12 @@ export function GoalCard({
     <>
       <div className="flex justify-between items-start gap-2 mb-3">
         <h3 className="font-medium text-gray-800 leading-tight">{title}</h3>
-        <span
-          className={`text-xs ${colors.bg} ${colors.text} px-2 py-1 rounded-full shrink-0`}
-        >
+        <span className={`text-xs ${colors.bg} ${colors.text} px-2 py-1 rounded-full shrink-0`}>
           {category}
         </span>
       </div>
 
-      {user_name && (
-        <p className="text-sm text-gray-500 mb-3">{user_name}</p>
-      )}
+      {userName && <p className="text-sm text-gray-500 mb-3">{userName}</p>}
 
       <div className="w-full bg-warmGray-200 rounded-full h-2.5">
         <div
@@ -62,7 +50,7 @@ export function GoalCard({
 
       <div className="flex justify-between items-center mt-2">
         <p className="text-sm text-gray-600">
-          {current_value.toLocaleString()} / {target_value.toLocaleString()} {unit}
+          {currentValue.toLocaleString()} / {targetValue.toLocaleString()} {unit}
         </p>
         <p className={`text-sm font-medium ${isComplete ? 'text-green-600' : 'text-gray-500'}`}>
           {Math.round(progressClamped)}%

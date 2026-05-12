@@ -13,7 +13,7 @@ import {
   type User,
   type UserCredential,
 } from 'firebase/auth';
-import { auth } from '@/services/firebase';
+import { auth } from './firebase';
 import type { AuthUser, FirebaseError } from '@/types/firebase';
 
 /**
@@ -21,13 +21,8 @@ import type { AuthUser, FirebaseError } from '@/types/firebase';
  */
 const googleProvider = new GoogleAuthProvider();
 
-// Request additional scopes for Google Calendar integration
-googleProvider.addScope('https://www.googleapis.com/auth/calendar.events');
-googleProvider.addScope('https://www.googleapis.com/auth/calendar.readonly');
-
-// Optional: Set custom parameters
 googleProvider.setCustomParameters({
-  prompt: 'select_account', // Always show account selection
+  prompt: 'select_account',
 });
 
 /**
@@ -38,18 +33,7 @@ googleProvider.setCustomParameters({
  */
 export async function signInWithGoogle(): Promise<UserCredential> {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-
-    // Get OAuth access token for Google Calendar API
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    const token = credential?.accessToken;
-
-    // Store access token for Calendar API (optional)
-    if (token) {
-      sessionStorage.setItem('google_access_token', token);
-    }
-
-    return result;
+    return await signInWithPopup(auth, googleProvider);
   } catch (error) {
     const firebaseError = error as FirebaseError;
     console.error('Google sign-in error:', firebaseError.code, firebaseError.message);
@@ -65,9 +49,6 @@ export async function signInWithGoogle(): Promise<UserCredential> {
  */
 export async function signOut(): Promise<void> {
   try {
-    // Clear stored tokens
-    sessionStorage.removeItem('google_access_token');
-
     await firebaseSignOut(auth);
   } catch (error) {
     const firebaseError = error as FirebaseError;
@@ -121,15 +102,6 @@ export function toAuthUser(user: User): AuthUser {
  */
 export function onAuthChange(callback: (user: User | null) => void): () => void {
   return onAuthStateChanged(auth, callback);
-}
-
-/**
- * Get Google OAuth access token (for Calendar API)
- *
- * @returns Access token or null if not available
- */
-export function getGoogleAccessToken(): string | null {
-  return sessionStorage.getItem('google_access_token');
 }
 
 /**

@@ -10,6 +10,7 @@ export type Goal = BaseEntity & {
   currentValue: number;
   unit: string;
   userId: number;
+  userName?: string;
   completedOn?: string | null;
   year: number;
 };

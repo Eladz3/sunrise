@@ -1,3 +1,5 @@
+import { useAuth } from '@/hooks/useAuth';
+
 type Tab = 'home' | 'goals' | 'profile';
 
 interface BottomTabNavProps {
@@ -6,6 +8,7 @@ interface BottomTabNavProps {
 }
 
 export function BottomTabNav({ activeTab, onTabChange }: BottomTabNavProps) {
+  const { user } = useAuth();
   const tabClass = (tab: Tab) =>
     `flex-1 flex flex-col items-center justify-center min-h-[56px] py-2 text-sm font-medium transition-colors ${
       activeTab === tab
@@ -41,14 +44,22 @@ export function BottomTabNav({ activeTab, onTabChange }: BottomTabNavProps) {
         </button>
 
         <button onClick={() => onTabChange('profile')} className={tabClass('profile')}>
-          <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+          {user?.photoURL ? (
+            <img
+              src={user.photoURL}
+              alt={user.displayName || 'Profile'}
+              className="w-6 h-6 mb-1 rounded-full object-cover"
             />
-          </svg>
+          ) : (
+            <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+          )}
           Profile
         </button>
       </div>
