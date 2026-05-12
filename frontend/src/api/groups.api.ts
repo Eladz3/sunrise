@@ -2,7 +2,7 @@ import { client } from './client';
 import type { Group, CreateGroupRequest } from '@/types/group.types';
 
 export const getGroupsByUserId = (userId: number) =>
-  client.get<Group[]>(`/api/groups/by-user/${userId}`);
+  client.get<Group[]>(`/api/groups/by-user-id/${userId}`);
 
 export const getGroupById = (groupId: number) =>
   client.get<Group>(`/api/groups/${groupId}`);

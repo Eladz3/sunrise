@@ -7,6 +7,7 @@ using SunriseApi.Services.Interfaces;
 namespace SunriseApi.Controllers
 {
     [ApiController]
+    [Route("api/users")]
     public class UsersController : ControllerBase
     {
         private readonly IUsersService _usersService;
@@ -17,7 +18,6 @@ namespace SunriseApi.Controllers
         }
 
         [HttpPost]
-        [Route("api/users")]
         [ProducesResponseType(typeof(User), 200)]
         public async Task<IActionResult> CreateUserAsync([FromBody] CreateNewUserRequest request)
         {
@@ -26,7 +26,7 @@ namespace SunriseApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/users/by-firebase-id/{firebaseUid}")]
+        [Route("by-firebase-id/{firebaseUid}")]
         [ProducesResponseType(typeof(User), 200)]
         public async Task<IActionResult> GetUserByFirebaseIdAsync(string firebaseUid)
         {
@@ -35,7 +35,7 @@ namespace SunriseApi.Controllers
         }
 
         [HttpPatch]
-        [Route("api/users/{userId}")]
+        [Route("{userId}")]
         [ProducesResponseType(typeof(User), 200)]
         public async Task<IActionResult> UpdateUserAsync(int userId, [FromBody] UpdateUserRequest request)
         {

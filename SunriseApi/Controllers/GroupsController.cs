@@ -6,6 +6,7 @@ using SunriseApi.Services.Interfaces;
 namespace SunriseApi.Controllers
 {
     [ApiController]
+    [Route("api/groups")]
     public class GroupsController : ControllerBase
     {
         private readonly IGroupsService _groupsService;
@@ -15,7 +16,7 @@ namespace SunriseApi.Controllers
         }
 
         [HttpGet]
-        [Route("groups-by-user-id/{userId}")]
+        [Route("by-user-id/{userId}")]
         [ProducesResponseType(typeof(IEnumerable<Group>), 200)]
         public async Task<IActionResult> GetGroupsByUserIdAsync(int userId)
         {
@@ -24,7 +25,6 @@ namespace SunriseApi.Controllers
         }
 
         [HttpPost]
-        [Route("groups")]
         [ProducesResponseType(typeof(Group), 200)]
         public async Task<IActionResult> CreateNewGroupAsync(CreateNewGroupRequest request)
         {

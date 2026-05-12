@@ -5,10 +5,10 @@ export const getAllGoals = () =>
   client.get<Goal[]>('/api/goals');
 
 export const getGoalsByUserId = (userId: number) =>
-  client.get<Goal[]>(`/api/goals/by-user/${userId}`);
+  client.get<Goal[]>(`/api/goals/by-user-id/${userId}`);
 
 export const getGoalsByGroupId = (groupId: number) =>
-  client.get<Goal[]>(`/api/goals/by-group/${groupId}`);
+  client.get<Goal[]>(`/api/goals/by-group-id/${groupId}`);
 
 export const createGoal = (body: CreateGoalRequest & { firebaseUid: string }) =>
   client.post<Goal>('/api/goals', body);
