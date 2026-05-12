@@ -1,13 +1,4 @@
-export type GoalCategory =
-  | 'health'
-  | 'fitness'
-  | 'finance'
-  | 'learning'
-  | 'career'
-  | 'relationships'
-  | 'creativity'
-  | 'mindfulness'
-  | 'other';
+import { GoalCategory } from '@/constants/goal-category.constants';
 
 interface GoalCardProps {
   title: string;
@@ -20,15 +11,15 @@ interface GoalCardProps {
 }
 
 const categoryColors: Record<GoalCategory, { bg: string; text: string }> = {
-  health: { bg: 'bg-green-100', text: 'text-green-700' },
-  fitness: { bg: 'bg-blue-100', text: 'text-blue-700' },
-  finance: { bg: 'bg-yellow-100', text: 'text-yellow-700' },
-  learning: { bg: 'bg-purple-100', text: 'text-purple-700' },
-  career: { bg: 'bg-indigo-100', text: 'text-indigo-700' },
-  relationships: { bg: 'bg-pink-100', text: 'text-pink-700' },
-  creativity: { bg: 'bg-orange-100', text: 'text-orange-700' },
-  mindfulness: { bg: 'bg-teal-100', text: 'text-teal-700' },
-  other: { bg: 'bg-gray-100', text: 'text-gray-700' },
+  [GoalCategory.Health]: { bg: 'bg-green-100', text: 'text-green-700' },
+  [GoalCategory.Fitness]: { bg: 'bg-blue-100', text: 'text-blue-700' },
+  [GoalCategory.Finance]: { bg: 'bg-yellow-100', text: 'text-yellow-700' },
+  [GoalCategory.Learning]: { bg: 'bg-purple-100', text: 'text-purple-700' },
+  [GoalCategory.Career]: { bg: 'bg-indigo-100', text: 'text-indigo-700' },
+  [GoalCategory.Relationships]: { bg: 'bg-pink-100', text: 'text-pink-700' },
+  [GoalCategory.Creativity]: { bg: 'bg-orange-100', text: 'text-orange-700' },
+  [GoalCategory.Mindfulness]: { bg: 'bg-teal-100', text: 'text-teal-700' },
+  [GoalCategory.Other]: { bg: 'bg-gray-100', text: 'text-gray-700' },
 };
 
 export function GoalCard({

@@ -1,4 +1,4 @@
-import type { GoalCategory } from '@/components';
+import { GoalCategory } from '@/constants/goal-category.constants';
 
 export interface MockGoal {
   id: string;
@@ -18,7 +18,7 @@ export const mockGoals: MockGoal[] = [
     id: '1',
     title: 'Run 100 miles',
     description: 'Complete 100 miles of running this year',
-    category: 'fitness',
+    category: GoalCategory.Fitness,
     target_value: 100,
     current_value: 35,
     unit: 'miles',
@@ -29,7 +29,7 @@ export const mockGoals: MockGoal[] = [
     id: '2',
     title: 'Save $5000',
     description: 'Build emergency fund',
-    category: 'finance',
+    category: GoalCategory.Finance,
     target_value: 5000,
     current_value: 2000,
     unit: 'dollars',
@@ -42,7 +42,7 @@ export const mockGoals: MockGoal[] = [
     id: '3',
     title: 'Read 24 books',
     description: 'Read 2 books per month',
-    category: 'learning',
+    category: GoalCategory.Learning,
     target_value: 24,
     current_value: 12,
     unit: 'books',
@@ -53,7 +53,7 @@ export const mockGoals: MockGoal[] = [
     id: '4',
     title: 'Meditate 365 times',
     description: 'Daily meditation practice',
-    category: 'mindfulness',
+    category: GoalCategory.Mindfulness,
     target_value: 365,
     current_value: 100,
     unit: 'sessions',
@@ -66,7 +66,7 @@ export const mockGoals: MockGoal[] = [
     id: '5',
     title: 'Learn 500 new words',
     description: 'Expand vocabulary in Spanish',
-    category: 'learning',
+    category: GoalCategory.Learning,
     target_value: 500,
     current_value: 150,
     unit: 'words',
@@ -77,7 +77,7 @@ export const mockGoals: MockGoal[] = [
     id: '6',
     title: 'Cook 100 new recipes',
     description: 'Try new healthy recipes',
-    category: 'health',
+    category: GoalCategory.Health,
     target_value: 100,
     current_value: 40,
     unit: 'recipes',

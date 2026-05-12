@@ -1,12 +1,6 @@
-/**
- * Mock Goal Data
- *
- * 3 users with 2 goals each, matching the schema.
- */
+import { GoalCategory } from '@/constants/goal-category.constants'
 
-import type { GoalCategory } from '@/components'
-
-export interface Goal {
+export interface MockResolution {
   id: string
   title: string
   description: string
@@ -18,13 +12,13 @@ export interface Goal {
   user_email: string
 }
 
-export const mockGoals: Goal[] = [
+export const mockGoals: MockResolution[] = [
   // User 1: Alice
   {
     id: '1',
     title: 'Run 100 miles',
     description: 'Complete 100 miles of running this year',
-    category: 'fitness',
+    category: GoalCategory.Fitness,
     target_value: 100,
     current_value: 35,
     unit: 'miles',
@@ -35,7 +29,7 @@ export const mockGoals: Goal[] = [
     id: '2',
     title: 'Save $5000',
     description: 'Build emergency fund',
-    category: 'finance',
+    category: GoalCategory.Finance,
     target_value: 5000,
     current_value: 2000,
     unit: 'dollars',
@@ -48,7 +42,7 @@ export const mockGoals: Goal[] = [
     id: '3',
     title: 'Read 24 books',
     description: 'Read 2 books per month',
-    category: 'learning',
+    category: GoalCategory.Learning,
     target_value: 24,
     current_value: 12,
     unit: 'books',
@@ -59,7 +53,7 @@ export const mockGoals: Goal[] = [
     id: '4',
     title: 'Meditate 365 times',
     description: 'Daily meditation practice',
-    category: 'mindfulness',
+    category: GoalCategory.Mindfulness,
     target_value: 365,
     current_value: 100,
     unit: 'sessions',
@@ -72,7 +66,7 @@ export const mockGoals: Goal[] = [
     id: '5',
     title: 'Learn 500 new words',
     description: 'Expand vocabulary in Spanish',
-    category: 'learning',
+    category: GoalCategory.Learning,
     target_value: 500,
     current_value: 150,
     unit: 'words',
@@ -83,7 +77,7 @@ export const mockGoals: Goal[] = [
     id: '6',
     title: 'Cook 100 new recipes',
     description: 'Try new healthy recipes',
-    category: 'health',
+    category: GoalCategory.Health,
     target_value: 100,
     current_value: 40,
     unit: 'recipes',
@@ -92,10 +86,7 @@ export const mockGoals: Goal[] = [
   },
 ]
 
-/**
- * Group goals by user
- */
-export function getGoalsByUser(): Record<string, Goal[]> {
+export function getGoalsByUser(): Record<string, MockResolution[]> {
   return mockGoals.reduce(
     (acc, goal) => {
       const userName = goal.user_name
@@ -105,20 +96,14 @@ export function getGoalsByUser(): Record<string, Goal[]> {
       acc[userName].push(goal)
       return acc
     },
-    {} as Record<string, Goal[]>
+    {} as Record<string, MockResolution[]>
   )
 }
 
-/**
- * Get all goals as a flat list
- */
-export function getAllGoals(): Goal[] {
+export function getAllGoals(): MockResolution[] {
   return mockGoals
 }
 
-/**
- * Calculate community progress stats
- */
 export function getCommunityProgress(): {
   totalCurrent: number
   totalTarget: number

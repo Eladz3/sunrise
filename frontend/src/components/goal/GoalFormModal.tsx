@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { GoalCategory } from './GoalCard';
+import { GoalCategory } from '@/constants/goal-category.constants';
 
 export interface GoalFormData {
   title: string;
@@ -18,21 +18,21 @@ interface GoalFormModalProps {
 }
 
 const categories: { value: GoalCategory; label: string }[] = [
-  { value: 'health', label: 'Health' },
-  { value: 'fitness', label: 'Fitness' },
-  { value: 'finance', label: 'Finance' },
-  { value: 'learning', label: 'Learning' },
-  { value: 'career', label: 'Career' },
-  { value: 'relationships', label: 'Relationships' },
-  { value: 'creativity', label: 'Creativity' },
-  { value: 'mindfulness', label: 'Mindfulness' },
-  { value: 'other', label: 'Other' },
+  { value: GoalCategory.Health, label: 'Health' },
+  { value: GoalCategory.Fitness, label: 'Fitness' },
+  { value: GoalCategory.Finance, label: 'Finance' },
+  { value: GoalCategory.Learning, label: 'Learning' },
+  { value: GoalCategory.Career, label: 'Career' },
+  { value: GoalCategory.Relationships, label: 'Relationships' },
+  { value: GoalCategory.Creativity, label: 'Creativity' },
+  { value: GoalCategory.Mindfulness, label: 'Mindfulness' },
+  { value: GoalCategory.Other, label: 'Other' },
 ];
 
 const defaultFormData: GoalFormData = {
   title: '',
   description: '',
-  category: 'other',
+  category: GoalCategory.Other,
   target_value: 0,
   unit: '',
 };

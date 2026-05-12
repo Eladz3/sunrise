@@ -1,5 +1,8 @@
 import { api } from '@/services/api';
-import type { GoalCategory } from '@/components';
+import { GoalCategory } from '@/constants/goal-category.constants';
+import type { Goal } from '@/types/goal.types';
+
+export type { Goal };
 
 export interface GoalDocument {
   title: string;
@@ -13,7 +16,7 @@ export interface GoalDocument {
   user_email: string;
 }
 
-export interface Goal extends GoalDocument {
+export interface LegacyGoal extends GoalDocument {
   id: string;
 }
 
@@ -31,7 +34,7 @@ interface ApiGoal {
   year: number;
 }
 
-function mapApiGoal(g: ApiGoal): Goal {
+function mapApiGoal(g: ApiGoal): LegacyGoal {
   return {
     id: String(g.id),
     title: g.title,
@@ -46,12 +49,12 @@ function mapApiGoal(g: ApiGoal): Goal {
   };
 }
 
-export async function getUserGoals(firebaseUid: string): Promise<Goal[]> {
+export async function getUserGoals(firebaseUid: string): Promise<LegacyGoal[]> {
   const goals = await api.get<ApiGoal[]>(`/goals/by-firebase-uid/${encodeURIComponent(firebaseUid)}`);
   return goals.map(mapApiGoal);
 }
 
-export async function getAllGoals(): Promise<Goal[]> {
+export async function getAllGoals(): Promise<LegacyGoal[]> {
   const goals = await api.get<ApiGoal[]>('/goals');
   return goals.map(mapApiGoal);
 }

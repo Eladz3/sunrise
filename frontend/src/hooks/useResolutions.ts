@@ -1,31 +1,18 @@
-/**
- * useGoals Hook
- *
- * Manages goal state with Firestore sync and optimistic updates.
- */
-
 import { useState, useEffect, useCallback } from 'react'
-import {
-  getUserGoals,
-  createGoal,
-  updateGoal,
-  type Goal,
-  type GoalDocument,
-} from '@/services/goals'
+import { getUserGoals, createGoal, updateGoal } from '@/services/resolutions'
+import type { Resolution, GoalDocument } from '@/services/resolutions'
 
-interface UseGoalsResult {
-  goals: Goal[]
+interface UseResolutionsResult {
+  goals: Resolution[]
   loading: boolean
   error: string | null
-  addGoal: (
-    data: Omit<GoalDocument, 'current_value' | 'user_id'>
-  ) => Promise<void>
+  addGoal: (data: Omit<GoalDocument, 'current_value' | 'user_id'>) => Promise<void>
   editGoal: (id: string, data: Partial<GoalDocument>) => Promise<void>
   refreshGoals: () => Promise<void>
 }
 
-export function useGoals(userId: string | null): UseGoalsResult {
-  const [goals, setGoals] = useState<Goal[]>([])
+export function useResolutions(userId: string | null): UseResolutionsResult {
+  const [goals, setGoals] = useState<Resolution[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -57,8 +44,7 @@ export function useGoals(userId: string | null): UseGoalsResult {
     async (data: Omit<GoalDocument, 'current_value' | 'user_id'>) => {
       if (!userId) return
 
-      // Optimistic update: add to local state immediately
-      const optimisticGoal: Goal = {
+      const optimisticGoal: Resolution = {
         id: `temp-${Date.now()}`,
         ...data,
         user_id: userId,
@@ -67,20 +53,11 @@ export function useGoals(userId: string | null): UseGoalsResult {
       setGoals((prev) => [...prev, optimisticGoal])
 
       try {
-        // Create in Firestore
-        const newId = await createGoal({
-          ...data,
-          user_id: userId,
-        })
-
-        // Update local state with real ID
+        const newId = await createGoal({ ...data, user_id: userId })
         setGoals((prev) =>
-          prev.map((r) =>
-            r.id === optimisticGoal.id ? { ...r, id: newId } : r
-          )
+          prev.map((r) => (r.id === optimisticGoal.id ? { ...r, id: newId } : r))
         )
       } catch (err) {
-        // Rollback on error
         setGoals((prev) => prev.filter((r) => r.id !== optimisticGoal.id))
         setError('Failed to create goal')
         console.error('Error creating goal:', err)
@@ -91,17 +68,14 @@ export function useGoals(userId: string | null): UseGoalsResult {
 
   const editGoal = useCallback(
     async (id: string, data: Partial<GoalDocument>) => {
-      // Store original for rollback
       const originalGoal = goals.find((r) => r.id === id)
       if (!originalGoal) return
 
-      // Optimistic update
       setGoals((prev) => prev.map((r) => (r.id === id ? { ...r, ...data } : r)))
 
       try {
         await updateGoal(id, data)
       } catch (err) {
-        // Rollback on error
         setGoals((prev) => prev.map((r) => (r.id === id ? originalGoal : r)))
         setError('Failed to update goal')
         console.error('Error updating goal:', err)

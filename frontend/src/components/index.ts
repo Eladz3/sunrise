@@ -15,7 +15,6 @@ export { CommunityProgressBar } from './community/CommunityProgressBar'
 
 // Goal Components
 export { GoalCard } from './goal/GoalCard'
-export type { GoalCategory } from './goal/GoalCard'
 
 // Form Components
 // export { TextInput } from './forms/TextInput';

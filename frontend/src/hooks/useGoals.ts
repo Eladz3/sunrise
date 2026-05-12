@@ -1,14 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import {
-  getUserGoals,
-  createGoal,
-  updateGoal,
-  type Goal,
-  type GoalDocument,
-} from '@/services/goals';
+import { getUserGoals, createGoal, updateGoal } from '@/services/goals';
+import type { LegacyGoal, GoalDocument } from '@/services/goals';
 
 interface UseGoalsResult {
-  goals: Goal[];
+  goals: LegacyGoal[];
   loading: boolean;
   error: string | null;
   addGoal: (data: Omit<GoalDocument, 'current_value' | 'user_id'>) => Promise<void>;
@@ -17,7 +12,7 @@ interface UseGoalsResult {
 }
 
 export function useGoals(userId: string | null): UseGoalsResult {
-  const [goals, setGoals] = useState<Goal[]>([]);
+  const [goals, setGoals] = useState<LegacyGoal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,7 +44,7 @@ export function useGoals(userId: string | null): UseGoalsResult {
     async (data: Omit<GoalDocument, 'current_value' | 'user_id'>) => {
       if (!userId) return;
 
-      const optimisticGoal: Goal = {
+      const optimisticGoal: LegacyGoal = {
         id: `temp-${Date.now()}`,
         ...data,
         user_id: userId,

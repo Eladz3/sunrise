@@ -1,5 +1,5 @@
 import { api } from '@/services/api'
-import type { GoalCategory } from '@/components'
+import { GoalCategory } from '@/constants/goal-category.constants'
 
 export interface GoalDocument {
   title: string
@@ -13,7 +13,7 @@ export interface GoalDocument {
   user_email: string
 }
 
-export interface Goal extends GoalDocument {
+export interface Resolution extends GoalDocument {
   id: string
 }
 
@@ -31,7 +31,7 @@ interface ApiGoal {
   year: number
 }
 
-function mapApiGoal(g: ApiGoal): Goal {
+function mapApiGoal(g: ApiGoal): Resolution {
   return {
     id: String(g.id),
     title: g.title,
@@ -46,14 +46,14 @@ function mapApiGoal(g: ApiGoal): Goal {
   }
 }
 
-export async function getUserGoals(firebaseUid: string): Promise<Goal[]> {
+export async function getUserGoals(firebaseUid: string): Promise<Resolution[]> {
   const goals = await api.get<ApiGoal[]>(
     `/goals/by-firebase-uid/${encodeURIComponent(firebaseUid)}`
   )
   return goals.map(mapApiGoal)
 }
 
-export async function getAllGoals(): Promise<Goal[]> {
+export async function getAllGoals(): Promise<Resolution[]> {
   const goals = await api.get<ApiGoal[]>('/goals')
   return goals.map(mapApiGoal)
 }
@@ -69,7 +69,6 @@ export async function createGoal(
     currentValue: data.current_value ?? 0,
     unit: data.unit,
     year: new Date().getFullYear(),
-    // user_id is a Firebase UID string; the backend resolves via FirebaseUid on User
     firebaseUid: data.user_id,
   }
   const created = await api.post<ApiGoal>('/goals', body)
