@@ -1,6 +1,9 @@
 import { client } from './client';
 import type { Goal, CreateGoalRequest, UpdateGoalRequest } from '@/types/goal.types';
 
+export const getAllGoals = () =>
+  client.get<Goal[]>('/api/goals');
+
 export const getGoalsByUserId = (userId: number) =>
   client.get<Goal[]>(`/api/goals/by-user/${userId}`);
 

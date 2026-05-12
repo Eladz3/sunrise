@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getUserByFirebaseUid } from '@/services/users';
+import { getUserByFirebaseUid } from '@/auth/users';
 import type { User } from '@/types/user.types';
 
 interface UseUserReturn {
