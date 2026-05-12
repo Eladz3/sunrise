@@ -63,6 +63,7 @@ namespace SunriseApi.Services
             if (request.ProfilePhoto != null) user.ProfilePhoto = request.ProfilePhoto;
 
             user.ModifiedOn = DateTime.UtcNow;
+            user.ModifiedBy = userId;
 
             await _dbContext.SaveChangesAsync();
 
