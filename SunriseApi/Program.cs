@@ -7,6 +7,7 @@ using Amazon.Lambda.AspNetCoreServer.Hosting;
 using Microsoft.OpenApi.Models;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 // Optional: Swagger
 builder.Services.AddEndpointsApiExplorer();
