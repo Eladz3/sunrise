@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { BottomTabNav } from './BottomTabNav';
 import { HomePage } from '@/pages/HomePage';
 import { MyGoalsPage } from '@/pages/MyGoalsPage';
-
-type Tab = 'home' | 'goals';
+import { ProfilePage } from '@/pages/ProfilePage';
+import type { Tab } from '@/types';
 
 export function AppLayout() {
   const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -16,6 +16,9 @@ export function AppLayout() {
         </div>
         <div className={activeTab !== 'goals' ? 'hidden' : ''}>
           <MyGoalsPage />
+        </div>
+        <div className={activeTab !== 'profile' ? 'hidden' : ''}>
+          <ProfilePage />
         </div>
       </main>
       <BottomTabNav activeTab={activeTab} onTabChange={setActiveTab} />

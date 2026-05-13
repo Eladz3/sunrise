@@ -48,5 +48,29 @@ namespace SunriseApi.Services
 
             return user;
         }
+
+        public async Task<User> UpdateUserAsync(int userId, UpdateUserRequest request)
+        {
+            var user = await _dbContext.Users.FindAsync(userId);
+
+            if (user == null)
+                throw new InvalidOperationException($"User with Id {userId} not found.");
+
+            if (request.DisplayName != null) user.DisplayName = request.DisplayName;
+            if (request.FirstName != null) user.FirstName = request.FirstName;
+            if (request.LastName != null) user.LastName = request.LastName;
+            if (request.Email != null) user.Email = request.Email;
+            if (request.ProfilePhoto != null) user.ProfilePhoto = request.ProfilePhoto;
+
+            if (_dbContext.Entry(user).Properties.Any(p => p.IsModified))
+            {
+                user.ModifiedOn = DateTime.UtcNow;
+                user.ModifiedBy = userId;
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            return user;
+        }
     }
 }

@@ -3,11 +3,8 @@
  * Import utils like: import { formatDueDate, isGoalActive } from '@/utils'
  */
 
-// Goal utilities
-export * from './goals';
-
 // Error handling
-export * from './errors';
+export * from './errors'
 
 // Re-export other utilities when created
 // export * from './date';

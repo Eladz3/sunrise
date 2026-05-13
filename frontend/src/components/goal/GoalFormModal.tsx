@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import type { GoalCategory } from './GoalCard';
+import { GoalCategory } from '@/constants/goal-category.constants';
 
 export interface GoalFormData {
   title: string;
   description: string;
   category: GoalCategory;
-  target_value: number;
+  targetValue: number;
   unit: string;
 }
 
@@ -18,35 +18,27 @@ interface GoalFormModalProps {
 }
 
 const categories: { value: GoalCategory; label: string }[] = [
-  { value: 'health', label: 'Health' },
-  { value: 'fitness', label: 'Fitness' },
-  { value: 'finance', label: 'Finance' },
-  { value: 'learning', label: 'Learning' },
-  { value: 'career', label: 'Career' },
-  { value: 'relationships', label: 'Relationships' },
-  { value: 'creativity', label: 'Creativity' },
-  { value: 'mindfulness', label: 'Mindfulness' },
-  { value: 'other', label: 'Other' },
+  { value: GoalCategory.Health, label: 'Health' },
+  { value: GoalCategory.Fitness, label: 'Fitness' },
+  { value: GoalCategory.Finance, label: 'Finance' },
+  { value: GoalCategory.Learning, label: 'Learning' },
+  { value: GoalCategory.Career, label: 'Career' },
+  { value: GoalCategory.Relationships, label: 'Relationships' },
+  { value: GoalCategory.Creativity, label: 'Creativity' },
+  { value: GoalCategory.Mindfulness, label: 'Mindfulness' },
+  { value: GoalCategory.Other, label: 'Other' },
 ];
 
 const defaultFormData: GoalFormData = {
   title: '',
   description: '',
-  category: 'other',
-  target_value: 0,
+  category: GoalCategory.Other,
+  targetValue: 0,
   unit: '',
 };
 
-export function GoalFormModal({
-  isOpen,
-  onClose,
-  onSubmit,
-  initialData,
-  mode = 'add',
-}: GoalFormModalProps) {
-  const [formData, setFormData] = useState<GoalFormData>(
-    initialData || defaultFormData
-  );
+export function GoalFormModal({ isOpen, onClose, onSubmit, initialData, mode = 'add' }: GoalFormModalProps) {
+  const [formData, setFormData] = useState<GoalFormData>(initialData || defaultFormData);
   const [errors, setErrors] = useState<Partial<Record<keyof GoalFormData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -67,8 +59,8 @@ export function GoalFormModal({
       newErrors.title = 'Title must be less than 100 characters';
     }
 
-    if (formData.target_value <= 0) {
-      newErrors.target_value = 'Target value must be greater than 0';
+    if (formData.targetValue <= 0) {
+      newErrors.targetValue = 'Target value must be greater than 0';
     }
 
     if (!formData.unit.trim()) {
@@ -81,13 +73,8 @@ export function GoalFormModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm() || isSubmitting) {
-      return;
-    }
-
+    if (!validateForm() || isSubmitting) return;
     setIsSubmitting(true);
-
     try {
       await onSubmit(formData);
       onClose();
@@ -98,26 +85,16 @@ export function GoalFormModal({
     }
   };
 
-  const handleChange = (
-    field: keyof GoalFormData,
-    value: string | number
-  ) => {
+  const handleChange = (field: keyof GoalFormData, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
-  if (!isOpen) {
-    return null;
-  }
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       <div className="relative bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-md sm:mx-4 max-h-[90vh] overflow-y-auto animate-slide-up">
         <div className="sticky top-0 bg-white flex items-center justify-between p-4 border-b z-10">
@@ -151,9 +128,7 @@ export function GoalFormModal({
               placeholder="e.g., Run 100 miles"
               autoFocus
             />
-            {errors.title && (
-              <p className="mt-2 text-sm text-red-500">{errors.title}</p>
-            )}
+            {errors.title && <p className="mt-2 text-sm text-red-500">{errors.title}</p>}
           </div>
 
           <div>
@@ -190,24 +165,22 @@ export function GoalFormModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="target_value" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="targetValue" className="block text-sm font-medium text-gray-700 mb-2">
                 Target <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
-                id="target_value"
-                value={formData.target_value || ''}
-                onChange={(e) => handleChange('target_value', Number(e.target.value))}
+                id="targetValue"
+                value={formData.targetValue || ''}
+                onChange={(e) => handleChange('targetValue', Number(e.target.value))}
                 className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-sunrise-500 focus:border-transparent text-base ${
-                  errors.target_value ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  errors.targetValue ? 'border-red-500 bg-red-50' : 'border-gray-300'
                 }`}
                 placeholder="100"
                 min="1"
                 inputMode="numeric"
               />
-              {errors.target_value && (
-                <p className="mt-2 text-sm text-red-500">{errors.target_value}</p>
-              )}
+              {errors.targetValue && <p className="mt-2 text-sm text-red-500">{errors.targetValue}</p>}
             </div>
 
             <div>
@@ -224,9 +197,7 @@ export function GoalFormModal({
                 }`}
                 placeholder="miles"
               />
-              {errors.unit && (
-                <p className="mt-2 text-sm text-red-500">{errors.unit}</p>
-              )}
+              {errors.unit && <p className="mt-2 text-sm text-red-500">{errors.unit}</p>}
             </div>
           </div>
 
