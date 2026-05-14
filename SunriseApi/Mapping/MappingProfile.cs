@@ -9,7 +9,6 @@ namespace SunriseApi.Mapping
         public MappingProfile()
         {
             CreateMap<CreateNewGoalRequest, Goal>().ReverseMap();
-            CreateMap<CreateNewGroupRequest, Group>().ReverseMap();
             CreateMap<CreateNewUserRequest, User>().ReverseMap();
         }
     }
