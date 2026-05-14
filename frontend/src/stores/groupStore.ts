@@ -21,6 +21,7 @@ type GroupStore = {
 
   loading: boolean
   error: string | null
+  membersLoadingByGroupId: Record<number, boolean>
 
   lastFetchedByUserId: Record<number, number>
   lastFetchedMembersByGroupId: Record<number, number>
@@ -44,6 +45,7 @@ export const useGroupStore = create<GroupStore>()(
       selectedGroupId: null,
       loading: false,
       error: null,
+      membersLoadingByGroupId: {},
       lastFetchedByUserId: {},
       lastFetchedMembersByGroupId: {},
 
@@ -77,14 +79,17 @@ export const useGroupStore = create<GroupStore>()(
         const lastFetched = get().lastFetchedMembersByGroupId[groupId]
         if (!isCacheStale(lastFetched, 'groupMembers')) return
 
+        set((state) => ({ membersLoadingByGroupId: { ...state.membersLoadingByGroupId, [groupId]: true } }))
         try {
           const members = await getGroupMembers(groupId)
           set((state) => ({
             membersByGroupId: { ...state.membersByGroupId, [groupId]: members },
             lastFetchedMembersByGroupId: { ...state.lastFetchedMembersByGroupId, [groupId]: Date.now() },
+            membersLoadingByGroupId: { ...state.membersLoadingByGroupId, [groupId]: false },
           }))
         } catch (err) {
           console.error('[Groups] Failed to fetch members:', err)
+          set((state) => ({ membersLoadingByGroupId: { ...state.membersLoadingByGroupId, [groupId]: false } }))
         }
       },
 

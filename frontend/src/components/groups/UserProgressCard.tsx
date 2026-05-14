@@ -1,5 +1,18 @@
 import type { GroupMemberSummary } from '@/types'
 
+export function UserProgressCardSkeleton() {
+  return (
+    <div className="rounded-lg bg-gray-50 p-4 animate-pulse">
+      <div className="mb-2 flex items-center gap-3">
+        <div className="h-10 w-10 shrink-0 rounded-full bg-gray-200" />
+        <div className="h-4 w-32 rounded bg-gray-200" />
+      </div>
+      <div className="h-2 w-full rounded-full bg-gray-200" />
+      <div className="mt-1 h-3 w-20 rounded bg-gray-200" />
+    </div>
+  )
+}
+
 interface UserProgressCardProps {
   member: GroupMemberSummary
 }

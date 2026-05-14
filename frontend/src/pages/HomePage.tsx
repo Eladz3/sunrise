@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { GoalCard, Spinner } from '@/components'
-import { GroupsSidebar, MobileGroupsDrawer, UserProgressCard } from '@/components/groups'
+import { GoalCard, GoalCardSkeleton } from '@/components'
+import { GroupsSidebar, MobileGroupsDrawer, UserProgressCard, UserProgressCardSkeleton } from '@/components/groups'
 import { useGroupStore } from '@/stores/groupStore'
 import { useGoalStore } from '@/stores/goalStore'
 import { calculateCommunityProgress } from '@/hooks/useCommunityGoals'
@@ -15,6 +15,7 @@ export function HomePage() {
   const selectedGroupId = useGroupStore((s) => s.selectedGroupId)
   const groupsById = useGroupStore((s) => s.groupsById)
   const membersByGroupId = useGroupStore((s) => s.membersByGroupId)
+  const membersLoadingByGroupId = useGroupStore((s) => s.membersLoadingByGroupId)
   const fetchGroupMembersAsync = useGroupStore((s) => s.fetchGroupMembersAsync)
   const selectedGroup = selectedGroupId != null ? groupsById[selectedGroupId] : null
 
@@ -34,6 +35,7 @@ export function HomePage() {
   const goalIds = selectedGroupId != null ? (goalIdsByGroupId[selectedGroupId] ?? []) : []
   const goals: Goal[] = goalIds.map((id) => goalsById[id]).filter((g): g is Goal => g !== undefined)
   const members = selectedGroupId != null ? (membersByGroupId[selectedGroupId] ?? []) : []
+  const membersLoading = selectedGroupId != null ? (membersLoadingByGroupId[selectedGroupId] ?? false) : false
 
   const communityProgress = calculateCommunityProgress(goals)
 
@@ -74,13 +76,7 @@ export function HomePage() {
             </div>
           )}
 
-          {loading && goals.length === 0 && (
-            <div className="flex items-center justify-center py-20">
-              <Spinner size="lg" />
-            </div>
-          )}
-
-          {!loading && selectedGroupId == null && (
+          {selectedGroupId == null && (
             <div className="rounded-2xl bg-white p-8 text-center shadow-sm">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sunrise-50">
                 <svg className="h-8 w-8 text-sunrise-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -103,32 +99,42 @@ export function HomePage() {
                 </button>
               </div>
 
-              {goals.length === 0 && (
-                <div className="py-12 text-center">
-                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-                    <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
+              {activeTab === 'members' && (
+                membersLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => <UserProgressCardSkeleton key={i} />)}
                   </div>
-                  <p className="font-medium text-gray-600">No goals yet in this group</p>
-                  <p className="mt-1 text-sm text-gray-400">Members' goals will appear here.</p>
-                </div>
+                ) : members.length > 0 ? (
+                  <div className="space-y-3">
+                    {members.map((member) => (
+                      <UserProgressCard key={member.userId} member={member} />
+                    ))}
+                  </div>
+                ) : null
               )}
 
-              {activeTab === 'members' && members.length > 0 && (
-                <div className="space-y-3">
-                  {members.map((member) => (
-                    <UserProgressCard key={member.userId} member={member} />
-                  ))}
-                </div>
-              )}
-
-              {activeTab === 'goals' && goals.length > 0 && (
-                <div className="space-y-3">
-                  {goals.map((goal) => (
-                    <GoalCard key={goal.id} title={goal.title} userName={goal.userName} currentValue={goal.currentValue} targetValue={goal.targetValue} unit={goal.unit} category={goal.category} />
-                  ))}
-                </div>
+              {activeTab === 'goals' && (
+                loading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => <GoalCardSkeleton key={i} />)}
+                  </div>
+                ) : goals.length > 0 ? (
+                  <div className="space-y-3">
+                    {goals.map((goal) => (
+                      <GoalCard key={goal.id} title={goal.title} userName={goal.userName} currentValue={goal.currentValue} targetValue={goal.targetValue} unit={goal.unit} category={goal.category} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                      <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <p className="font-medium text-gray-600">No goals yet in this group</p>
+                    <p className="mt-1 text-sm text-gray-400">Members' goals will appear here.</p>
+                  </div>
+                )
               )}
             </section>
           )}

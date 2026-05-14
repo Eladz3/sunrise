@@ -1,5 +1,22 @@
 import { GoalCategory } from '@/constants/goal-category.constants';
 
+export function GoalCardSkeleton() {
+  return (
+    <div className="p-4 bg-white rounded-xl shadow-sm border border-warmGray-100 min-h-[100px] animate-pulse">
+      <div className="flex justify-between items-start gap-2 mb-3">
+        <div className="h-4 w-40 rounded bg-gray-200" />
+        <div className="h-5 w-16 rounded-full bg-gray-200" />
+      </div>
+      <div className="h-3 w-24 rounded bg-gray-200 mb-3" />
+      <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2" />
+      <div className="flex justify-between">
+        <div className="h-3 w-28 rounded bg-gray-200" />
+        <div className="h-3 w-8 rounded bg-gray-200" />
+      </div>
+    </div>
+  )
+}
+
 interface GoalCardProps {
   title: string;
   userName?: string;
