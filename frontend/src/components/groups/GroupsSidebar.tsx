@@ -7,7 +7,7 @@ import { CreateGroupModal } from './CreateGroupModal'
 import { DeleteGroupModal } from './DeleteGroupModal'
 import { InviteModal } from './InviteModal'
 
-export function GroupsSidebar() {
+export function GroupsSidebar({ compact = false }: { compact?: boolean }) {
   const [showCreate, setShowCreate] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null)
   const [inviteTarget, setInviteTarget] = useState<{ id: number; name: string } | null>(null)
@@ -36,7 +36,7 @@ export function GroupsSidebar() {
 
   return (
     <>
-      <aside className="flex flex-col h-full">
+      <aside className={`flex flex-col ${compact ? '' : 'h-full'}`}>
         {/* Header */}
         <div className="flex items-center justify-between px-3 py-3 border-b border-gray-100">
           <h2 className="text-sm font-semibold text-gray-700">Groups</h2>
@@ -53,7 +53,7 @@ export function GroupsSidebar() {
         </div>
 
         {/* List or empty state */}
-        <div className="flex-1 overflow-y-auto px-2 py-2 space-y-2">
+        <div className={`${compact ? 'overflow-y-auto max-h-96' : 'flex-1 overflow-y-auto'} px-2 py-2 space-y-2`}>
           {groups.length === 0 ? (
             <GroupsEmptyState />
           ) : (

@@ -21,7 +21,7 @@ export function MobileGroupsDrawer({ open, onClose }: MobileGroupsDrawerProps) {
   }, [open])
 
   return (
-    <>
+    <div>
       {/* Backdrop */}
       <div
         className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-200 ${
@@ -55,6 +55,6 @@ export function MobileGroupsDrawer({ open, onClose }: MobileGroupsDrawerProps) {
           <GroupsSidebar />
         </div>
       </div>
-    </>
+    </div>
   )
 }

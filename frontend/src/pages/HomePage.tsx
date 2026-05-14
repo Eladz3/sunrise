@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { GoalCard, Spinner } from '@/components'
+import { GroupsSidebar, MobileGroupsDrawer } from '@/components/groups'
 import { useGroupStore } from '@/stores/groupStore'
 import { useGoalStore } from '@/stores/goalStore'
 import { groupGoalsByUser, calculateCommunityProgress } from '@/hooks/useCommunityGoals'
@@ -9,6 +10,7 @@ type HomeTab = 'group' | 'goals'
 
 export function HomePage() {
   const [activeTab, setActiveTab] = useState<HomeTab>('group')
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   const selectedGroupId = useGroupStore((s) => s.selectedGroupId)
   const groupsById = useGroupStore((s) => s.groupsById)
@@ -32,17 +34,9 @@ export function HomePage() {
   const goalsByUser = groupGoalsByUser(goals)
   const communityProgress = calculateCommunityProgress(goals)
 
-  if (loading && goals.length === 0) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Spinner size="lg" />
-      </div>
-    )
-  }
-
   return (
-    <div className="space-y-6">
-      {/* Group progress header */}
+    <div className="space-y-4">
+      {/* Metrics banner — full width */}
       <section className="rounded-2xl bg-gradient-to-br from-sunrise-500 via-dawn-500 to-rose-500 p-6 text-white shadow-lg">
         <h1 className="mb-1 text-center text-2xl font-bold">
           {selectedGroup ? selectedGroup.name : 'Community Progress'}
@@ -59,112 +53,146 @@ export function HomePage() {
         </p>
       </section>
 
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-600">{error}</p>
-        </div>
-      )}
+      {/* Below banner: groups panel + content */}
+      <div className="flex gap-4 items-start">
 
-      {/* No group selected state */}
-      {selectedGroupId == null && (
-        <div className="rounded-2xl bg-white p-8 shadow-sm text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sunrise-50">
-            <svg className="h-8 w-8 text-sunrise-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </div>
-          <p className="font-medium text-gray-600">Select or create a group</p>
-          <p className="mt-1 text-sm text-gray-400">Open the groups panel to get started.</p>
+        {/* Desktop groups panel */}
+        <div className="hidden lg:block w-56 xl:w-64 shrink-0 rounded-2xl bg-white shadow-sm overflow-hidden">
+          <GroupsSidebar compact />
         </div>
-      )}
 
-      {selectedGroupId != null && (
-        <section className="rounded-2xl bg-white p-4 shadow-sm">
-          <div className="mb-4 flex rounded-xl bg-gray-100 p-1">
+        {/* Content column */}
+        <div className="flex-1 min-w-0 space-y-4">
+
+          {/* Mobile hamburger */}
+          <div className="lg:hidden">
             <button
-              onClick={() => setActiveTab('group')}
-              className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
-                activeTab === 'group'
-                  ? 'bg-white text-sunrise-600 shadow-sm'
-                  : 'text-warmGray-500 hover:text-warmGray-700'
-              }`}
+              onClick={() => setDrawerOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-gray-200 shadow-sm text-sm font-medium text-gray-700 hover:border-sunrise-300 transition-colors"
+              aria-label="Open groups"
             >
-              Group
-            </button>
-            <button
-              onClick={() => setActiveTab('goals')}
-              className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
-                activeTab === 'goals'
-                  ? 'bg-white text-sunrise-600 shadow-sm'
-                  : 'text-warmGray-500 hover:text-warmGray-700'
-              }`}
-            >
-              Goals
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              Groups
             </button>
           </div>
 
-          {goals.length === 0 && (
-            <div className="py-12 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-                <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          {loading && goals.length === 0 && (
+            <div className="flex items-center justify-center py-20">
+              <Spinner size="lg" />
+            </div>
+          )}
+
+          {!loading && selectedGroupId == null && (
+            <div className="rounded-2xl bg-white p-8 shadow-sm text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sunrise-50">
+                <svg className="h-8 w-8 text-sunrise-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
-              <p className="font-medium text-gray-600">No goals yet in this group</p>
-              <p className="mt-1 text-sm text-gray-400">Members' goals will appear here.</p>
+              <p className="font-medium text-gray-600">Select or create a group</p>
+              <p className="mt-1 text-sm text-gray-400">Open the groups panel to get started.</p>
             </div>
           )}
 
-          {activeTab === 'group' && goals.length > 0 && (
-            <div className="space-y-3">
-              {Object.entries(goalsByUser).map(([userName, userGoals]) => {
-                const totalTarget = userGoals.reduce((sum, g) => sum + g.targetValue, 0)
-                const totalCurrent = userGoals.reduce((sum, g) => sum + g.currentValue, 0)
-                const userProgress = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0
+          {selectedGroupId != null && (
+            <section className="rounded-2xl bg-white p-4 shadow-sm">
+              <div className="mb-4 flex rounded-xl bg-gray-100 p-1">
+                <button
+                  onClick={() => setActiveTab('group')}
+                  className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
+                    activeTab === 'group'
+                      ? 'bg-white text-sunrise-600 shadow-sm'
+                      : 'text-warmGray-500 hover:text-warmGray-700'
+                  }`}
+                >
+                  Group
+                </button>
+                <button
+                  onClick={() => setActiveTab('goals')}
+                  className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
+                    activeTab === 'goals'
+                      ? 'bg-white text-sunrise-600 shadow-sm'
+                      : 'text-warmGray-500 hover:text-warmGray-700'
+                  }`}
+                >
+                  Goals
+                </button>
+              </div>
 
-                return (
-                  <div key={userName} className="rounded-lg bg-gray-50 p-4">
-                    <div className="mb-2 flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-sunrise-400 to-dawn-500 font-medium text-white">
-                        {userName.charAt(0).toUpperCase()}
-                      </div>
-                      <span className="font-medium text-gray-700">{userName}</span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-gray-200">
-                      <div
-                        className="h-2 rounded-full bg-gradient-to-r from-sunrise-400 to-dawn-500 transition-all duration-300"
-                        style={{ width: `${Math.min(100, userProgress)}%` }}
+              {goals.length === 0 && (
+                <div className="py-12 text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                    <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                       />
-                    </div>
-                    <p className="mt-1 text-xs text-gray-500">{Math.round(userProgress)}% overall progress</p>
+                    </svg>
                   </div>
-                )
-              })}
-            </div>
-          )}
+                  <p className="font-medium text-gray-600">No goals yet in this group</p>
+                  <p className="mt-1 text-sm text-gray-400">Members' goals will appear here.</p>
+                </div>
+              )}
 
-          {activeTab === 'goals' && goals.length > 0 && (
-            <div className="space-y-3">
-              {goals.map((goal) => (
-                <GoalCard
-                  key={goal.id}
-                  title={goal.title}
-                  userName={goal.userName}
-                  currentValue={goal.currentValue}
-                  targetValue={goal.targetValue}
-                  unit={goal.unit}
-                  category={goal.category}
-                />
-              ))}
-            </div>
+              {activeTab === 'group' && goals.length > 0 && (
+                <div className="space-y-3">
+                  {Object.entries(goalsByUser).map(([userName, userGoals]) => {
+                    const totalTarget = userGoals.reduce((sum, g) => sum + g.targetValue, 0)
+                    const totalCurrent = userGoals.reduce((sum, g) => sum + g.currentValue, 0)
+                    const userProgress = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0
+
+                    return (
+                      <div key={userName} className="rounded-lg bg-gray-50 p-4">
+                        <div className="mb-2 flex items-center gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-sunrise-400 to-dawn-500 font-medium text-white">
+                            {userName.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="font-medium text-gray-700">{userName}</span>
+                        </div>
+                        <div className="h-2 w-full rounded-full bg-gray-200">
+                          <div
+                            className="h-2 rounded-full bg-gradient-to-r from-sunrise-400 to-dawn-500 transition-all duration-300"
+                            style={{ width: `${Math.min(100, userProgress)}%` }}
+                          />
+                        </div>
+                        <p className="mt-1 text-xs text-gray-500">{Math.round(userProgress)}% overall progress</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
+              {activeTab === 'goals' && goals.length > 0 && (
+                <div className="space-y-3">
+                  {goals.map((goal) => (
+                    <GoalCard
+                      key={goal.id}
+                      title={goal.title}
+                      userName={goal.userName}
+                      currentValue={goal.currentValue}
+                      targetValue={goal.targetValue}
+                      unit={goal.unit}
+                      category={goal.category}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
           )}
-        </section>
-      )}
+        </div>
+      </div>
+
+      <MobileGroupsDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </div>
   )
 }
