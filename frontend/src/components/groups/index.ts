@@ -1,4 +1,5 @@
 export { GroupCard } from './GroupCard'
+export { UserProgressCard } from './UserProgressCard'
 export { GroupsSidebar } from './GroupsSidebar'
 export { MobileGroupsDrawer } from './MobileGroupsDrawer'
 export { CreateGroupModal } from './CreateGroupModal'

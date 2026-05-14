@@ -6,6 +6,7 @@ import {
   deleteGroup as apiDeleteGroup,
   getOrCreateInviteToken,
   joinGroupByToken as apiJoinGroupByToken,
+  getGroupMembers,
 } from '@/api/groups.api'
 import { isCacheStale } from '@/utils/cache'
 import { normalizeById, extractIds } from '@/utils/normalize'
@@ -25,6 +26,7 @@ type GroupStore = {
   lastFetchedMembersByGroupId: Record<number, number>
 
   fetchGroupsByUserId: (userId: number) => Promise<void>
+  fetchGroupMembersAsync: (groupId: number) => Promise<void>
   setSelectedGroup: (groupId: number) => void
   createGroup: (request: CreateGroupRequest) => Promise<GroupSummary>
   deleteGroup: (groupId: number, requestingUserId: number) => Promise<void>
@@ -68,6 +70,21 @@ export const useGroupStore = create<GroupStore>()(
           })
         } catch (err) {
           set({ loading: false, error: (err as Error).message })
+        }
+      },
+
+      fetchGroupMembersAsync: async (groupId: number) => {
+        const lastFetched = get().lastFetchedMembersByGroupId[groupId]
+        if (!isCacheStale(lastFetched, 'groupMembers')) return
+
+        try {
+          const members = await getGroupMembers(groupId)
+          set((state) => ({
+            membersByGroupId: { ...state.membersByGroupId, [groupId]: members },
+            lastFetchedMembersByGroupId: { ...state.lastFetchedMembersByGroupId, [groupId]: Date.now() },
+          }))
+        } catch (err) {
+          console.error('[Groups] Failed to fetch members:', err)
         }
       },
 

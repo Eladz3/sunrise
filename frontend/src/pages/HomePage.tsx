@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { GoalCard, Spinner } from '@/components'
-import { GroupsSidebar, MobileGroupsDrawer } from '@/components/groups'
+import { GroupsSidebar, MobileGroupsDrawer, UserProgressCard } from '@/components/groups'
 import { useGroupStore } from '@/stores/groupStore'
 import { useGoalStore } from '@/stores/goalStore'
-import { groupGoalsByUser, calculateCommunityProgress } from '@/hooks/useCommunityGoals'
+import { calculateCommunityProgress } from '@/hooks/useCommunityGoals'
 import type { Goal } from '@/types'
 
 type HomeTab = 'group' | 'goals'
@@ -14,6 +14,8 @@ export function HomePage() {
 
   const selectedGroupId = useGroupStore((s) => s.selectedGroupId)
   const groupsById = useGroupStore((s) => s.groupsById)
+  const membersByGroupId = useGroupStore((s) => s.membersByGroupId)
+  const fetchGroupMembersAsync = useGroupStore((s) => s.fetchGroupMembersAsync)
   const selectedGroup = selectedGroupId != null ? groupsById[selectedGroupId] : null
 
   const fetchGoalsByGroupId = useGoalStore((s) => s.fetchGoalsByGroupId)
@@ -25,13 +27,14 @@ export function HomePage() {
   useEffect(() => {
     if (selectedGroupId != null) {
       fetchGoalsByGroupId(selectedGroupId)
+      fetchGroupMembersAsync(selectedGroupId)
     }
-  }, [selectedGroupId, fetchGoalsByGroupId])
+  }, [selectedGroupId, fetchGoalsByGroupId, fetchGroupMembersAsync])
 
   const goalIds = selectedGroupId != null ? (goalIdsByGroupId[selectedGroupId] ?? []) : []
   const goals: Goal[] = goalIds.map((id) => goalsById[id]).filter((g): g is Goal => g !== undefined)
+  const members = selectedGroupId != null ? (membersByGroupId[selectedGroupId] ?? []) : []
 
-  const goalsByUser = groupGoalsByUser(goals)
   const communityProgress = calculateCommunityProgress(goals)
 
   return (
@@ -144,31 +147,11 @@ export function HomePage() {
                 </div>
               )}
 
-              {activeTab === 'group' && goals.length > 0 && (
+              {activeTab === 'group' && members.length > 0 && (
                 <div className="space-y-3">
-                  {Object.entries(goalsByUser).map(([userName, userGoals]) => {
-                    const totalTarget = userGoals.reduce((sum, g) => sum + g.targetValue, 0)
-                    const totalCurrent = userGoals.reduce((sum, g) => sum + g.currentValue, 0)
-                    const userProgress = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0
-
-                    return (
-                      <div key={userName} className="rounded-lg bg-gray-50 p-4">
-                        <div className="mb-2 flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-sunrise-400 to-dawn-500 font-medium text-white">
-                            {userName.charAt(0).toUpperCase()}
-                          </div>
-                          <span className="font-medium text-gray-700">{userName}</span>
-                        </div>
-                        <div className="h-2 w-full rounded-full bg-gray-200">
-                          <div
-                            className="h-2 rounded-full bg-gradient-to-r from-sunrise-400 to-dawn-500 transition-all duration-300"
-                            style={{ width: `${Math.min(100, userProgress)}%` }}
-                          />
-                        </div>
-                        <p className="mt-1 text-xs text-gray-500">{Math.round(userProgress)}% overall progress</p>
-                      </div>
-                    )
-                  })}
+                  {members.map((member) => (
+                    <UserProgressCard key={member.userId} member={member} />
+                  ))}
                 </div>
               )}
 

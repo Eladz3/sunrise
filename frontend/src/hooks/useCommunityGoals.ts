@@ -35,16 +35,6 @@ export function useCommunityGoals(): UseCommunityGoalsResult {
   return { goals, loading, error, refreshGoals: fetchGoals };
 }
 
-export function groupGoalsByUser(goals: Goal[]): Record<string, Goal[]> {
-  return goals.reduce(
-    (acc, goal) => {
-      const key = goal.userName ?? `User ${goal.userId}`;
-      acc[key] = [...(acc[key] ?? []), goal];
-      return acc;
-    },
-    {} as Record<string, Goal[]>
-  );
-}
 
 export function calculateCommunityProgress(goals: Goal[]): {
   totalCurrent: number;
