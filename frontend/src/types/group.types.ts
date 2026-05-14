@@ -6,7 +6,30 @@ export type Group = BaseEntity & {
   bannerImage: string;
 };
 
+export type GroupMemberSummary = {
+  userId: number;
+  displayName: string;
+  profilePhoto: string;
+  completionPercentage: number;
+};
+
+export type GroupSummary = {
+  id: number;
+  name: string;
+  bannerImage: string;
+  groupOwnerId: number;
+  aggregateProgress: number;
+  memberCount: number;
+  isOwner: boolean;
+  topMembers: GroupMemberSummary[];
+};
+
 export type CreateGroupRequest = {
   name: string;
   bannerImage?: string;
+  groupOwnerId: number;
+};
+
+export type GroupInviteResponse = {
+  token: string;
 };
