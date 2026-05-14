@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import type { GroupSummary } from '@/types'
 import { useGroupStore } from '@/stores/groupStore'
-import { useAuthStore } from '@/stores/authStore'
 
 interface GroupCardProps {
   group: GroupSummary
