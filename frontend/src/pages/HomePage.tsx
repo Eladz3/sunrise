@@ -5,10 +5,10 @@ import { useGoalStore } from '@/stores/goalStore'
 import { groupGoalsByUser, calculateCommunityProgress } from '@/hooks/useCommunityGoals'
 import type { Goal } from '@/types'
 
-type HomeTab = 'byUser' | 'byGoal'
+type HomeTab = 'group' | 'goals'
 
 export function HomePage() {
-  const [activeTab, setActiveTab] = useState<HomeTab>('byUser')
+  const [activeTab, setActiveTab] = useState<HomeTab>('group')
 
   const selectedGroupId = useGroupStore((s) => s.selectedGroupId)
   const groupsById = useGroupStore((s) => s.groupsById)
@@ -82,24 +82,24 @@ export function HomePage() {
         <section className="rounded-2xl bg-white p-4 shadow-sm">
           <div className="mb-4 flex rounded-xl bg-gray-100 p-1">
             <button
-              onClick={() => setActiveTab('byUser')}
+              onClick={() => setActiveTab('group')}
               className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
-                activeTab === 'byUser'
+                activeTab === 'group'
                   ? 'bg-white text-sunrise-600 shadow-sm'
                   : 'text-warmGray-500 hover:text-warmGray-700'
               }`}
             >
-              By User
+              Group
             </button>
             <button
-              onClick={() => setActiveTab('byGoal')}
+              onClick={() => setActiveTab('goals')}
               className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${
-                activeTab === 'byGoal'
+                activeTab === 'goals'
                   ? 'bg-white text-sunrise-600 shadow-sm'
                   : 'text-warmGray-500 hover:text-warmGray-700'
               }`}
             >
-              By Goal
+              Goals
             </button>
           </div>
 
@@ -120,50 +120,35 @@ export function HomePage() {
             </div>
           )}
 
-          {activeTab === 'byUser' && goals.length > 0 && (
-            <div className="space-y-6">
+          {activeTab === 'group' && goals.length > 0 && (
+            <div className="space-y-3">
               {Object.entries(goalsByUser).map(([userName, userGoals]) => {
                 const totalTarget = userGoals.reduce((sum, g) => sum + g.targetValue, 0)
                 const totalCurrent = userGoals.reduce((sum, g) => sum + g.currentValue, 0)
                 const userProgress = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0
 
                 return (
-                  <div key={userName} className="space-y-3">
-                    <div className="rounded-lg bg-gray-50 p-4">
-                      <div className="mb-2 flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-sunrise-400 to-dawn-500 font-medium text-white">
-                          {userName.charAt(0).toUpperCase()}
-                        </div>
-                        <span className="font-medium text-gray-700">{userName}</span>
+                  <div key={userName} className="rounded-lg bg-gray-50 p-4">
+                    <div className="mb-2 flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-sunrise-400 to-dawn-500 font-medium text-white">
+                        {userName.charAt(0).toUpperCase()}
                       </div>
-                      <div className="h-2 w-full rounded-full bg-gray-200">
-                        <div
-                          className="h-2 rounded-full bg-gradient-to-r from-sunrise-400 to-dawn-500 transition-all duration-300"
-                          style={{ width: `${Math.min(100, userProgress)}%` }}
-                        />
-                      </div>
-                      <p className="mt-1 text-xs text-gray-500">{Math.round(userProgress)}% overall progress</p>
+                      <span className="font-medium text-gray-700">{userName}</span>
                     </div>
-
-                    <div className="space-y-2 pl-4">
-                      {userGoals.map((goal) => (
-                        <GoalCard
-                          key={goal.id}
-                          title={goal.title}
-                          currentValue={goal.currentValue}
-                          targetValue={goal.targetValue}
-                          unit={goal.unit}
-                          category={goal.category}
-                        />
-                      ))}
+                    <div className="h-2 w-full rounded-full bg-gray-200">
+                      <div
+                        className="h-2 rounded-full bg-gradient-to-r from-sunrise-400 to-dawn-500 transition-all duration-300"
+                        style={{ width: `${Math.min(100, userProgress)}%` }}
+                      />
                     </div>
+                    <p className="mt-1 text-xs text-gray-500">{Math.round(userProgress)}% overall progress</p>
                   </div>
                 )
               })}
             </div>
           )}
 
-          {activeTab === 'byGoal' && goals.length > 0 && (
+          {activeTab === 'goals' && goals.length > 0 && (
             <div className="space-y-3">
               {goals.map((goal) => (
                 <GoalCard

@@ -3,6 +3,7 @@ import { devtools, subscribeWithSelector } from 'zustand/middleware'
 import { getGoalsByUserId, getGoalsByGroupId, createGoal as apiCreateGoal, updateGoal as apiUpdateGoal, deleteGoal as apiDeleteGoal } from '@/api/goals.api'
 import { isCacheStale } from '@/utils/cache'
 import { normalizeById, extractIds } from '@/utils/normalize'
+import { useGroupStore } from './groupStore'
 import type { Goal, CreateGoalRequest, UpdateGoalRequest } from '@/types'
 
 type GoalStore = {
@@ -78,7 +79,6 @@ export const useGoalStore = create<GoalStore>()(
       createGoal: async (request) => {
         const { userId, firebaseUid, ...goalData } = request
 
-        // Optimistic update with a temporary negative ID (avoids collisions with real IDs)
         const tempId = -Date.now()
         const optimisticGoal: Goal = {
           id: tempId,
@@ -90,41 +90,61 @@ export const useGoalStore = create<GoalStore>()(
           createdBy: userId,
         }
 
-        set((state) => ({
-          goalsById: { ...state.goalsById, [tempId]: optimisticGoal },
-          goalIdsByUserId: {
-            ...state.goalIdsByUserId,
-            [userId]: [...(state.goalIdsByUserId[userId] ?? []), tempId],
-          },
-          pendingGoalIds: [...state.pendingGoalIds, tempId],
-        }))
+        const userGroupIds = useGroupStore.getState().groupIdsByUserId[userId] ?? []
+
+        set((state) => {
+          const updatedIdsByGroup: Record<number, number[]> = {}
+          for (const groupId of userGroupIds) {
+            updatedIdsByGroup[groupId] = [...(state.goalIdsByGroupId[groupId] ?? []), tempId]
+          }
+          return {
+            goalsById: { ...state.goalsById, [tempId]: optimisticGoal },
+            goalIdsByUserId: {
+              ...state.goalIdsByUserId,
+              [userId]: [...(state.goalIdsByUserId[userId] ?? []), tempId],
+            },
+            goalIdsByGroupId: { ...state.goalIdsByGroupId, ...updatedIdsByGroup },
+            pendingGoalIds: [...state.pendingGoalIds, tempId],
+          }
+        })
 
         try {
           const created = await apiCreateGoal({ ...goalData, userId, firebaseUid })
 
           set((state) => {
             const { [tempId]: _, ...rest } = state.goalsById
-            const ids = (state.goalIdsByUserId[userId] ?? []).filter((id) => id !== tempId)
+            const userIds = (state.goalIdsByUserId[userId] ?? []).filter((id) => id !== tempId)
+            const updatedIdsByGroup: Record<number, number[]> = {}
+            for (const groupId of userGroupIds) {
+              updatedIdsByGroup[groupId] = [
+                ...(state.goalIdsByGroupId[groupId] ?? []).filter((id) => id !== tempId),
+                created.id,
+              ]
+            }
             return {
               goalsById: { ...rest, [created.id]: created },
-              goalIdsByUserId: { ...state.goalIdsByUserId, [userId]: [...ids, created.id] },
+              goalIdsByUserId: { ...state.goalIdsByUserId, [userId]: [...userIds, created.id] },
+              goalIdsByGroupId: { ...state.goalIdsByGroupId, ...updatedIdsByGroup },
               pendingGoalIds: state.pendingGoalIds.filter((id) => id !== tempId),
             }
           })
 
-          // Invalidate metrics
           const { useMetricsStore } = await import('./metricsStore')
           useMetricsStore.getState().invalidateUserMetrics(userId)
         } catch (err) {
-          // Rollback
           set((state) => {
             const { [tempId]: _, ...goalsById } = state.goalsById
+            const updatedIdsByGroup: Record<number, number[]> = {}
+            for (const groupId of userGroupIds) {
+              updatedIdsByGroup[groupId] = (state.goalIdsByGroupId[groupId] ?? []).filter((id) => id !== tempId)
+            }
             return {
               goalsById,
               goalIdsByUserId: {
                 ...state.goalIdsByUserId,
                 [userId]: (state.goalIdsByUserId[userId] ?? []).filter((id) => id !== tempId),
               },
+              goalIdsByGroupId: { ...state.goalIdsByGroupId, ...updatedIdsByGroup },
               pendingGoalIds: state.pendingGoalIds.filter((id) => id !== tempId),
               error: (err as Error).message,
             }
@@ -206,7 +226,12 @@ export const useGoalStore = create<GoalStore>()(
             updatedIdsByUser[removed.userId] = (updatedIdsByUser[removed.userId] ?? []).filter((id) => id !== goalId)
           }
 
-          return { goalsById, goalIdsByUserId: updatedIdsByUser }
+          const updatedIdsByGroup: Record<number, number[]> = {}
+          for (const [groupId, ids] of Object.entries(state.goalIdsByGroupId)) {
+            updatedIdsByGroup[Number(groupId)] = ids.filter((id) => id !== goalId)
+          }
+
+          return { goalsById, goalIdsByUserId: updatedIdsByUser, goalIdsByGroupId: updatedIdsByGroup }
         }),
     })),
     { name: 'GoalStore' }

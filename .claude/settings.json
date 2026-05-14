@@ -13,7 +13,9 @@
       "Bash(where gh *)",
       "Bash(where git *)",
       "PowerShell(Get-Command gh -ErrorAction SilentlyContinue; \\(Get-Command gh\\).Source 2>$null)",
-      "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\GitHub CLI\\\\\" -ErrorAction SilentlyContinue; Get-ChildItem \"$env:LOCALAPPDATA\\\\Programs\\\\GitHub CLI\\\\\" -ErrorAction SilentlyContinue)"
+      "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\GitHub CLI\\\\\" -ErrorAction SilentlyContinue; Get-ChildItem \"$env:LOCALAPPDATA\\\\Programs\\\\GitHub CLI\\\\\" -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Id 41004 -Force -ErrorAction SilentlyContinue)",
+      "PowerShell($env:ASPNETCORE_ENVIRONMENT = \"Local\"; cd \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\SunriseApi\"; dotnet ef database update 2>&1)"
     ]
   }
 }
