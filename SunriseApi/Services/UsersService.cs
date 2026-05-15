@@ -38,15 +38,10 @@ namespace SunriseApi.Services
             return newUser;
         }
 
-        public async Task<User> GetUserByFirebaseIdAsync(string firebaseUid)
+        public async Task<User?> GetUserByFirebaseIdAsync(string firebaseUid)
         {
-            var user = await _dbContext.Users
+            return await _dbContext.Users
                 .FirstOrDefaultAsync(u => u.FirebaseUid == firebaseUid);
-
-            if (user == null)
-                throw new InvalidOperationException($"User with FirebaseUid {firebaseUid} not found.");
-
-            return user;
         }
 
         public async Task<User> UpdateUserAsync(int userId, UpdateUserRequest request)
