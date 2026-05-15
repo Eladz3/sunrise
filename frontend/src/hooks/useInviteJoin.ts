@@ -6,6 +6,7 @@ const PENDING_INVITE_KEY = 'sunrise_pending_invite'
 
 export function useInviteJoin() {
   const currentUserId = useAuthStore((s) => s.currentUserId)
+  const authInitialized = useAuthStore((s) => s.authInitialized)
   const joinGroupByToken = useGroupStore((s) => s.joinGroupByToken)
 
   // On mount: if URL has ?join=TOKEN, stash it and strip from URL
@@ -23,9 +24,9 @@ export function useInviteJoin() {
     window.history.replaceState({}, '', newUrl)
   }, [])
 
-  // Once authenticated, complete any pending join
+  // Once authenticated and bootstrap complete, process any pending join
   useEffect(() => {
-    if (!currentUserId) return
+    if (!currentUserId || !authInitialized) return
     const token = localStorage.getItem(PENDING_INVITE_KEY)
     if (!token) return
 
@@ -33,5 +34,5 @@ export function useInviteJoin() {
     joinGroupByToken(token, currentUserId).catch((err) => {
       console.error('[Invite] Failed to join group:', err)
     })
-  }, [currentUserId, joinGroupByToken])
+  }, [currentUserId, authInitialized, joinGroupByToken])
 }
