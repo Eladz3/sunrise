@@ -1,3 +1,4 @@
+using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 
 public class FirebaseAuthMiddleware
@@ -11,6 +12,11 @@ public class FirebaseAuthMiddleware
 
     public async Task Invoke(HttpContext context)
     {
+        if (FirebaseApp.DefaultInstance == null)
+        {
+            FirebaseInit.Initialize();
+        }
+
         var authHeader = context.Request.Headers["Authorization"].ToString();
 
         if (context.Request.Path.StartsWithSegments("/swagger") || context.Request.Path.StartsWithSegments("/health"))
@@ -31,7 +37,11 @@ public class FirebaseAuthMiddleware
 
         try
         {
+            Console.WriteLine("BEFORE VERIFY");
+
             var decoded = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
+
+            Console.WriteLine("AFTER VERIFY");
             context.Items["User"] = decoded;
         }
         catch (Exception ex)
