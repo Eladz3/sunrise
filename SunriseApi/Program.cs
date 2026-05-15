@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SunriseApi.Constants;
 using SunriseApi.Data;
 using SunriseApi.Mapping;
 using SunriseApi.Services;
@@ -74,7 +75,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         policy
-            .WithOrigins("http://localhost:3000", "http://localhost:5173")
+            .WithOrigins(CorsOrigins.All)
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -91,7 +92,7 @@ if (!app.Environment.IsProduction())
 
 // Must be first: catches unhandled exceptions and ensures CORS headers
 // are written even on 500 responses (default Kestrel error resets headers).
-var corsOrigins = new[] { "http://localhost:3000", "http://localhost:5173" };
+var corsOrigins = CorsOrigins.All;
 app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
