@@ -12,15 +12,17 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <main className="flex-1 min-w-0 p-4 pb-24 lg:pb-6 overflow-y-auto">
-        <div className={activeTab !== 'home' ? 'hidden' : ''}>
-          <HomePage />
-        </div>
-        <div className={activeTab !== 'goals' ? 'hidden' : ''}>
-          <MyGoalsPage />
-        </div>
-        <div className={activeTab !== 'profile' ? 'hidden' : ''}>
-          <ProfilePage />
+      <main className="flex-1 min-w-0 pb-24 lg:pb-6 overflow-y-auto">
+        <div className="container mx-auto py-4">
+          <div className={activeTab !== 'home' ? 'hidden' : ''}>
+            <HomePage />
+          </div>
+          <div className={activeTab !== 'goals' ? 'hidden' : ''}>
+            <MyGoalsPage />
+          </div>
+          <div className={activeTab !== 'profile' ? 'hidden' : ''}>
+            <ProfilePage />
+          </div>
         </div>
       </main>
       <BottomTabNav activeTab={activeTab} onTabChange={setActiveTab} />

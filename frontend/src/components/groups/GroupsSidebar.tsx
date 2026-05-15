@@ -3,30 +3,28 @@ import { useGroupStore } from '@/stores/groupStore'
 import { useAuthStore } from '@/stores/authStore'
 import { GroupCard } from './GroupCard'
 import { GroupsEmptyState } from './GroupsEmptyState'
-import { CreateGroupModal } from './CreateGroupModal'
+import { GroupActionModal } from './GroupActionModal'
 import { DeleteGroupModal } from './DeleteGroupModal'
 import { InviteModal } from './InviteModal'
 
 export function GroupsSidebar({ compact = false }: { compact?: boolean }) {
-  const [showCreate, setShowCreate] = useState(false)
+  const [showGroupAction, setShowGroupAction] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; name: string } | null>(null)
   const [inviteTarget, setInviteTarget] = useState<{ id: number; name: string } | null>(null)
+
+  const [joinInput, setJoinInput] = useState('')
+  const [joining, setJoining] = useState(false)
+  const [joinError, setJoinError] = useState('')
 
   const currentUserId = useAuthStore((s) => s.currentUserId)
   const groupIdsByUserId = useGroupStore((s) => s.groupIdsByUserId)
   const groupsById = useGroupStore((s) => s.groupsById)
   const selectedGroupId = useGroupStore((s) => s.selectedGroupId)
-  const createGroup = useGroupStore((s) => s.createGroup)
   const deleteGroup = useGroupStore((s) => s.deleteGroup)
+  const joinGroupByToken = useGroupStore((s) => s.joinGroupByToken)
 
   const groupIds = currentUserId ? (groupIdsByUserId[currentUserId] ?? []) : []
   const groups = groupIds.map((id) => groupsById[id]).filter(Boolean)
-
-  const handleCreate = async (name: string) => {
-    if (!currentUserId) return
-    await createGroup({ name, groupOwnerId: currentUserId })
-    setShowCreate(false)
-  }
 
   const handleDeleteConfirm = async () => {
     if (!deleteTarget || !currentUserId) return
@@ -34,26 +32,41 @@ export function GroupsSidebar({ compact = false }: { compact?: boolean }) {
     setDeleteTarget(null)
   }
 
+  const handleInlineJoin = async () => {
+    if (!joinInput.trim() || !currentUserId) return
+    setJoining(true)
+    setJoinError('')
+    try {
+      const token = extractToken(joinInput.trim())
+      await joinGroupByToken(token, currentUserId)
+      setJoinInput('')
+    } catch {
+      setJoinError('Invalid or expired invite link.')
+    } finally {
+      setJoining(false)
+    }
+  }
+
   return (
     <>
       <aside className={`flex flex-col ${compact ? '' : 'h-full'}`}>
         {/* Header */}
-        <div className="flex items-center justify-between px-3 py-3 border-b border-gray-100">
+        <div className="flex items-center justify-between border-b border-gray-100 px-3 py-3">
           <h2 className="text-sm font-semibold text-gray-700">Groups</h2>
           <button
-            onClick={() => setShowCreate(true)}
-            className="p-1.5 rounded-full text-sunrise-600 hover:bg-sunrise-50 transition-colors"
+            onClick={() => setShowGroupAction(true)}
+            className="rounded-full p-1.5 text-sunrise-600 transition-colors hover:bg-sunrise-50"
             title="Create group"
             aria-label="Create new group"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
           </button>
         </div>
 
         {/* List or empty state */}
-        <div className={`${compact ? 'overflow-y-auto max-h-96' : 'flex-1 overflow-y-auto'} px-2 py-2 space-y-2`}>
+        <div className={`${compact ? 'max-h-96 overflow-y-auto' : 'flex-1 overflow-y-auto'} space-y-2 px-2 py-2`}>
           {groups.length === 0 ? (
             <GroupsEmptyState />
           ) : (
@@ -69,24 +82,33 @@ export function GroupsSidebar({ compact = false }: { compact?: boolean }) {
           )}
         </div>
 
-        {/* Create button pinned to bottom when list has items */}
+        {/* Inline join pinned to bottom when list has items */}
         {groups.length > 0 && (
-          <div className="px-2 pb-3 pt-2 border-t border-gray-100">
-            <button
-              onClick={() => setShowCreate(true)}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-sm text-sunrise-600 border border-dashed border-sunrise-300 hover:bg-sunrise-50 transition-colors font-medium"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              New group
-            </button>
+          <div className="border-t border-gray-100 px-2 pb-3 pt-2">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={joinInput}
+                onChange={(e) => { setJoinInput(e.target.value); setJoinError('') }}
+                onKeyDown={(e) => e.key === 'Enter' && handleInlineJoin()}
+                placeholder="Paste invite link…"
+                className={`min-w-0 flex-1 rounded-xl border px-3 py-2 text-xs focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sunrise-500 ${joinError ? 'border-red-400 bg-red-50' : 'border-gray-300'}`}
+              />
+              <button
+                onClick={handleInlineJoin}
+                disabled={joining || !joinInput.trim()}
+                className="shrink-0 rounded-xl border border-sunrise-300 px-3 py-2 text-xs font-medium text-sunrise-600 transition-colors hover:bg-sunrise-50 disabled:opacity-40"
+              >
+                {joining ? '…' : 'Join'}
+              </button>
+            </div>
+            {joinError && <p className="mt-1.5 text-xs text-red-500">{joinError}</p>}
           </div>
         )}
       </aside>
 
-      {showCreate && (
-        <CreateGroupModal onConfirm={handleCreate} onCancel={() => setShowCreate(false)} />
+      {showGroupAction && (
+        <GroupActionModal onClose={() => setShowGroupAction(false)} />
       )}
 
       {deleteTarget && (
@@ -106,4 +128,12 @@ export function GroupsSidebar({ compact = false }: { compact?: boolean }) {
       )}
     </>
   )
+}
+
+function extractToken(input: string): string {
+  try {
+    return new URL(input).searchParams.get('join') ?? input
+  } catch {
+    return input
+  }
 }

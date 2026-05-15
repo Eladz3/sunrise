@@ -5,6 +5,7 @@ import { useGroupStore } from '@/stores/groupStore'
 import { useGoalStore } from '@/stores/goalStore'
 import { calculateCommunityProgress } from '@/hooks/useCommunityGoals'
 import type { Goal } from '@/types'
+import { BOTTOM_NAV_HEIGHT } from '@/constants/layout.constants'
 
 type HomeTab = 'members' | 'goals'
 
@@ -40,28 +41,30 @@ export function HomePage() {
   const communityProgress = calculateCommunityProgress(goals)
 
   return (
-    <div className="space-y-4">
-      {/* Metrics banner — full width */}
-      <section className="rounded-2xl bg-gradient-to-br from-sunrise-500 via-dawn-500 to-rose-500 p-6 text-white shadow-lg">
-        <h1 className="mb-1 text-center text-2xl font-bold">{selectedGroup ? selectedGroup.name : 'Community Progress'}</h1>
-        <p className="mb-4 text-center text-sm text-sunrise-100">Rising together towards our goals</p>
-        <div className="h-4 w-full rounded-full bg-white/30">
-          <div className="h-4 rounded-full bg-white transition-all duration-500" style={{ width: `${communityProgress.percentage}%` }} />
+    <div className="flex items-start gap-4">
+      {/* Desktop sidebar — full viewport height */}
+      <div className="sticky top-0 hidden w-56 shrink-0 self-start lg:block xl:w-64">
+        <div className="overflow-hidden rounded-2xl bg-white shadow-sm" style={{ height: `calc(100vh - 2rem - ${BOTTOM_NAV_HEIGHT}px)` }}>
+          <GroupsSidebar />
         </div>
-        <p className="mt-3 text-center text-lg font-semibold text-sunrise-100">{communityProgress.percentage}% complete</p>
-      </section>
+      </div>
 
-      {/* Below banner: groups panel + content */}
-      <div className="flex items-start gap-4">
-        {/* Desktop groups panel */}
-        <div className="hidden w-56 shrink-0 overflow-hidden rounded-2xl bg-white shadow-sm lg:block xl:w-64">
-          <GroupsSidebar compact />
-        </div>
+      {/* Right column: banner + content */}
+      <div className="min-w-0 flex-1 space-y-4">
+        {/* Metrics banner */}
+        <section className="rounded-2xl bg-gradient-to-br from-sunrise-500 via-dawn-500 to-rose-500 p-6 text-white shadow-lg">
+          <h1 className="mb-1 text-center text-2xl font-bold">{selectedGroup ? selectedGroup.name : 'Community Progress'}</h1>
+          <p className="mb-4 text-center text-sm text-sunrise-100">Rising together towards our goals</p>
+          <div className="h-4 w-full rounded-full bg-white/30">
+            <div className="h-4 rounded-full bg-white transition-all duration-500" style={{ width: `${communityProgress.percentage}%` }} />
+          </div>
+          <p className="mt-3 text-center text-lg font-semibold text-sunrise-100">{communityProgress.percentage}% complete</p>
+        </section>
 
         {/* Content column */}
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0">
           {/* Mobile hamburger */}
-          <div className="lg:hidden">
+          <div className="mb-4 lg:hidden">
             <button onClick={() => setDrawerOpen(true)} className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:border-sunrise-300" aria-label="Open groups">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -99,10 +102,12 @@ export function HomePage() {
                 </button>
               </div>
 
-              {activeTab === 'members' && (
-                membersLoading ? (
+              {activeTab === 'members' &&
+                (membersLoading ? (
                   <div className="space-y-3">
-                    {[1, 2, 3].map((i) => <UserProgressCardSkeleton key={i} />)}
+                    {[1, 2, 3].map((i) => (
+                      <UserProgressCardSkeleton key={i} />
+                    ))}
                   </div>
                 ) : members.length > 0 ? (
                   <div className="space-y-3">
@@ -110,13 +115,14 @@ export function HomePage() {
                       <UserProgressCard key={member.userId} member={member} />
                     ))}
                   </div>
-                ) : null
-              )}
+                ) : null)}
 
-              {activeTab === 'goals' && (
-                loading ? (
+              {activeTab === 'goals' &&
+                (loading ? (
                   <div className="space-y-3">
-                    {[1, 2, 3].map((i) => <GoalCardSkeleton key={i} />)}
+                    {[1, 2, 3].map((i) => (
+                      <GoalCardSkeleton key={i} />
+                    ))}
                   </div>
                 ) : goals.length > 0 ? (
                   <div className="space-y-3">
@@ -134,8 +140,7 @@ export function HomePage() {
                     <p className="font-medium text-gray-600">No goals yet in this group</p>
                     <p className="mt-1 text-sm text-gray-400">Members' goals will appear here.</p>
                   </div>
-                )
-              )}
+                ))}
             </section>
           )}
         </div>
