@@ -1,23 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { GoalCard, Spinner } from '@/components'
 import { GoalFormModal, type GoalFormData } from '@/components/goal/GoalFormModal'
 import { ProgressUpdateModal } from '@/components/goal/ProgressUpdateModal'
 import { useGoals } from '@/hooks/useGoals'
 import { useUserMetrics } from '@/hooks/useUserMetrics'
 import { useAuthStore } from '@/stores/authStore'
-import { useMetricsStore } from '@/stores/metricsStore'
 
 export function MyGoalsPage() {
   const { goals, loading, error, addGoal, editGoal } = useGoals()
   const currentUserId = useAuthStore((state) => state.currentUserId)
-  const lastFetched = useMetricsStore((state) => state.lastFetchedByUserId[currentUserId ?? 0])
-  const fetchUserMetrics = useMetricsStore((state) => state.fetchUserMetrics)
-  const userMetrics = useUserMetrics(currentUserId ?? 0)
-
-  useEffect(() => {
-    if (!currentUserId) return
-    fetchUserMetrics(currentUserId)
-  }, [currentUserId, lastFetched, fetchUserMetrics])
+  const userMetrics = useUserMetrics(currentUserId)
 
   const overallProgress = (userMetrics?.progressPercentage ?? 0) * 100
 

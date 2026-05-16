@@ -21,6 +21,8 @@ async function emit(event: SyncEvent): Promise<void> {
       // Dynamic import breaks the circular dep: groupStore → syncService → groupStore
       const { useGroupStore } = await import('@/stores/groupStore')
       const groupStore = useGroupStore.getState()
+      groupStore.invalidateUserGroups(event.userId)
+      await groupStore.fetchGroupsByUserId(event.userId)
       for (const groupId of event.groupIds) {
         groupStore.invalidateGroupMembers(groupId)
         await groupStore.fetchGroupMembersAsync(groupId)

@@ -3,7 +3,7 @@ import { GoalCard, GoalCardSkeleton } from '@/components'
 import { GroupsSidebar, MobileGroupsDrawer, UserProgressCard, UserProgressCardSkeleton } from '@/components/groups'
 import { useGroupStore } from '@/stores/groupStore'
 import { useGoalStore } from '@/stores/goalStore'
-import { calculateCommunityProgress } from '@/hooks/useCommunityGoals'
+import { useGroupMetrics } from '@/hooks/useGroupMetrics'
 import type { Goal } from '@/types'
 import { BOTTOM_NAV_HEIGHT } from '@/constants/layout.constants'
 
@@ -38,7 +38,8 @@ export function HomePage() {
   const members = selectedGroupId != null ? (membersByGroupId[selectedGroupId] ?? []) : []
   const membersLoading = selectedGroupId != null ? (membersLoadingByGroupId[selectedGroupId] ?? false) : false
 
-  const communityProgress = calculateCommunityProgress(goals)
+  const groupMetrics = useGroupMetrics(selectedGroupId)
+  const groupProgress = Math.round((groupMetrics?.progressPercentage ?? 0) * 100)
 
   return (
     <div className="flex items-start gap-4">
@@ -56,9 +57,9 @@ export function HomePage() {
           <h1 className="mb-1 text-center text-2xl font-bold">{selectedGroup ? selectedGroup.name : 'Community Progress'}</h1>
           <p className="mb-4 text-center text-sm text-sunrise-100">Rising together towards our goals</p>
           <div className="h-4 w-full rounded-full bg-white/30">
-            <div className="h-4 rounded-full bg-white transition-all duration-500" style={{ width: `${communityProgress.percentage}%` }} />
+            <div className="h-4 rounded-full bg-white transition-all duration-500" style={{ width: `${groupProgress}%` }} />
           </div>
-          <p className="mt-3 text-center text-lg font-semibold text-sunrise-100">{communityProgress.percentage}% complete</p>
+          <p className="mt-3 text-center text-lg font-semibold text-sunrise-100">{groupProgress}% complete</p>
         </section>
 
         {/* Content column */}
