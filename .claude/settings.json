@@ -16,7 +16,8 @@
       "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\GitHub CLI\\\\\" -ErrorAction SilentlyContinue; Get-ChildItem \"$env:LOCALAPPDATA\\\\Programs\\\\GitHub CLI\\\\\" -ErrorAction SilentlyContinue)",
       "PowerShell(Stop-Process -Id 41004 -Force -ErrorAction SilentlyContinue)",
       "PowerShell($env:ASPNETCORE_ENVIRONMENT = \"Local\"; cd \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\SunriseApi\"; dotnet ef database update 2>&1)",
-      "Bash(Remove-Item \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\frontend\\\\src\\\\components\\\\layout\\\\Container.tsx\")"
+      "Bash(Remove-Item \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\frontend\\\\src\\\\components\\\\layout\\\\Container.tsx\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\frontend\\\\src\" -Recurse -Directory)"
     ]
   }
 }

@@ -4,6 +4,7 @@ import { getGoalsByUserId, getGoalsByGroupId, createGoal as apiCreateGoal, updat
 import { isCacheStale } from '@/utils/cache'
 import { normalizeById, extractIds } from '@/utils/normalize'
 import { useGroupStore } from './groupStore'
+import { syncService } from '@/services/syncService'
 import type { Goal, CreateGoalRequest, UpdateGoalRequest } from '@/types'
 
 type GoalStore = {
@@ -26,6 +27,8 @@ type GoalStore = {
   deleteGoal: (goalId: number) => Promise<void>
   upsertGoal: (goal: Goal) => void
   removeGoal: (goalId: number) => void
+  invalidateUserGoals: (userId: number) => void
+  invalidateGroupGoals: (groupId: number) => void
 }
 
 export const useGoalStore = create<GoalStore>()(
@@ -129,8 +132,7 @@ export const useGoalStore = create<GoalStore>()(
             }
           })
 
-          const { useMetricsStore } = await import('./metricsStore')
-          useMetricsStore.getState().invalidateUserMetrics(userId)
+          await syncService.emit({ type: 'goal:created', userId, groupIds: userGroupIds })
         } catch (err) {
           set((state) => {
             const { [tempId]: _, ...goalsById } = state.goalsById
@@ -169,9 +171,8 @@ export const useGoalStore = create<GoalStore>()(
             pendingGoalIds: state.pendingGoalIds.filter((id) => id !== goalId),
           }))
 
-          // Invalidate metrics
-          const { useMetricsStore } = await import('./metricsStore')
-          useMetricsStore.getState().invalidateUserMetrics(original.userId)
+          const groupIds = useGroupStore.getState().groupIdsByUserId[original.userId] ?? []
+          await syncService.emit({ type: 'goal:updated', userId: original.userId, groupIds })
         } catch (err) {
           // Rollback
           set((state) => ({
@@ -198,9 +199,8 @@ export const useGoalStore = create<GoalStore>()(
             pendingGoalIds: state.pendingGoalIds.filter((id) => id !== goalId),
           }))
 
-          // Invalidate metrics
-          const { useMetricsStore } = await import('./metricsStore')
-          useMetricsStore.getState().invalidateUserMetrics(original.userId)
+          const groupIds = useGroupStore.getState().groupIdsByUserId[original.userId] ?? []
+          await syncService.emit({ type: 'goal:deleted', userId: original.userId, groupIds })
         } catch (err) {
           // Rollback
           get().upsertGoal(original)
@@ -233,6 +233,16 @@ export const useGoalStore = create<GoalStore>()(
 
           return { goalsById, goalIdsByUserId: updatedIdsByUser, goalIdsByGroupId: updatedIdsByGroup }
         }),
+
+      invalidateUserGoals: (userId: number) =>
+        set((state) => ({
+          lastFetchedByUserId: { ...state.lastFetchedByUserId, [userId]: 0 },
+        })),
+
+      invalidateGroupGoals: (groupId: number) =>
+        set((state) => ({
+          lastFetchedByGroupId: { ...state.lastFetchedByGroupId, [groupId]: 0 },
+        })),
     })),
     { name: 'GoalStore' }
   )

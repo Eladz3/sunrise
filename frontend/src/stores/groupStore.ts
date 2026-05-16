@@ -10,6 +10,7 @@ import {
 } from '@/api/groups.api'
 import { isCacheStale } from '@/utils/cache'
 import { normalizeById, extractIds } from '@/utils/normalize'
+import { syncService } from '@/services/syncService'
 import type { GroupSummary, CreateGroupRequest, GroupMemberSummary } from '@/types'
 
 type GroupStore = {
@@ -34,6 +35,8 @@ type GroupStore = {
   generateInviteToken: (groupId: number, requestingUserId: number) => Promise<string>
   joinGroupByToken: (token: string, userId: number) => Promise<GroupSummary>
   upsertGroup: (group: GroupSummary) => void
+  invalidateUserGroups: (userId: number) => void
+  invalidateGroupMembers: (groupId: number) => void
 }
 
 export const useGroupStore = create<GroupStore>()(
@@ -128,6 +131,7 @@ export const useGroupStore = create<GroupStore>()(
             Object.entries(state.lastFetchedByUserId).map(([k]) => [k, 0])
           ),
         }))
+        await syncService.emit({ type: 'group:deleted', userId: requestingUserId, groupId })
       },
 
       generateInviteToken: async (groupId: number, requestingUserId: number) => {
@@ -145,14 +149,26 @@ export const useGroupStore = create<GroupStore>()(
             groupIdsByUserId: { ...state.groupIdsByUserId, [userId]: ids },
             selectedGroupId: state.selectedGroupId ?? group.id,
             lastFetchedByUserId: { ...state.lastFetchedByUserId, [userId]: 0 },
+            lastFetchedMembersByGroupId: { ...state.lastFetchedMembersByGroupId, [group.id]: 0 },
           }
         })
+        await syncService.emit({ type: 'group:joined', userId, groupId: group.id })
         return group
       },
 
       upsertGroup: (group: GroupSummary) =>
         set((state) => ({
           groupsById: { ...state.groupsById, [group.id]: group },
+        })),
+
+      invalidateUserGroups: (userId: number) =>
+        set((state) => ({
+          lastFetchedByUserId: { ...state.lastFetchedByUserId, [userId]: 0 },
+        })),
+
+      invalidateGroupMembers: (groupId: number) =>
+        set((state) => ({
+          lastFetchedMembersByGroupId: { ...state.lastFetchedMembersByGroupId, [groupId]: 0 },
         })),
     })),
     { name: 'GroupStore' }
