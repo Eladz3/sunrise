@@ -38,6 +38,20 @@ Five domain stores, each with normalized entity maps and TTL-based cache timesta
 
 Cache staleness is checked via `isCacheStale(lastFetched, domain)` from `src/utils/cache.ts` using TTLs defined in `src/constants/cache.constants.ts`. Every fetch method checks staleness and returns early if fresh — this is intentional pull-on-demand behavior.
 
+**EntityWriter — write-through service** (`src/services/entityWriter.ts`)
+
+`entityWriter` is the single entry point for writing confirmed server data into stores from outside those stores (auth bootstrap, hooks making direct API calls, etc.). It routes to the correct store's `upsert*` method, which maintains both the entity map and all index lists in one atomic `set()` call — ensuring every subscriber re-renders correctly.
+
+```ts
+entityWriter.writeGoal(goal, { replacingId?: number })  // goalStore
+entityWriter.writeGroup(group, { userId?: number })     // groupStore (+ userId index)
+entityWriter.writeUser(user)                            // userStore
+```
+
+**Rule: store-internal mutations call `upsert*` directly** (not `entityWriter`) to avoid circular imports. The `upsert*` methods are intentionally smart enough to be called either way — they always maintain the full index state.
+
+**Why indexes matter for re-renders**: hooks like `useUserGoals` subscribe to `goalIdsByUserId`, not `goalsById`. If a write only updates the entity map, those hooks never re-render. Every `upsert*` method updates both the map and all relevant index arrays.
+
 **SyncService — cross-store invalidation** (`src/services/syncService.ts`)
 
 `syncService.emit(event)` is the single source of truth for what data needs to refresh after a mutation. All store mutations that affect other stores must call it instead of importing sibling stores directly.

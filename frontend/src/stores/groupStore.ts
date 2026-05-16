@@ -34,7 +34,7 @@ type GroupStore = {
   deleteGroup: (groupId: number, requestingUserId: number) => Promise<void>
   generateInviteToken: (groupId: number, requestingUserId: number) => Promise<string>
   joinGroupByToken: (token: string, userId: number) => Promise<GroupSummary>
-  upsertGroup: (group: GroupSummary) => void
+  upsertGroup: (group: GroupSummary, opts?: { userId?: number }) => void
   invalidateUserGroups: (userId: number) => void
   invalidateGroupMembers: (groupId: number) => void
 }
@@ -100,15 +100,8 @@ export const useGroupStore = create<GroupStore>()(
 
       createGroup: async (request: CreateGroupRequest) => {
         const group = await apiCreateGroup(request)
-        get().upsertGroup(group)
-        const userId = request.groupOwnerId
-        set((state) => ({
-          groupIdsByUserId: {
-            ...state.groupIdsByUserId,
-            [userId]: [...(state.groupIdsByUserId[userId] ?? []), group.id],
-          },
-          selectedGroupId: state.selectedGroupId ?? group.id,
-        }))
+        get().upsertGroup(group, { userId: request.groupOwnerId })
+        set((state) => ({ selectedGroupId: state.selectedGroupId ?? group.id }))
         return group
       },
 
@@ -141,25 +134,30 @@ export const useGroupStore = create<GroupStore>()(
 
       joinGroupByToken: async (token: string, userId: number) => {
         const group = await apiJoinGroupByToken(token, userId)
-        get().upsertGroup(group)
-        set((state) => {
-          const existing = state.groupIdsByUserId[userId] ?? []
-          const ids = existing.includes(group.id) ? existing : [...existing, group.id]
-          return {
-            groupIdsByUserId: { ...state.groupIdsByUserId, [userId]: ids },
-            selectedGroupId: state.selectedGroupId ?? group.id,
-            lastFetchedByUserId: { ...state.lastFetchedByUserId, [userId]: 0 },
-            lastFetchedMembersByGroupId: { ...state.lastFetchedMembersByGroupId, [group.id]: 0 },
-          }
-        })
+        get().upsertGroup(group, { userId })
+        set((state) => ({
+          selectedGroupId: state.selectedGroupId ?? group.id,
+          // Force re-fetch of the full group list and member list after joining
+          lastFetchedByUserId: { ...state.lastFetchedByUserId, [userId]: 0 },
+          lastFetchedMembersByGroupId: { ...state.lastFetchedMembersByGroupId, [group.id]: 0 },
+        }))
         await syncService.emit({ type: 'group:joined', userId, groupId: group.id })
         return group
       },
 
-      upsertGroup: (group: GroupSummary) =>
-        set((state) => ({
-          groupsById: { ...state.groupsById, [group.id]: group },
-        })),
+      upsertGroup: (group: GroupSummary, opts?: { userId?: number }) =>
+        set((state) => {
+          const groupsById = { ...state.groupsById, [group.id]: group }
+          if (opts?.userId == null) return { groupsById }
+
+          const existing = state.groupIdsByUserId[opts.userId] ?? []
+          const ids = existing.includes(group.id) ? existing : [...existing, group.id]
+          return {
+            groupsById,
+            groupIdsByUserId: { ...state.groupIdsByUserId, [opts.userId]: ids },
+            lastFetchedByUserId: { ...state.lastFetchedByUserId, [opts.userId]: Date.now() },
+          }
+        }),
 
       invalidateUserGroups: (userId: number) =>
         set((state) => ({

@@ -25,7 +25,7 @@ type GoalStore = {
   createGoal: (request: CreateGoalRequest & { firebaseUid: string; userId: number }) => Promise<void>
   updateGoal: (goalId: number, request: UpdateGoalRequest) => Promise<void>
   deleteGoal: (goalId: number) => Promise<void>
-  upsertGoal: (goal: Goal) => void
+  upsertGoal: (goal: Goal, opts?: { replacingId?: number }) => void
   removeGoal: (goalId: number) => void
   invalidateUserGoals: (userId: number) => void
   invalidateGroupGoals: (groupId: number) => void
@@ -113,25 +113,7 @@ export const useGoalStore = create<GoalStore>()(
 
         try {
           const created = await apiCreateGoal({ ...goalData, userId, firebaseUid })
-
-          set((state) => {
-            const { [tempId]: _, ...rest } = state.goalsById
-            const userIds = (state.goalIdsByUserId[userId] ?? []).filter((id) => id !== tempId)
-            const updatedIdsByGroup: Record<number, number[]> = {}
-            for (const groupId of userGroupIds) {
-              updatedIdsByGroup[groupId] = [
-                ...(state.goalIdsByGroupId[groupId] ?? []).filter((id) => id !== tempId),
-                created.id,
-              ]
-            }
-            return {
-              goalsById: { ...rest, [created.id]: created },
-              goalIdsByUserId: { ...state.goalIdsByUserId, [userId]: [...userIds, created.id] },
-              goalIdsByGroupId: { ...state.goalIdsByGroupId, ...updatedIdsByGroup },
-              pendingGoalIds: state.pendingGoalIds.filter((id) => id !== tempId),
-            }
-          })
-
+          get().upsertGoal(created, { replacingId: tempId })
           await syncService.emit({ type: 'goal:created', userId, groupIds: userGroupIds })
         } catch (err) {
           set((state) => {
@@ -166,11 +148,7 @@ export const useGoalStore = create<GoalStore>()(
 
         try {
           const updated = await apiUpdateGoal(goalId, request)
-          set((state) => ({
-            goalsById: { ...state.goalsById, [goalId]: updated },
-            pendingGoalIds: state.pendingGoalIds.filter((id) => id !== goalId),
-          }))
-
+          get().upsertGoal(updated) // updates map + indexes + clears from pendingGoalIds
           const groupIds = useGroupStore.getState().groupIdsByUserId[original.userId] ?? []
           await syncService.emit({ type: 'goal:updated', userId: original.userId, groupIds })
         } catch (err) {
@@ -202,19 +180,47 @@ export const useGoalStore = create<GoalStore>()(
           const groupIds = useGroupStore.getState().groupIdsByUserId[original.userId] ?? []
           await syncService.emit({ type: 'goal:deleted', userId: original.userId, groupIds })
         } catch (err) {
-          // Rollback
+          // Rollback — upsertGoal re-adds to all indexes and clears from pendingGoalIds
           get().upsertGoal(original)
-          set((state) => ({
-            pendingGoalIds: state.pendingGoalIds.filter((id) => id !== goalId),
-            error: (err as Error).message,
-          }))
+          set({ error: (err as Error).message })
         }
       },
 
-      upsertGoal: (goal: Goal) =>
-        set((state) => ({
-          goalsById: { ...state.goalsById, [goal.id]: goal },
-        })),
+      upsertGoal: (goal: Goal, opts?: { replacingId?: number }) => {
+        const groupIds = useGroupStore.getState().groupIdsByUserId[goal.userId] ?? []
+        set((state) => {
+          // Build goalsById — remove the temp/old entry, add the confirmed one
+          let goalsById: Record<number, Goal>
+          if (opts?.replacingId != null) {
+            const { [opts.replacingId]: _removed, ...rest } = state.goalsById
+            goalsById = { ...rest, [goal.id]: goal }
+          } else {
+            goalsById = { ...state.goalsById, [goal.id]: goal }
+          }
+
+          // Update the userId → goalIds index
+          const userIds = (state.goalIdsByUserId[goal.userId] ?? []).filter(
+            (id) => id !== opts?.replacingId && id !== goal.id
+          )
+          const goalIdsByUserId = { ...state.goalIdsByUserId, [goal.userId]: [...userIds, goal.id] }
+
+          // Update every group index the user belongs to
+          const goalIdsByGroupId = { ...state.goalIdsByGroupId }
+          for (const gid of groupIds) {
+            const existing = (goalIdsByGroupId[gid] ?? []).filter(
+              (id) => id !== opts?.replacingId && id !== goal.id
+            )
+            goalIdsByGroupId[gid] = [...existing, goal.id]
+          }
+
+          // Clear both the confirmed ID and any temp ID from pendingGoalIds
+          const pendingGoalIds = state.pendingGoalIds.filter(
+            (id) => id !== goal.id && (opts?.replacingId == null || id !== opts.replacingId)
+          )
+
+          return { goalsById, goalIdsByUserId, goalIdsByGroupId, pendingGoalIds }
+        })
+      },
 
       removeGoal: (goalId: number) =>
         set((state) => {
