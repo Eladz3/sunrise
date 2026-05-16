@@ -1,11 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { GoalCard, Spinner } from '@/components'
 import { GoalFormModal, type GoalFormData } from '@/components/goal/GoalFormModal'
 import { ProgressUpdateModal } from '@/components/goal/ProgressUpdateModal'
 import { useGoals } from '@/hooks/useGoals'
+import { useUserMetrics } from '@/hooks/useUserMetrics'
+import { useAuthStore } from '@/stores/authStore'
+import { useMetricsStore } from '@/stores/metricsStore'
 
 export function MyGoalsPage() {
   const { goals, loading, error, addGoal, editGoal } = useGoals()
+  const currentUserId = useAuthStore((state) => state.currentUserId)
+  const lastFetched = useMetricsStore((state) => state.lastFetchedByUserId[currentUserId ?? 0])
+  const fetchUserMetrics = useMetricsStore((state) => state.fetchUserMetrics)
+  const userMetrics = useUserMetrics(currentUserId ?? 0)
+
+  useEffect(() => {
+    if (!currentUserId) return
+    fetchUserMetrics(currentUserId)
+  }, [currentUserId, lastFetched, fetchUserMetrics])
+
+  const overallProgress = (userMetrics?.progressPercentage ?? 0) * 100
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingGoalId, setEditingGoalId] = useState<number | null>(null)
@@ -13,10 +27,6 @@ export function MyGoalsPage() {
 
   const editingGoal = editingGoalId !== null ? goals.find((g) => g.id === editingGoalId) : null
   const progressGoal = progressGoalId !== null ? goals.find((g) => g.id === progressGoalId) ?? null : null
-
-  const totalTarget = goals.reduce((sum, g) => sum + g.targetValue, 0)
-  const totalCurrent = goals.reduce((sum, g) => sum + g.currentValue, 0)
-  const overallProgress = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0
 
   const handleAddGoal = async (data: GoalFormData) => {
     await addGoal({
