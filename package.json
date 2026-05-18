@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "start": "npm run dev --workspace=frontend",
-    "be": "dotnet watch run --project ./SunriseApi/SunriseApi.csproj",
+    "be": "dotnet run --project ./SunriseApi/SunriseApi.csproj",
     "build": "npm run build --workspace=frontend",
     "update-db-local": "cross-env ASPNETCORE_ENVIRONMENT=Local dotnet ef database update --project SunriseApi/SunriseApi.csproj",
     "update-db-dev": "cross-env ASPNETCORE_ENVIRONMENT=Development dotnet ef database update --project SunriseApi/SunriseApi.csproj"

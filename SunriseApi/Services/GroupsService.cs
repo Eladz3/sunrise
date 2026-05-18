@@ -42,19 +42,19 @@ namespace SunriseApi.Services
             {
                 Name = request.Name,
                 BannerImage = request.BannerImage,
-                GroupOwnerId = request.GroupOwnerId,
-                CreatedBy = request.GroupOwnerId,
+                GroupOwnerUserId = request.GroupOwnerUserId,
+                CreatedBy = request.GroupOwnerUserId,
                 CreatedOn = DateTime.UtcNow,
             };
 
             await _dbContext.Groups.AddAsync(newGroup);
             await _dbContext.SaveChangesAsync();
 
-            var membership = new UserGroup { UserId = request.GroupOwnerId, GroupId = newGroup.Id };
+            var membership = new UserGroup { UserId = request.GroupOwnerUserId, GroupId = newGroup.Id };
             await _dbContext.UserGroups.AddAsync(membership);
             await _dbContext.SaveChangesAsync();
 
-            return await BuildGroupSummaryAsync(newGroup, request.GroupOwnerId);
+            return await BuildGroupSummaryAsync(newGroup, request.GroupOwnerUserId);
         }
 
         public async Task<IEnumerable<GroupMemberSummary>> GetGroupMembersAsync(int groupId)
@@ -75,7 +75,7 @@ namespace SunriseApi.Services
             if (group == null)
                 throw new InvalidOperationException($"Group {groupId} not found.");
 
-            if (group.GroupOwnerId != requestingUserId)
+            if (group.GroupOwnerUserId != requestingUserId)
                 throw new UnauthorizedAccessException("Only the group owner can delete this group.");
 
             group.DeletedOn = DateTime.UtcNow;
@@ -159,10 +159,10 @@ namespace SunriseApi.Services
                 Id = group.Id,
                 Name = group.Name,
                 BannerImage = group.BannerImage,
-                GroupOwnerId = group.GroupOwnerId,
+                GroupOwnerUserId = group.GroupOwnerUserId,
                 AggregateProgress = Math.Round(aggregateProgress, 1),
                 MemberCount = memberSummaries.Count,
-                IsOwner = group.GroupOwnerId == requestingUserId,
+                IsOwner = group.GroupOwnerUserId == requestingUserId,
                 TopMembers = topMembers,
             };
         }

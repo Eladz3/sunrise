@@ -83,7 +83,7 @@ namespace SunriseApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Goals");
+                    b.ToTable("Goals", (string)null);
                 });
 
             modelBuilder.Entity("SunriseApi.Models.Entities.Group", b =>
@@ -110,7 +110,7 @@ namespace SunriseApi.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("GroupOwnerId")
+                    b.Property<int>("GroupOwnerUserId")
                         .HasColumnType("int");
 
                     b.Property<int?>("ModifiedBy")
@@ -125,9 +125,9 @@ namespace SunriseApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupOwnerId");
+                    b.HasIndex("GroupOwnerUserId");
 
-                    b.ToTable("Groups");
+                    b.ToTable("Groups", (string)null);
                 });
 
             modelBuilder.Entity("SunriseApi.Models.Entities.GroupInvite", b =>
@@ -170,7 +170,7 @@ namespace SunriseApi.Migrations
                     b.HasIndex("Token")
                         .IsUnique();
 
-                    b.ToTable("GroupInvites");
+                    b.ToTable("GroupInvites", (string)null);
                 });
 
             modelBuilder.Entity("SunriseApi.Models.Entities.User", b =>
@@ -225,7 +225,7 @@ namespace SunriseApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("SunriseApi.Models.Entities.UserGroup", b =>
@@ -240,7 +240,7 @@ namespace SunriseApi.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("UserGroups");
+                    b.ToTable("UserGroups", (string)null);
                 });
 
             modelBuilder.Entity("SunriseApi.Models.Entities.Goal", b =>
@@ -258,7 +258,7 @@ namespace SunriseApi.Migrations
                 {
                     b.HasOne("SunriseApi.Models.Entities.User", "GroupOwner")
                         .WithMany()
-                        .HasForeignKey("GroupOwnerId")
+                        .HasForeignKey("GroupOwnerUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

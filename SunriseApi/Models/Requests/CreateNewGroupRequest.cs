@@ -4,6 +4,6 @@ namespace SunriseApi.Models.Requests
     {
         public string Name { get; set; } = "";
         public string BannerImage { get; set; } = "";
-        public int GroupOwnerId { get; set; }
+        public int GroupOwnerUserId { get; set; }
     }
 }

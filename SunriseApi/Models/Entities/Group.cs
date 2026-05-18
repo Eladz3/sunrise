@@ -8,7 +8,7 @@ namespace SunriseApi.Models.Entities
         public string Name { get; set; } = "";
         public string BannerImage { get; set; } = "";
 
-        public int GroupOwnerId { get; set; }
+        public int GroupOwnerUserId { get; set; }
         public User GroupOwner { get; set; } = null!;
 
         public ICollection<UserGroup> UserGroups { get; set; } = new List<UserGroup>();

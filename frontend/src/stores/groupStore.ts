@@ -1,13 +1,6 @@
 import { create } from 'zustand'
 import { devtools, subscribeWithSelector } from 'zustand/middleware'
-import {
-  getGroupsByUserId,
-  createGroup as apiCreateGroup,
-  deleteGroup as apiDeleteGroup,
-  getOrCreateInviteToken,
-  joinGroupByToken as apiJoinGroupByToken,
-  getGroupMembers,
-} from '@/api/groups.api'
+import { getGroupsByUserId, createGroup as apiCreateGroup, deleteGroup as apiDeleteGroup, getOrCreateInviteToken, joinGroupByToken as apiJoinGroupByToken, getGroupMembers } from '@/api/groups.api'
 import { isCacheStale } from '@/utils/cache'
 import { normalizeById, extractIds } from '@/utils/normalize'
 import { syncService } from '@/services/syncService'
@@ -63,8 +56,7 @@ export const useGroupStore = create<GroupStore>()(
           const ids = extractIds(groups)
 
           set((state) => {
-            const selectedGroupId =
-              state.selectedGroupId !== null ? state.selectedGroupId : (ids[0] ?? null)
+            const selectedGroupId = state.selectedGroupId !== null ? state.selectedGroupId : (ids[0] ?? null)
             return {
               groupsById: { ...state.groupsById, ...normalized },
               groupIdsByUserId: { ...state.groupIdsByUserId, [userId]: ids },
@@ -100,7 +92,7 @@ export const useGroupStore = create<GroupStore>()(
 
       createGroup: async (request: CreateGroupRequest) => {
         const group = await apiCreateGroup(request)
-        get().upsertGroup(group, { userId: request.groupOwnerId })
+        get().upsertGroup(group, { userId: request.groupOwnerUserId })
         set((state) => ({ selectedGroupId: state.selectedGroupId ?? group.id }))
         return group
       },
@@ -114,15 +106,12 @@ export const useGroupStore = create<GroupStore>()(
             updatedIdsByUser[Number(uid)] = ids.filter((id) => id !== groupId)
           }
           const remainingIds = Object.values(updatedIdsByUser).flat()
-          const nextSelectedId =
-            state.selectedGroupId === groupId ? (remainingIds[0] ?? null) : state.selectedGroupId
+          const nextSelectedId = state.selectedGroupId === groupId ? (remainingIds[0] ?? null) : state.selectedGroupId
           return { groupsById, groupIdsByUserId: updatedIdsByUser, selectedGroupId: nextSelectedId }
         })
         // Invalidate cache so next fetch re-fetches
         set((state) => ({
-          lastFetchedByUserId: Object.fromEntries(
-            Object.entries(state.lastFetchedByUserId).map(([k]) => [k, 0])
-          ),
+          lastFetchedByUserId: Object.fromEntries(Object.entries(state.lastFetchedByUserId).map(([k]) => [k, 0])),
         }))
         await syncService.emit({ type: 'group:deleted', userId: requestingUserId, groupId })
       },

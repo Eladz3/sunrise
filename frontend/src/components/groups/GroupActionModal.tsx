@@ -27,7 +27,7 @@ export function GroupActionModal({ onClose }: GroupActionModalProps) {
     }
     setCreateLoading(true)
     try {
-      await createGroup({ name: trimmed, groupOwnerId: currentUserId })
+      await createGroup({ name: trimmed, groupOwnerUserId: currentUserId })
       onClose()
     } catch {
       setCreateError('Failed to create group. Please try again.')
@@ -77,18 +77,17 @@ export function GroupActionModal({ onClose }: GroupActionModalProps) {
         <input
           type="text"
           value={name}
-          onChange={(e) => { setName(e.target.value); setCreateError('') }}
+          onChange={(e) => {
+            setName(e.target.value)
+            setCreateError('')
+          }}
           onKeyDown={handleKeyDown}
           placeholder="e.g., 2025 Goals Crew"
           autoFocus
           className={`mb-1 w-full rounded-xl border px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sunrise-500 ${createError ? 'border-red-400 bg-red-50' : 'border-gray-300'}`}
         />
         {createError && <p className="mb-1 text-xs text-red-500">{createError}</p>}
-        <button
-          onClick={handleCreate}
-          disabled={createLoading || !name.trim()}
-          className="mb-5 w-full rounded-xl bg-gradient-to-r from-sunrise-500 to-dawn-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:from-sunrise-600 hover:to-dawn-600 disabled:opacity-50"
-        >
+        <button onClick={handleCreate} disabled={createLoading || !name.trim()} className="mb-5 w-full rounded-xl bg-gradient-to-r from-sunrise-500 to-dawn-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:from-sunrise-600 hover:to-dawn-600 disabled:opacity-50">
           {createLoading ? 'Creating…' : 'Create group'}
         </button>
 
@@ -103,17 +102,16 @@ export function GroupActionModal({ onClose }: GroupActionModalProps) {
         <input
           type="text"
           value={inviteInput}
-          onChange={(e) => { setInviteInput(e.target.value); setJoinError('') }}
+          onChange={(e) => {
+            setInviteInput(e.target.value)
+            setJoinError('')
+          }}
           onKeyDown={handleKeyDown}
           placeholder="Paste invite link…"
           className={`mb-1 w-full rounded-xl border px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sunrise-500 ${joinError ? 'border-red-400 bg-red-50' : 'border-gray-300'}`}
         />
         {joinError && <p className="mb-1 text-xs text-red-500">{joinError}</p>}
-        <button
-          onClick={handleJoin}
-          disabled={joinLoading || !inviteInput.trim()}
-          className="w-full rounded-xl border border-sunrise-300 px-4 py-2.5 text-sm font-medium text-sunrise-600 transition-colors hover:bg-sunrise-50 disabled:opacity-50"
-        >
+        <button onClick={handleJoin} disabled={joinLoading || !inviteInput.trim()} className="w-full rounded-xl border border-sunrise-300 px-4 py-2.5 text-sm font-medium text-sunrise-600 transition-colors hover:bg-sunrise-50 disabled:opacity-50">
           {joinLoading ? 'Joining…' : 'Join group'}
         </button>
       </div>

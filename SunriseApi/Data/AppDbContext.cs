@@ -84,7 +84,7 @@ namespace SunriseApi.Data
             modelBuilder.Entity<Group>()
                 .HasOne(g => g.GroupOwner)
                 .WithMany()
-                .HasForeignKey(g => g.GroupOwnerId)
+                .HasForeignKey(g => g.GroupOwnerUserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // -------------------------
