@@ -16,10 +16,22 @@ namespace SunriseApi.Services
             _dbContext = dbContext;
         }
 
-        public async Task<IEnumerable<GroupSummaryResponse>> GetGroupsByUserIdAsync(int requestingUserId)
+        public async Task<IEnumerable<Group>> GetGroupsByUserIdAsync(int userId)
         {
             var groupIds = await _dbContext.UserGroups
-                .Where(ug => ug.UserId == requestingUserId)
+                .Where(ug => ug.UserId == userId)
+                .Select(ug => ug.GroupId)
+                .ToListAsync();
+
+            return await _dbContext.Groups
+                .Where(g => groupIds.Contains(g.Id))
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<GroupSummaryResponse>> GetGroupSummariesByUserIdAsync(int userId)
+        {
+            var groupIds = await _dbContext.UserGroups
+                .Where(ug => ug.UserId == userId)
                 .Select(ug => ug.GroupId)
                 .ToListAsync();
 
@@ -30,7 +42,7 @@ namespace SunriseApi.Services
             var results = new List<GroupSummaryResponse>();
             foreach (var group in groups)
             {
-                results.Add(await BuildGroupSummaryAsync(group, requestingUserId));
+                results.Add(await BuildGroupSummaryAsync(group, userId));
             }
 
             return results;
@@ -68,22 +80,22 @@ namespace SunriseApi.Services
             return members.Select(ug => BuildMemberSummary(ug.User));
         }
 
-        public async Task DeleteGroupAsync(int groupId, int requestingUserId)
+        public async Task DeleteGroupAsync(int groupId, int userId)
         {
             var group = await _dbContext.Groups.FirstOrDefaultAsync(g => g.Id == groupId);
 
             if (group == null)
                 throw new InvalidOperationException($"Group {groupId} not found.");
 
-            if (group.GroupOwnerUserId != requestingUserId)
+            if (group.GroupOwnerUserId != userId)
                 throw new UnauthorizedAccessException("Only the group owner can delete this group.");
 
             group.DeletedOn = DateTime.UtcNow;
-            group.DeletedBy = requestingUserId;
+            group.DeletedBy = userId;
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<GroupInviteResponse> GetOrCreateInviteTokenAsync(int groupId, int requestingUserId)
+        public async Task<GroupInviteResponse> GetOrCreateInviteTokenAsync(int groupId, int userId)
         {
             var group = await _dbContext.Groups.FirstOrDefaultAsync(g => g.Id == groupId);
 
@@ -98,7 +110,7 @@ namespace SunriseApi.Services
             {
                 GroupId = groupId,
                 Token = Guid.NewGuid().ToString("N"),
-                CreatedBy = requestingUserId,
+                CreatedBy = userId,
                 CreatedOn = DateTime.UtcNow,
             };
 
@@ -133,7 +145,7 @@ namespace SunriseApi.Services
         // Private helpers
         // -------------------------
 
-        private async Task<GroupSummaryResponse> BuildGroupSummaryAsync(Group group, int requestingUserId)
+        private async Task<GroupSummaryResponse> BuildGroupSummaryAsync(Group group, int userId)
         {
             var memberships = await _dbContext.UserGroups
                 .Where(ug => ug.GroupId == group.Id)
@@ -162,7 +174,7 @@ namespace SunriseApi.Services
                 GroupOwnerUserId = group.GroupOwnerUserId,
                 AggregateProgress = Math.Round(aggregateProgress, 1),
                 MemberCount = memberSummaries.Count,
-                IsOwner = group.GroupOwnerUserId == requestingUserId,
+                IsOwner = group.GroupOwnerUserId == userId,
                 TopMembers = topMembers,
             };
         }

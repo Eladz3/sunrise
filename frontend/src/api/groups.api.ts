@@ -1,7 +1,8 @@
 import { client } from './client'
-import type { GroupSummary, GroupMemberSummary, CreateGroupRequest, GroupInviteResponse } from '@/types'
+import type { Group, GroupSummary, GroupMemberSummary, CreateGroupRequest, GroupInviteResponse } from '@/types'
 
-export const getGroupsByUserId = (userId: number) => client.get<GroupSummary[]>(`/api/groups/by-user-id/${userId}`)
+export const getGroupsByUserId = (userId: number) => client.get<Group[]>(`/api/groups/by-user-id/${userId}`)
+export const getGroupSummariesByUserId = (userId: number) => client.get<GroupSummary[]>(`/api/groups/by-user-id/${userId}/summary`)
 
 export const createGroup = (body: CreateGroupRequest) => client.post<GroupSummary>('/api/groups', body)
 

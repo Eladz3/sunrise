@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { devtools, subscribeWithSelector } from 'zustand/middleware'
-import { getGroupsByUserId, createGroup as apiCreateGroup, deleteGroup as apiDeleteGroup, getOrCreateInviteToken, joinGroupByToken as apiJoinGroupByToken, getGroupMembers } from '@/api/groups.api'
+import { getGroupSummariesByUserId, createGroup as apiCreateGroup, deleteGroup as apiDeleteGroup, getOrCreateInviteToken, joinGroupByToken as apiJoinGroupByToken, getGroupMembers } from '@/api/groups.api'
 import { isCacheStale } from '@/utils/cache'
 import { normalizeById, extractIds } from '@/utils/normalize'
 import { syncService } from '@/services/syncService'
@@ -51,7 +51,7 @@ export const useGroupStore = create<GroupStore>()(
 
         set({ loading: true, error: null })
         try {
-          const groups = await getGroupsByUserId(userId)
+          const groups = await getGroupSummariesByUserId(userId)
           const normalized = normalizeById(groups)
           const ids = extractIds(groups)
 

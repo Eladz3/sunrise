@@ -4,6 +4,7 @@ export type Group = BaseEntity & {
   id: number
   name: string
   bannerImage: string
+  groupOwnerUserId: number
 }
 
 export type GroupMemberSummary = {

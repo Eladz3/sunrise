@@ -18,10 +18,19 @@ namespace SunriseApi.Controllers
 
         [HttpGet]
         [Route("by-user-id/{userId}")]
-        [ProducesResponseType(typeof(IEnumerable<GroupSummaryResponse>), 200)]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> GetGroupsByUserIdAsync(int userId)
         {
             var groups = await _groupsService.GetGroupsByUserIdAsync(userId);
+            return Ok(groups);
+        }
+
+        [HttpGet]
+        [Route("by-user-id/{userId}/summary")]
+        [ProducesResponseType(typeof(IEnumerable<GroupSummaryResponse>), 200)]
+        public async Task<IActionResult> GetGroupSummariesByUserIdAsync(int userId)
+        {
+            var groups = await _groupsService.GetGroupSummariesByUserIdAsync(userId);
             return Ok(groups);
         }
 
@@ -45,11 +54,11 @@ namespace SunriseApi.Controllers
         [HttpDelete]
         [Route("{groupId}")]
         [ProducesResponseType(204)]
-        public async Task<IActionResult> DeleteGroupAsync(int groupId, [FromQuery] int requestingUserId)
+        public async Task<IActionResult> DeleteGroupAsync(int groupId, [FromQuery] int userId)
         {
             try
             {
-                await _groupsService.DeleteGroupAsync(groupId, requestingUserId);
+                await _groupsService.DeleteGroupAsync(groupId, userId);
                 return NoContent();
             }
             catch (UnauthorizedAccessException)
@@ -61,9 +70,9 @@ namespace SunriseApi.Controllers
         [HttpPost]
         [Route("{groupId}/invite")]
         [ProducesResponseType(typeof(GroupInviteResponse), 200)]
-        public async Task<IActionResult> GetOrCreateInviteTokenAsync(int groupId, [FromQuery] int requestingUserId)
+        public async Task<IActionResult> GetOrCreateInviteTokenAsync(int groupId, [FromQuery] int userId)
         {
-            var invite = await _groupsService.GetOrCreateInviteTokenAsync(groupId, requestingUserId);
+            var invite = await _groupsService.GetOrCreateInviteTokenAsync(groupId, userId);
             return Ok(invite);
         }
 
