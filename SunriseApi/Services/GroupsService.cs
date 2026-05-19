@@ -18,34 +18,22 @@ namespace SunriseApi.Services
 
         public async Task<IEnumerable<Group>> GetGroupsByUserIdAsync(int userId)
         {
-            var groupIds = await _dbContext.UserGroups
-                .Where(ug => ug.UserId == userId)
-                .Select(ug => ug.GroupId)
-                .ToListAsync();
-
             return await _dbContext.Groups
-                .Where(g => groupIds.Contains(g.Id))
+                .Where(g => g.UserGroups.Any(ug => ug.UserId == userId))
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<GroupSummaryResponse>> GetGroupSummariesByUserIdAsync(int userId)
         {
-            var groupIds = await _dbContext.UserGroups
-                .Where(ug => ug.UserId == userId)
-                .Select(ug => ug.GroupId)
-                .ToListAsync();
-
+            // Single query — includes collapse the N+1 that would otherwise occur per group in BuildGroupSummary
             var groups = await _dbContext.Groups
-                .Where(g => groupIds.Contains(g.Id))
+                .Where(g => g.UserGroups.Any(ug => ug.UserId == userId))
+                .Include(g => g.UserGroups)
+                    .ThenInclude(ug => ug.User)
+                        .ThenInclude(u => u.Goals)
                 .ToListAsync();
 
-            var results = new List<GroupSummaryResponse>();
-            foreach (var group in groups)
-            {
-                results.Add(await BuildGroupSummaryAsync(group, userId));
-            }
-
-            return results;
+            return groups.Select(g => BuildGroupSummary(g, userId));
         }
 
         public async Task<GroupSummaryResponse> CreateNewGroupAsync(CreateNewGroupRequest request)
@@ -66,7 +54,15 @@ namespace SunriseApi.Services
             await _dbContext.UserGroups.AddAsync(membership);
             await _dbContext.SaveChangesAsync();
 
-            return await BuildGroupSummaryAsync(newGroup, request.GroupOwnerUserId);
+            // Reload with includes — EF won't populate navigation properties on a freshly inserted entity
+            var groupWithMembers = await _dbContext.Groups
+                .Where(g => g.Id == newGroup.Id)
+                .Include(g => g.UserGroups)
+                    .ThenInclude(ug => ug.User)
+                        .ThenInclude(u => u.Goals)
+                .FirstAsync();
+
+            return BuildGroupSummary(groupWithMembers, request.GroupOwnerUserId);
         }
 
         public async Task<IEnumerable<GroupMemberSummary>> GetGroupMembersAsync(int groupId)
@@ -138,22 +134,25 @@ namespace SunriseApi.Services
                 await _dbContext.SaveChangesAsync();
             }
 
-            return await BuildGroupSummaryAsync(invite.Group, userId);
+            // Reload with includes so BuildGroupSummary has fresh membership after the join
+            var groupWithMembers = await _dbContext.Groups
+                .Where(g => g.Id == invite.GroupId)
+                .Include(g => g.UserGroups)
+                    .ThenInclude(ug => ug.User)
+                        .ThenInclude(u => u.Goals)
+                .FirstAsync();
+
+            return BuildGroupSummary(groupWithMembers, userId);
         }
 
         // -------------------------
         // Private helpers
         // -------------------------
 
-        private async Task<GroupSummaryResponse> BuildGroupSummaryAsync(Group group, int userId)
+        // Expects group.UserGroups → User → Goals to already be loaded by the caller
+        private static GroupSummaryResponse BuildGroupSummary(Group group, int userId)
         {
-            var memberships = await _dbContext.UserGroups
-                .Where(ug => ug.GroupId == group.Id)
-                .Include(ug => ug.User)
-                .ThenInclude(u => u.Goals)
-                .ToListAsync();
-
-            var memberSummaries = memberships
+            var memberSummaries = group.UserGroups
                 .Select(ug => BuildMemberSummary(ug.User))
                 .ToList();
 
