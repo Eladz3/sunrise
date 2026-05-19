@@ -29,8 +29,7 @@ namespace SunriseApi.Services
 
         public async Task<IEnumerable<Goal>> GetGoalsByGroupIdAsync(int groupId)
         {
-            var userGroups = await _dbContext.UserGroups.Where(ug => ug.GroupId == groupId).ToListAsync();
-            var userIds = userGroups.Select(ug => ug.UserId);
+            var userIds = await _dbContext.UserGroups.Where(ug => ug.GroupId == groupId).Select(ug => ug.UserId).ToListAsync();
             var goals = await _dbContext.Goals.Where(g => userIds.Contains(g.UserId)).ToListAsync();
 
             return goals;

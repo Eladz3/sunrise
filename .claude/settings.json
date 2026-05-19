@@ -3,7 +3,23 @@
     "allow": [
       "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}, indent=2\\)\\)\")",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\frontend\\\\src\" -Filter \"*auth*\" -Recurse)",
-      "Bash(Select-Object -ExpandProperty FullName)"
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\" -Force)",
+      "Bash(Select-Object Name, Mode)",
+      "Bash(dotnet ef *)",
+      "Bash(dotnet build *)",
+      "Bash(git push *)",
+      "Bash(gh pr create --title 'feat: groups sidebar — create, join, invite, delete, and home page scoping' --body ' *)",
+      "Bash(where gh *)",
+      "Bash(where git *)",
+      "PowerShell(Get-Command gh -ErrorAction SilentlyContinue; \\(Get-Command gh\\).Source 2>$null)",
+      "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\GitHub CLI\\\\\" -ErrorAction SilentlyContinue; Get-ChildItem \"$env:LOCALAPPDATA\\\\Programs\\\\GitHub CLI\\\\\" -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Id 41004 -Force -ErrorAction SilentlyContinue)",
+      "PowerShell($env:ASPNETCORE_ENVIRONMENT = \"Local\"; cd \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\SunriseApi\"; dotnet ef database update 2>&1)",
+      "Bash(Remove-Item \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\frontend\\\\src\\\\components\\\\layout\\\\Container.tsx\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\frontend\\\\src\" -Recurse -Directory)",
+      "Bash(npm run *)",
+      "Bash(Remove-Item \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\SunriseApi\\\\Models\\\\Responses\\\\GroupResponse.cs\")"
     ]
   }
 }

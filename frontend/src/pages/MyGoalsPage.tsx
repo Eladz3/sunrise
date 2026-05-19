@@ -1,19 +1,24 @@
 import { useState } from 'react'
 import { GoalCard, Spinner } from '@/components'
 import { GoalFormModal, type GoalFormData } from '@/components/goal/GoalFormModal'
+import { ProgressUpdateModal } from '@/components/goal/ProgressUpdateModal'
 import { useGoals } from '@/hooks/useGoals'
+import { useUserMetrics } from '@/hooks/useUserMetrics'
+import { useAuthStore } from '@/stores/authStore'
 
 export function MyGoalsPage() {
   const { goals, loading, error, addGoal, editGoal } = useGoals()
+  const currentUserId = useAuthStore((state) => state.currentUserId)
+  const userMetrics = useUserMetrics(currentUserId)
+
+  const overallProgress = (userMetrics?.progressPercentage ?? 0) * 100
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingGoalId, setEditingGoalId] = useState<number | null>(null)
+  const [progressGoalId, setProgressGoalId] = useState<number | null>(null)
 
   const editingGoal = editingGoalId !== null ? goals.find((g) => g.id === editingGoalId) : null
-
-  const totalTarget = goals.reduce((sum, g) => sum + g.targetValue, 0)
-  const totalCurrent = goals.reduce((sum, g) => sum + g.currentValue, 0)
-  const overallProgress = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0
+  const progressGoal = progressGoalId !== null ? goals.find((g) => g.id === progressGoalId) ?? null : null
 
   const handleAddGoal = async (data: GoalFormData) => {
     await addGoal({
@@ -42,6 +47,10 @@ export function MyGoalsPage() {
     } else {
       await handleAddGoal(data)
     }
+  }
+
+  const handleSaveProgress = async (goalId: number, newValue: number) => {
+    await editGoal(goalId, { currentValue: newValue })
   }
 
   const getInitialFormData = (): GoalFormData | undefined => {
@@ -106,7 +115,7 @@ export function MyGoalsPage() {
             <p className="text-sm text-warmGray-500">Tap here to add your first goal!</p>
           </button>
         ) : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {goals.map((goal) => (
               <GoalCard
                 key={goal.id}
@@ -115,7 +124,8 @@ export function MyGoalsPage() {
                 targetValue={goal.targetValue}
                 unit={goal.unit}
                 category={goal.category}
-                onEdit={() => setEditingGoalId(goal.id)}
+                onEdit={() => { setEditingGoalId(goal.id); setIsModalOpen(true) }}
+                onLogProgress={() => setProgressGoalId(goal.id)}
               />
             ))}
           </div>
@@ -136,6 +146,13 @@ export function MyGoalsPage() {
         onSubmit={handleSubmit}
         initialData={getInitialFormData()}
         mode={editingGoalId !== null ? 'edit' : 'add'}
+      />
+
+      <ProgressUpdateModal
+        goal={progressGoal}
+        isOpen={progressGoalId !== null}
+        onClose={() => setProgressGoalId(null)}
+        onSave={handleSaveProgress}
       />
     </div>
   )

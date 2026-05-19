@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SunriseApi.Data;
 
@@ -11,9 +12,11 @@ using SunriseApi.Data;
 namespace SunriseApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260514013325_AddGroupOwnerAndInvites")]
+    partial class AddGroupOwnerAndInvites
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,7 +86,7 @@ namespace SunriseApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Goals", (string)null);
+                    b.ToTable("Goals");
                 });
 
             modelBuilder.Entity("SunriseApi.Models.Entities.Group", b =>
@@ -110,7 +113,7 @@ namespace SunriseApi.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("GroupOwnerUserId")
+                    b.Property<int>("GroupOwnerId")
                         .HasColumnType("int");
 
                     b.Property<int?>("ModifiedBy")
@@ -125,9 +128,9 @@ namespace SunriseApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupOwnerUserId");
+                    b.HasIndex("GroupOwnerId");
 
-                    b.ToTable("Groups", (string)null);
+                    b.ToTable("Groups");
                 });
 
             modelBuilder.Entity("SunriseApi.Models.Entities.GroupInvite", b =>
@@ -170,7 +173,7 @@ namespace SunriseApi.Migrations
                     b.HasIndex("Token")
                         .IsUnique();
 
-                    b.ToTable("GroupInvites", (string)null);
+                    b.ToTable("GroupInvites");
                 });
 
             modelBuilder.Entity("SunriseApi.Models.Entities.User", b =>
@@ -225,7 +228,7 @@ namespace SunriseApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("SunriseApi.Models.Entities.UserGroup", b =>
@@ -240,7 +243,7 @@ namespace SunriseApi.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("UserGroups", (string)null);
+                    b.ToTable("UserGroups");
                 });
 
             modelBuilder.Entity("SunriseApi.Models.Entities.Goal", b =>
@@ -258,7 +261,7 @@ namespace SunriseApi.Migrations
                 {
                     b.HasOne("SunriseApi.Models.Entities.User", "GroupOwner")
                         .WithMany()
-                        .HasForeignKey("GroupOwnerUserId")
+                        .HasForeignKey("GroupOwnerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

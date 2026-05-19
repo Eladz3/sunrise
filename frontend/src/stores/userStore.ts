@@ -39,12 +39,8 @@ export const useUserStore = create<UserStore>()(
         set({ loading: true, error: null })
         try {
           const user = await getUserByFirebaseUid(firebaseUid)
-          get().upsertUser(user)
-          set((state) => ({
-            firebaseUidToUserId: { ...state.firebaseUidToUserId, [firebaseUid]: user.id },
-            lastFetchedById: { ...state.lastFetchedById, [user.id]: Date.now() },
-            loading: false,
-          }))
+          get().upsertUser(user) // updates usersById, firebaseUidToUserId, lastFetchedById
+          set({ loading: false })
           return user
         } catch (err) {
           set({ loading: false, error: (err as Error).message })
@@ -55,6 +51,8 @@ export const useUserStore = create<UserStore>()(
       upsertUser: (user: User) =>
         set((state) => ({
           usersById: { ...state.usersById, [user.id]: user },
+          firebaseUidToUserId: { ...state.firebaseUidToUserId, [user.firebaseUid]: user.id },
+          lastFetchedById: { ...state.lastFetchedById, [user.id]: Date.now() },
         })),
 
       removeUser: (userId: number) =>

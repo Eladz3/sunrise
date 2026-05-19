@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SunriseApi.Constants;
 using SunriseApi.Data;
 using SunriseApi.Mapping;
 using SunriseApi.Services;
@@ -75,7 +76,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         policy
-            .WithOrigins("http://localhost:3000", "http://localhost:5173")
+            .WithOrigins(CorsOrigins.All)
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -90,8 +91,33 @@ if (!app.Environment.IsProduction())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Must be first: catches unhandled exceptions and ensures CORS headers
+// are written even on 500 responses (default Kestrel error resets headers).
+var corsOrigins = CorsOrigins.All;
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var origin = context.Request.Headers.Origin.ToString();
+        if (corsOrigins.Contains(origin))
+        {
+            context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+            context.Response.Headers["Vary"] = "Origin";
+        }
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsync("{\"error\":\"Internal server error\"}");
+    });
+});
+
+// CORS before HTTPS redirect so preflight responses always carry the header.
 app.UseCors();
+
+// Only redirect to HTTPS in production; local dev runs on plain HTTP.
+if (app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
 
 FirebaseInit.Initialize();
 
