@@ -39,14 +39,7 @@
  *     - Renders children when authenticated
  */
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-  type ReactNode,
-} from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react'
 import { onAuthChange, signInWithGoogle, signOut } from './auth'
 import type { User } from 'firebase/auth'
 import { syncBackendUser } from './users'
