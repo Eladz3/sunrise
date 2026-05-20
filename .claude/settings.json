@@ -19,7 +19,19 @@
       "Bash(Remove-Item \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\frontend\\\\src\\\\components\\\\layout\\\\Container.tsx\")",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\frontend\\\\src\" -Recurse -Directory)",
       "Bash(npm run *)",
-      "Bash(Remove-Item \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\SunriseApi\\\\Models\\\\Responses\\\\GroupResponse.cs\")"
+      "Bash(Remove-Item \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\SunriseApi\\\\Models\\\\Responses\\\\GroupResponse.cs\")",
+      "Bash(az --version)",
+      "PowerShell(az --version 2>&1)",
+      "Bash(az webapp *)",
+      "Bash(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\.claude\\\\commands\")",
+      "Bash(Out-Null)",
+      "Bash(Write-Output \"done\")",
+      "PowerShell(echo $PROFILE)",
+      "Read(//c/Users/eladz/OneDrive/Documents/WindowsPowerShell/**)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\eladz\\Documents\\Dev\\sunrise\\.claude",
+      "C:\\Users\\eladz\\OneDrive\\Documents\\WindowsPowerShell"
     ]
   }
 }

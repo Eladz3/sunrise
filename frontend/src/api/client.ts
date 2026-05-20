@@ -1,6 +1,21 @@
 import { getIdToken } from '@/auth/auth';
 
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? 'http://localhost:5000';
+const PROD_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? 'https://thesunrise-api.azurewebsites.net';
+const LOCAL_URL = 'http://localhost:5000';
+
+export const API_URLS = { prod: PROD_URL, local: LOCAL_URL };
+
+function getBaseUrl(): string {
+  if (import.meta.env.DEV && localStorage.getItem('api_env') === 'local') return LOCAL_URL;
+  return PROD_URL;
+}
+
+let BASE_URL = getBaseUrl();
+
+export function setApiEnv(env: 'prod' | 'local') {
+  localStorage.setItem('api_env', env);
+  BASE_URL = getBaseUrl();
+}
 
 async function getAuthHeaders(forceRefresh = false): Promise<HeadersInit> {
   const token = await getIdToken(forceRefresh);

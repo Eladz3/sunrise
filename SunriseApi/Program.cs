@@ -4,16 +4,12 @@ using SunriseApi.Data;
 using SunriseApi.Mapping;
 using SunriseApi.Services;
 using SunriseApi.Services.Interfaces;
-using Amazon.Lambda.AspNetCoreServer.Hosting;
 using Microsoft.OpenApi.Models;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// 👇 REQUIRED: tells ASP.NET Core to run inside Lambda
-builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 
 // Add services to the container.
 builder.Services.AddControllers()
