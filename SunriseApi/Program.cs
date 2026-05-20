@@ -23,10 +23,11 @@ builder.Services.AddScoped<IGroupsService, GroupsService>();
 builder.Services.AddScoped<IMetricsService, MetricsService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 
+var connectionString =
+    Environment.GetEnvironmentVariable("SUNRISE_DB_CONNECTIONSTRING");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("SunriseSQLDatabaseConnectionString")
-    ));
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddSwaggerGen(c =>
 {
