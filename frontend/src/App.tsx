@@ -1,5 +1,4 @@
 import { Routes, Route } from 'react-router-dom'
-import { Routes, Route } from 'react-router-dom'
 import { AuthGate } from '@/auth/AuthGate'
 import { AppLayout } from '@/components/layout/AppLayout'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
