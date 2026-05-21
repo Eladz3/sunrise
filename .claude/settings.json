@@ -43,7 +43,9 @@
       "PowerShell(cd \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\SunriseApi\"; dotnet publish -c Release -o ./publish -r linux-x64 --self-contained false 2>&1 | Select-String -Pattern \"error|warning|publish|succeeded\" | Where-Object { $_ -notmatch \"NU1903|CS0618\" })",
       "PowerShell(Invoke-RestMethod -Uri 'https://thesunrise-api.azurewebsites.net/health')",
       "PowerShell(Invoke-WebRequest -Uri 'https://thesunrise-api.azurewebsites.net/health')",
-      "PowerShell(curl.exe -s \"https://thesunrise-api.azurewebsites.net/health\")"
+      "PowerShell(curl.exe -s \"https://thesunrise-api.azurewebsites.net/health\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\frontend\\\\\" -Recurse -Directory | Select-Object -ExpandProperty FullName | head -30)",
+      "WebFetch(domain:support.google.com)"
     ],
     "additionalDirectories": [
       "c:\\Users\\eladz\\Documents\\Dev\\sunrise\\.claude",
