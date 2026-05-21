@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { DevPanel } from '@/components/dev/DevPanel';
 
 export function ProfilePage() {
   const { user, logout } = useAuth();
@@ -20,22 +21,40 @@ export function ProfilePage() {
   return (
     <div className="space-y-6 pb-20">
       <header className="rounded-2xl bg-gradient-to-br from-sunrise-500 via-dawn-500 to-rose-500 p-6 text-white shadow-lg">
-        <div className="flex items-center gap-4">
-          {user.photoURL ? (
-            <img
-              src={user.photoURL}
-              alt={user.displayName ?? 'Profile'}
-              className="w-16 h-16 rounded-full border-2 border-white/50"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold">
-              {(user.displayName ?? user.email ?? '?')[0].toUpperCase()}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 min-w-0">
+            {user.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt={user.displayName ?? 'Profile'}
+                className="w-16 h-16 rounded-full border-2 border-white/50 shrink-0"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold shrink-0">
+                {(user.displayName ?? user.email ?? '?')[0].toUpperCase()}
+              </div>
+            )}
+            <div className="min-w-0">
+              <h1 className="text-xl font-bold truncate">{user.displayName ?? 'User'}</h1>
+              <p className="text-sm text-sunrise-100 truncate">{user.email}</p>
             </div>
-          )}
-          <div>
-            <h1 className="text-xl font-bold">{user.displayName ?? 'User'}</h1>
-            <p className="text-sm text-sunrise-100">{user.email}</p>
           </div>
+          <button
+            onClick={handleSignOut}
+            disabled={signingOut}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-white/15 hover:bg-white/25 active:bg-white/30 transition-colors disabled:opacity-50"
+          >
+            {signingOut ? 'Signing out…' : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                Sign Out
+              </>
+            )}
+          </button>
         </div>
       </header>
 
@@ -50,13 +69,8 @@ export function ProfilePage() {
         </div>
       </section>
 
-      <button
-        onClick={handleSignOut}
-        disabled={signingOut}
-        className="w-full py-3 rounded-xl bg-red-50 text-red-600 font-semibold hover:bg-red-100 active:bg-red-200 transition-colors disabled:opacity-50"
-      >
-        {signingOut ? 'Signing out…' : 'Sign Out'}
-      </button>
+      {import.meta.env.DEV && <DevPanel />}
+
     </div>
   );
 }
