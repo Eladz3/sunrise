@@ -34,7 +34,8 @@
       "PowerShell(dotnet ef migrations list --project .\\\\SunriseApi\\\\SunriseApi.csproj)",
       "Skill(update-config)",
       "Skill(update-config:*)",
-      "Read(//c/Users/eladz/.claude/**)"
+      "Read(//c/Users/eladz/.claude/**)",
+      "PowerShell(cd \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\SunriseApi\"; dotnet build -c Release 2>&1 | Select-String -Pattern \"error|warning|Build\" | Where-Object { $_ -notmatch \"NU1903\" })"
     ],
     "additionalDirectories": [
       "c:\\Users\\eladz\\Documents\\Dev\\sunrise\\.claude",
