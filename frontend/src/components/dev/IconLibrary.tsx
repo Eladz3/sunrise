@@ -9,7 +9,8 @@ export function IconLibrary() {
   const [copied, setCopied] = useState<string | null>(null)
 
   const allNames = getIconNames()
-  const filtered = search.trim() ? allNames.filter((n) => n.includes(search.trim().toLowerCase())) : allNames
+  const normalizedSearch = search.trim().toLowerCase().replace(/\s+/g, '-')
+  const filtered = normalizedSearch ? allNames.filter((n) => n.toLowerCase().includes(normalizedSearch)) : allNames
 
   function copyName(name: string) {
     navigator.clipboard
@@ -19,7 +20,6 @@ export function IconLibrary() {
         setTimeout(() => setCopied(null), 1500)
       })
       .catch(() => {})
-  }
   }
 
   return (

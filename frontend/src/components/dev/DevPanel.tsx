@@ -73,16 +73,25 @@ function ErrorTestsSection() {
   async function runOne(key: keyof typeof tests) {
     const fn = tests[key] as () => Promise<TestResult>
     setStatus(key, 'running')
-    const result = await fn()
-    applyResult(result)
+    try {
+      const result = await fn()
+      applyResult(result)
+    } catch {
+      setStatus(key, 'fail')
+    }
   }
 
   async function runAll() {
     setRunning(true)
     setStatuses(Object.fromEntries(CASES.map((c) => [c.key, 'running'])))
-    const results = await tests.runAll()
-    setStatuses(Object.fromEntries(results.map((r) => [r.name, r.passed ? 'pass' : 'fail'])))
-    setRunning(false)
+    try {
+      const results = await tests.runAll()
+      setStatuses(Object.fromEntries(results.map((r) => [r.name, r.passed ? 'pass' : 'fail'])))
+    } catch {
+      setStatuses(Object.fromEntries(CASES.map((c) => [c.key, 'fail'])))
+    } finally {
+      setRunning(false)
+    }
   }
 
   return (
