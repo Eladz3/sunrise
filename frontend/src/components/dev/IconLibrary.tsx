@@ -12,9 +12,14 @@ export function IconLibrary() {
   const filtered = search.trim() ? allNames.filter((n) => n.includes(search.trim().toLowerCase())) : allNames
 
   function copyName(name: string) {
-    navigator.clipboard.writeText(name).catch(() => {})
-    setCopied(name)
-    setTimeout(() => setCopied(null), 1500)
+    navigator.clipboard
+      .writeText(name)
+      .then(() => {
+        setCopied(name)
+        setTimeout(() => setCopied(null), 1500)
+      })
+      .catch(() => {})
+  }
   }
 
   return (
