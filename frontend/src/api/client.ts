@@ -1,4 +1,7 @@
 import { getIdToken } from '@/auth/auth';
+import { addBreadcrumb, throwApiError } from '@/services/apiLogger';
+
+export { ApiError } from '@/services/apiLogger';
 
 const PROD_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? 'https://thesunrise-api.azurewebsites.net';
 const LOCAL_URL = 'http://localhost:5000';
@@ -26,6 +29,7 @@ async function getAuthHeaders(forceRefresh = false): Promise<HeadersInit> {
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const method = (options?.method ?? 'GET').toUpperCase();
   const headers = await getAuthHeaders();
   const response = await fetch(`${BASE_URL}${path}`, {
     ...options,
@@ -39,19 +43,15 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
       ...options,
       headers: { ...retryHeaders, ...(options?.headers ?? {}) },
     });
-    if (!retryResponse.ok) {
-      const text = await retryResponse.text().catch(() => retryResponse.statusText);
-      throw new Error(`API ${retryResponse.status}: ${text}`);
-    }
+    if (!retryResponse.ok) return throwApiError(retryResponse, method, path);
+    addBreadcrumb(method, path, retryResponse.status);
     if (retryResponse.status === 204) return undefined as T;
     return retryResponse.json() as Promise<T>;
   }
 
-  if (!response.ok) {
-    const text = await response.text().catch(() => response.statusText);
-    throw new Error(`API ${response.status}: ${text}`);
-  }
+  if (!response.ok) return throwApiError(response, method, path);
 
+  addBreadcrumb(method, path, response.status);
   if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
 }
