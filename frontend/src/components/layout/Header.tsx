@@ -9,6 +9,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components'
+import { Icon } from '@/components/ui/Icon'
 
 export function Header() {
   const { user, logout } = useAuth()
@@ -34,13 +35,7 @@ export function Header() {
           {/* Logo / Brand */}
           <Link to="/" className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-sunrise-400 to-dawn-500 shadow-sm">
-              <svg
-                className="h-5 w-5 text-white"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z" />
-              </svg>
+              <Icon name="sunrise" size={20} className="text-white" />
             </div>
             <span className="bg-gradient-to-r from-sunrise-600 to-dawn-600 bg-clip-text text-xl font-bold text-transparent">
               Sunrise

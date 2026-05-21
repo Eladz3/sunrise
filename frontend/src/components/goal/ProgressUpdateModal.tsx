@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { Goal } from '@/types'
+import { Icon } from '@/components/ui/Icon'
 
 interface ProgressUpdateModalProps {
   goal: Goal | null
@@ -52,9 +53,7 @@ export function ProgressUpdateModal({ goal, isOpen, onClose, onSave }: ProgressU
       <div className="relative bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-md sm:mx-4 max-h-[90vh] overflow-y-auto animate-slide-up">
         <div className="sticky top-0 bg-white flex items-center justify-between p-4 border-b z-10">
           <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
+            <Icon name="trending-up" size={20} className="text-emerald-500" />
             <h2 className="text-lg font-semibold text-gray-900">Log Progress</h2>
           </div>
           <button
@@ -62,9 +61,7 @@ export function ProgressUpdateModal({ goal, isOpen, onClose, onSave }: ProgressU
             className="p-2 -mr-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
             aria-label="Close"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <Icon name="x" size={20} />
           </button>
         </div>
 
@@ -168,15 +165,10 @@ export function ProgressUpdateModal({ goal, isOpen, onClose, onSave }: ProgressU
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-xl transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               >
                 {isLoading ? (
-                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
+                  <Icon name="spinner" size={16} className="animate-spin" />
                 ) : (
                   <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <Icon name="check-circle" size={16} />
                     Update
                   </>
                 )}

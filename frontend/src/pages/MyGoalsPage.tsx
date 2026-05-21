@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Icon } from '@/components/ui/Icon'
 import { GoalCard, Spinner } from '@/components'
 import { GoalFormModal, type GoalFormData } from '@/components/goal/GoalFormModal'
 import { ProgressUpdateModal } from '@/components/goal/ProgressUpdateModal'
@@ -107,9 +108,7 @@ export function MyGoalsPage() {
             className="w-full rounded-xl bg-white p-8 text-center shadow-sm transition-all hover:bg-sunrise-50 hover:shadow-md active:scale-95"
           >
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sunrise-50">
-              <svg className="h-8 w-8 text-sunrise-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
+              <Icon name="plus" size={32} className="text-sunrise-400" />
             </div>
             <p className="mb-1 font-medium text-warmGray-700">No goals yet</p>
             <p className="text-sm text-warmGray-500">Tap here to add your first goal!</p>

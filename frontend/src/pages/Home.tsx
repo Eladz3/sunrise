@@ -7,6 +7,7 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/components'
 import { useAuth } from '@/hooks/useAuth'
+import { Icon } from '@/components/ui/Icon'
 
 export default function Home() {
   const { user } = useAuth()
@@ -18,13 +19,7 @@ export default function Home() {
         <div className="mx-auto max-w-3xl text-center">
           {/* Sun Icon */}
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-sunrise-400 to-dawn-500 shadow-lg">
-            <svg
-              className="h-12 w-12 text-white"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z" />
-            </svg>
+            <Icon name="sunrise" size={48} className="text-white" />
           </div>
           <h1 className="mb-6 bg-gradient-to-r from-sunrise-600 via-dawn-600 to-rose-600 bg-clip-text text-5xl font-bold text-transparent">
             Sunrise
@@ -59,19 +54,7 @@ export default function Home() {
         <div className="mx-auto mt-20 grid max-w-5xl gap-8 md:grid-cols-3">
           <div className="rounded-2xl border border-sunrise-100 bg-white/80 p-6 shadow-md backdrop-blur-sm">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-sunrise-400 to-sunrise-500">
-              <svg
-                className="h-6 w-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+              <Icon name="check-circle" size={24} className="text-white" />
             </div>
             <h3 className="mb-2 text-xl font-semibold text-warmGray-900">
               Track Your Progress
@@ -83,19 +66,7 @@ export default function Home() {
 
           <div className="rounded-2xl border border-dawn-100 bg-white/80 p-6 shadow-md backdrop-blur-sm">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-dawn-400 to-dawn-500">
-              <svg
-                className="h-6 w-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
+              <Icon name="user-group" size={24} className="text-white" />
             </div>
             <h3 className="mb-2 text-xl font-semibold text-warmGray-900">
               Community Support
@@ -107,19 +78,7 @@ export default function Home() {
 
           <div className="rounded-2xl border border-rose-100 bg-white/80 p-6 shadow-md backdrop-blur-sm">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-rose-400 to-rose-500">
-              <svg
-                className="h-6 w-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
+              <Icon name="zap" size={24} className="text-white" />
             </div>
             <h3 className="mb-2 text-xl font-semibold text-warmGray-900">
               Fresh Starts Daily

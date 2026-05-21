@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Icon } from '@/components/ui/Icon'
 import { GoalCard, GoalCardSkeleton } from '@/components'
 import { GroupsSidebar, MobileGroupsDrawer, UserProgressCard, UserProgressCardSkeleton } from '@/components/groups'
 import { useGroupStore } from '@/stores/groupStore'
@@ -67,9 +68,7 @@ export function HomePage() {
           {/* Mobile hamburger */}
           <div className="mb-4 lg:hidden">
             <button onClick={() => setDrawerOpen(true)} className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:border-sunrise-300" aria-label="Open groups">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <Icon name="menu" size={16} />
               Groups
             </button>
           </div>
@@ -83,9 +82,7 @@ export function HomePage() {
           {selectedGroupId == null && (
             <div className="rounded-2xl bg-white p-8 text-center shadow-sm">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sunrise-50">
-                <svg className="h-8 w-8 text-sunrise-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                <Icon name="user-group" size={32} className="text-sunrise-400" />
               </div>
               <p className="font-medium text-gray-600">Select or create a group</p>
               <p className="mt-1 text-sm text-gray-400">Open the groups panel to get started.</p>
@@ -134,9 +131,7 @@ export function HomePage() {
                 ) : (
                   <div className="py-12 text-center">
                     <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-                      <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
+                      <Icon name="clipboard" size={32} className="text-gray-400" />
                     </div>
                     <p className="font-medium text-gray-600">No goals yet in this group</p>
                     <p className="mt-1 text-sm text-gray-400">Members' goals will appear here.</p>
