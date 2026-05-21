@@ -181,8 +181,9 @@ namespace SunriseApi.Services
         private static GroupMemberSummary BuildMemberSummary(User user)
         {
             var goals = user.Goals.Where(g => g.DeletedOn == null).ToList();
-            var completionPct = goals.Count > 0
-                ? Math.Round(goals.Average(g => (double)g.CurrentValue / g.TargetValue) * 100, 1)
+            var goalsWithTarget = goals.Where(g => g.TargetValue > 0).ToList();
+            var completionPct = goalsWithTarget.Count > 0
+                ? Math.Round(goalsWithTarget.Average(g => g.CurrentValue / g.TargetValue) * 100, 1)
                 : 0;
 
             return new GroupMemberSummary

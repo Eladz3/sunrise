@@ -27,7 +27,14 @@
       "Bash(Out-Null)",
       "Bash(Write-Output \"done\")",
       "PowerShell(echo $PROFILE)",
-      "Read(//c/Users/eladz/OneDrive/Documents/WindowsPowerShell/**)"
+      "Read(//c/Users/eladz/OneDrive/Documents/WindowsPowerShell/**)",
+      "PowerShell(az account set --subscription \"ZeroToTen\")",
+      "PowerShell(az account show --query \"name\" -o tsv)",
+      "PowerShell(Stop-Process -Id 127340 -Force)",
+      "PowerShell(dotnet ef migrations list --project .\\\\SunriseApi\\\\SunriseApi.csproj)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Read(//c/Users/eladz/.claude/**)"
     ],
     "additionalDirectories": [
       "c:\\Users\\eladz\\Documents\\Dev\\sunrise\\.claude",
