@@ -27,34 +27,27 @@ az account set --subscription "ZeroToTen"
 
 Work from `SunriseApi/` for all commands.
 
-### 1. Check for pending migrations
+### 1. Stop the local API if running
 
-```powershell
-dotnet ef migrations list
-```
+Stop any running local API process before proceeding — a locked DLL will cause the build to fail.
 
-If there are pending migrations, show them to the user and ask for confirmation before applying.
-
-### 2. Apply pending migrations (if any)
-
-Your local IP must be whitelisted in the Azure SQL firewall. If it isn't (or may have changed):
+### 2. Whitelist local IP for Azure SQL firewall
 
 ```powershell
 $myIp = (Invoke-WebRequest -Uri 'https://api.ipify.org' -UseBasicParsing).Content.Trim()
 az sql server firewall-rule create --resource-group thesunrise-rg --server thesunrise-sql --name LocalDev --start-ip-address $myIp --end-ip-address $myIp
 ```
 
-Then apply migrations by passing the connection string directly — `appsettings.Production.json` does not exist by design (credentials live only in Azure App Service settings):
+### 3. Apply pending migrations
 
 ```powershell
-dotnet ef database update --connection "Server=tcp:thesunrise-sql.database.windows.net,1433;Database=SunriseDb;User Id=sunriseadmin;Password=<DB_PASSWORD>;Encrypt=True;TrustServerCertificate=False;"
+$env:ASPNETCORE_ENVIRONMENT = "Production"
+dotnet ef database update
 ```
 
 If this fails, stop immediately and report the error — do not proceed to deployment.
 
-> Stop the local API process before running migrations if it is currently running, otherwise the build will fail due to locked DLL files.
-
-### 3. Build and publish
+### 5. Build and publish
 
 ```powershell
 dotnet publish -c Release -o ./publish -r linux-x64 --self-contained false
@@ -62,7 +55,7 @@ dotnet publish -c Release -o ./publish -r linux-x64 --self-contained false
 
 `-r linux-x64 --self-contained false` targets Linux and strips Windows runtime binaries, avoiding backslash path issues in the `runtimes/` folder.
 
-### 4. Package as zip
+### 6. Package as zip
 
 Do **not** use `Compress-Archive` — it writes backslash separators into the zip entries which Kudu on Linux cannot extract. Use the .NET `ZipArchive` API to normalize all paths to forward slashes:
 
@@ -79,13 +72,13 @@ Get-ChildItem -Path $publishDir -Recurse -File | ForEach-Object {
 $zip.Dispose()
 ```
 
-### 5. Deploy to Azure App Service
+### 7. Deploy to Azure App Service
 
 ```powershell
 az webapp deploy --resource-group thesunrise-rg --name thesunrise-api --src-path ./publish.zip --type zip
 ```
 
-### 6. Verify deployment
+### 8. Verify deployment
 
 ```powershell
 Invoke-RestMethod -Uri 'https://thesunrise-api.azurewebsites.net/health'
@@ -93,7 +86,7 @@ Invoke-RestMethod -Uri 'https://thesunrise-api.azurewebsites.net/health'
 
 Expected: `{"status":"ok","timestamp":"..."}` with HTTP 200.
 
-### 7. Cleanup
+### 9. Cleanup
 
 ```powershell
 Remove-Item -Recurse -Force ./publish
@@ -104,7 +97,7 @@ Remove-Item ./publish.zip
 
 ## Notes
 
-- **appsettings.Production.json must not exist.** It is gitignored and was deleted intentionally. All production config (connection string, `ASPNETCORE_ENVIRONMENT`, `FIREBASE_SERVICE_ACCOUNT`) is stored as encrypted Azure App Service settings, never in files.
+- **appsettings.Production.json is gitignored and excluded from publish** (`CopyToPublishDirectory=Never` in the csproj). It exists locally only to provide the production connection string for migrations. All runtime config (`ASPNETCORE_ENVIRONMENT`, `FIREBASE_SERVICE_ACCOUNT`) is stored as encrypted Azure App Service settings.
 - **Always run migrations before deploying code** — new code may depend on the updated schema.
 - If migrations fail, the old code is still running so the app stays functional. Fix and retry.
 - If deployment fails after migrations, the schema is ahead of the code — roll back or fix forward quickly.

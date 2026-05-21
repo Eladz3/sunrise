@@ -23,8 +23,7 @@ builder.Services.AddScoped<IGroupsService, GroupsService>();
 builder.Services.AddScoped<IMetricsService, MetricsService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 
-var connectionString =
-    Environment.GetEnvironmentVariable("SUNRISE_DB_CONNECTIONSTRING");
+var connectionString = builder.Configuration.GetConnectionString("SunriseSQLDatabaseConnectionString");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
