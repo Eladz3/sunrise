@@ -129,7 +129,39 @@ export default function Home() {
             </p>
           </div>
         </div>
+
+        {/* Data transparency */}
+        <div className="mx-auto mt-16 max-w-2xl rounded-2xl border border-warmGray-200 bg-white/60 p-6 text-center backdrop-blur-sm">
+          <h2 className="mb-2 text-lg font-semibold text-warmGray-900">
+            How we use your data
+          </h2>
+          <p className="text-sm text-warmGray-600">
+            Sunrise uses Google Sign-In to authenticate you. We only access your
+            basic profile information (name and email) to create and identify
+            your account. We do not share your data with third parties or use it
+            for advertising.
+          </p>
+        </div>
       </div>
+
+      {/* Footer */}
+      <footer className="mt-8 border-t border-warmGray-200 bg-white/40 py-6 text-center text-sm text-warmGray-500">
+        <div className="flex justify-center gap-6">
+          <Link
+            to="/privacy-policy"
+            className="hover:text-sunrise-600 transition-colors"
+          >
+            Privacy Policy
+          </Link>
+          <Link
+            to="/terms-of-service"
+            className="hover:text-sunrise-600 transition-colors"
+          >
+            Terms of Service
+          </Link>
+        </div>
+        <p className="mt-2">&copy; {new Date().getFullYear()} Sunrise. All rights reserved.</p>
+      </footer>
     </div>
   )
 }
