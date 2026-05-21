@@ -1,20 +1,20 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Diagnostics;
+using SunriseApi.Constants;
 using SunriseApi.Data;
 using SunriseApi.Mapping;
 using SunriseApi.Services;
 using SunriseApi.Services.Interfaces;
-using Amazon.Lambda.AspNetCoreServer.Hosting;
 using Microsoft.OpenApi.Models;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 👇 REQUIRED: tells ASP.NET Core to run inside Lambda
-builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
-
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 // Optional: Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -24,10 +24,10 @@ builder.Services.AddScoped<IGroupsService, GroupsService>();
 builder.Services.AddScoped<IMetricsService, MetricsService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 
+var connectionString = builder.Configuration.GetConnectionString("SunriseSQLDatabaseConnectionString");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("SunriseSQLDatabaseConnectionString")
-    ));
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -67,16 +67,70 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy
+            .WithOrigins(CorsOrigins.All)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 // Configure pipeline
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Must be first: catches unhandled exceptions and ensures CORS headers
+// are written even on 500 responses (default Kestrel error resets headers).
+var corsOrigins = CorsOrigins.All;
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var origin = context.Request.Headers.Origin.ToString();
+        if (corsOrigins.Contains(origin))
+        {
+            context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+            context.Response.Headers["Vary"] = "Origin";
+        }
+
+        var ex = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+        var (status, code, message) = ex switch
+        {
+            InvalidOperationException e when e.Message.Contains("not found", StringComparison.OrdinalIgnoreCase)
+                => (StatusCodes.Status404NotFound, "DOMAIN_NOT_FOUND", e.Message),
+            InvalidOperationException e
+                => (StatusCodes.Status400BadRequest, "DOMAIN_INVALID", e.Message),
+            UnauthorizedAccessException e
+                => (StatusCodes.Status403Forbidden, "PERMISSION_DENIED", e.Message),
+            DbUpdateException
+                => (StatusCodes.Status500InternalServerError, "DB_CONSTRAINT", "A database constraint was violated."),
+            _
+                => (StatusCodes.Status500InternalServerError, "UNKNOWN", "An unexpected error occurred.")
+        };
+
+        context.Response.StatusCode = status;
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsJsonAsync(new { error = message, code, status });
+    });
+});
+
+// CORS before HTTPS redirect so preflight responses always carry the header.
+app.UseCors();
+
+// Only redirect to HTTPS in production; local dev runs on plain HTTP.
+if (app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
 
 FirebaseInit.Initialize();
 

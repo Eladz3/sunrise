@@ -7,6 +7,7 @@ using SunriseApi.Services.Interfaces;
 namespace SunriseApi.Controllers
 {
     [ApiController]
+    [Route("api/goals")]
     public class GoalsController : ControllerBase
     {
         private readonly IGoalsService _goalsService;
@@ -16,7 +17,7 @@ namespace SunriseApi.Controllers
         }
 
         [HttpGet]
-        [Route("goals-by-user-id/{userId}")]
+        [Route("by-user-id/{userId}")]
         [ProducesResponseType(typeof(IEnumerable<Goal>), 200)]
         public async Task<IActionResult> GetGoalsByUserIdAsync(int userId)
         {
@@ -25,7 +26,7 @@ namespace SunriseApi.Controllers
         }
 
         [HttpGet]
-        [Route("goals-by-group-id/{groupId}")]
+        [Route("by-group-id/{groupId}")]
         [ProducesResponseType(typeof(IEnumerable<Goal>), 200)]
         public async Task<IActionResult> GetGoalsByGroupIdAsync(int groupId)
         {
@@ -34,7 +35,6 @@ namespace SunriseApi.Controllers
         }
 
         [HttpPost]
-        [Route("goals")]
         [ProducesResponseType(typeof(Goal), 200)]
         public async Task<IActionResult> CreateNewGoalAsync([FromBody] CreateNewGoalRequest request)
         {
@@ -43,7 +43,7 @@ namespace SunriseApi.Controllers
         }
 
         [HttpPut]
-        [Route("goals/{goalId}")]
+        [Route("{goalId}")]
         [ProducesResponseType(typeof(Goal), 200)]
         public async Task<IActionResult> UpdateGoalAsync([FromRoute] int goalId, [FromBody] UpdateGoalRequest request)
         {
@@ -52,7 +52,7 @@ namespace SunriseApi.Controllers
         }
 
         [HttpDelete]
-        [Route("goals/{goalId}")]
+        [Route("{goalId}")]
         [ProducesResponseType(204)]
         public async Task<IActionResult> SoftDeleteGoal(int goalId)
         {

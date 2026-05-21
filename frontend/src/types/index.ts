@@ -1,14 +1,13 @@
-/**
- * Central export point for all TypeScript types and interfaces
- * Import types like: import { User, Goal, GlobalStats } from '@/types'
- */
-
-// Firebase types
+// Firebase / Firestore types
 export * from './firebase';
 
-// Domain models
-export * from './models';
+// Backend API domain types
+export * from './common.types';
+export * from './user.types';
+export * from './group.types';
+export * from './goal.types';
+export * from './metrics.types';
+export * from './api.types';
 
-// Re-export other types when created
-// export * from './calendar';
-// export * from './api';
+// Firestore data models (import directly from ./models when needed)
+// export * from './models';

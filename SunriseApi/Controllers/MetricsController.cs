@@ -6,6 +6,7 @@ using SunriseApi.Services.Interfaces;
 namespace SunriseApi.Controllers
 {
     [ApiController]
+    [Route("api/metrics")]
     public class MetricsController : ControllerBase
     {
         private readonly IMetricsService _metricsService;
@@ -15,7 +16,7 @@ namespace SunriseApi.Controllers
         }
 
         [HttpGet]
-        [Route("metrics/by-user-id/{userId}")]
+        [Route("by-user-id/{userId}")]
         [ProducesResponseType(typeof(GoalMetrics), 200)]
         public async Task<IActionResult> GetMetricsByUserIdAsync(int userId)
         {
@@ -24,7 +25,7 @@ namespace SunriseApi.Controllers
         }
 
         [HttpGet]
-        [Route("metrics/by-group-id/{groupId}")]
+        [Route("by-group-id/{groupId}")]
         [ProducesResponseType(typeof(GoalMetrics), 200)]
         public async Task<IActionResult> GetMetricsByGroupIdAsync(int groupId)
         {
@@ -33,7 +34,7 @@ namespace SunriseApi.Controllers
         }
 
         [HttpGet]
-        [Route("metrics")]
+        [Route("global")]
         [ProducesResponseType(typeof(GoalMetrics), 200)]
         public async Task<IActionResult> GetAllMetricsAsync()
         {

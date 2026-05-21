@@ -48,18 +48,17 @@ namespace SunriseApi.Services
             var goalsCount = goals.Count();
             var completedGoalsCount = goals.Where(g => g.CompletedOn != null).Count();
 
-            List<decimal> completionPercentages = new List<decimal>();
-            foreach (Goal goal in goals)
-            {
-                completionPercentages.Add((decimal)goal.CurrentValue / (decimal)goal.TargetValue);
-            }
-            
+            var completionPercentages = goals
+                .Where(g => g.TargetValue > 0)
+                .Select(g => (decimal)g.CurrentValue / (decimal)g.TargetValue)
+                .ToList();
+
             var metrics = new GoalMetrics()
             {
                 ParticipantCount = participantCount,
                 TotalGoalsCount = goalsCount,
                 CompletedGoalsCount = completedGoalsCount,
-                ProgressPercentage = completionPercentages.Average()
+                ProgressPercentage = completionPercentages.Count > 0 ? completionPercentages.Average() : 0
             };
 
             return metrics;

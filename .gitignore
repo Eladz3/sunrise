@@ -117,3 +117,9 @@ SunriseApi/*.coveragexml
 # =========================
 SunriseApi/*.tmp
 SunriseApi/*.temp
+
+# =========================
+# Publish output
+# =========================
+SunriseApi/publish/
+SunriseApi/publish.zip

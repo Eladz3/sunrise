@@ -27,12 +27,6 @@ export interface User {
   /** URL to user's profile picture (from Google profile) */
   photoURL: string | null;
 
-  /** Google OAuth access token for Calendar API integration */
-  googleAccessToken: string | null;
-
-  /** When the access token expires */
-  tokenExpiresAt: FirestoreTimestamp | null;
-
   /** Total number of goals created by this user */
   goalsCount: number;
 
@@ -47,9 +41,6 @@ export interface User {
 
   /** Last date user completed a goal (for streak tracking) */
   lastCompletionDate: FirestoreTimestamp | null;
-
-  /** Whether the user has connected their Google Calendar */
-  calendarConnected: boolean;
 
   /** User's timezone (e.g., "America/New_York") */
   timezone: string;
@@ -114,9 +105,6 @@ export interface Goal {
 
   /** Recurrence pattern if recurring is true */
   recurrencePattern: RecurrencePattern | null;
-
-  /** Google Calendar event ID (if synced) */
-  calendarEventId: string | null;
 
   /** Tags for filtering and search */
   tags: string[];
@@ -194,92 +182,6 @@ export interface RecurrencePattern {
 }
 
 /**
- * Global Stats Model
- *
- * Community-wide statistics aggregated from all users.
- * Document ID: "current" (single document)
- * Collection: globalStats
- */
-export interface GlobalStats {
-  /** Document identifier (always "current") */
-  id: string;
-
-  /** Total number of registered users */
-  totalUsers: number;
-
-  /** Total goals created across all users */
-  totalGoals: number;
-
-  /** Total goals completed across all users */
-  totalGoalsCompleted: number;
-
-  /** Total goals currently in progress */
-  totalGoalsInProgress: number;
-
-  /** Overall community completion rate (percentage) */
-  completionRate: number;
-
-  /** Number of active users in the last 7 days */
-  activeUsersLast7Days: number;
-
-  /** Number of active users in the last 30 days */
-  activeUsersLast30Days: number;
-
-  /** Goals completed today across all users */
-  goalsCompletedToday: number;
-
-  /** Goals completed this week across all users */
-  goalsCompletedThisWeek: number;
-
-  /** Goals completed this month across all users */
-  goalsCompletedThisMonth: number;
-
-  /** Most popular goal category */
-  popularCategory: GoalCategory;
-
-  /** Distribution of goals by category */
-  categoryDistribution: {
-    personal: number;
-    work: number;
-    health: number;
-    learning: number;
-    social: number;
-    finance: number;
-    other: number;
-  };
-
-  /** Distribution of goals by status */
-  statusDistribution: {
-    todo: number;
-    in_progress: number;
-    completed: number;
-    cancelled: number;
-    archived: number;
-  };
-
-  /** Average goals per user */
-  averageGoalsPerUser: number;
-
-  /** Average completion time in days */
-  averageCompletionTimeDays: number;
-
-  /** Highest streak across all users */
-  highestStreak: number;
-
-  /** User ID with the highest streak */
-  highestStreakUserId: string | null;
-
-  /** When the stats were last updated */
-  lastUpdated: FirestoreTimestamp;
-
-  /** When the stats document was created */
-  createdAt: FirestoreTimestamp;
-
-  /** When the stats were last calculated */
-  updatedAt: FirestoreTimestamp;
-}
-
-/**
  * Helper Types for CRUD Operations
  */
 
@@ -294,6 +196,3 @@ export type CreateGoal = Omit<Goal, 'id' | 'createdAt' | 'updatedAt'>;
 
 /** Type for updating a Goal (partial fields) */
 export type UpdateGoal = Partial<Omit<Goal, 'id' | 'createdAt' | 'updatedAt'>>;
-
-/** Type for updating GlobalStats (partial fields) */
-export type UpdateGlobalStats = Partial<Omit<GlobalStats, 'id' | 'createdAt' | 'updatedAt'>>;

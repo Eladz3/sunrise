@@ -1,100 +1,33 @@
-import { useState, useEffect, useCallback } from 'react';
-import {
-  getUserGoals,
-  createGoal,
-  updateGoal,
-  type Goal,
-  type GoalDocument,
-} from '@/services/goals';
+import { useAuthStore } from '@/stores/authStore'
+import { useGoalStore } from '@/stores/goalStore'
+import { useUserGoals } from './useUserGoals'
+import { getCurrentUser } from '@/auth/auth'
+import type { CreateGoalRequest, UpdateGoalRequest } from '@/types'
 
-interface UseGoalsResult {
-  goals: Goal[];
-  loading: boolean;
-  error: string | null;
-  addGoal: (data: Omit<GoalDocument, 'current_value' | 'user_id'>) => Promise<void>;
-  editGoal: (id: string, data: Partial<GoalDocument>) => Promise<void>;
-  refreshGoals: () => Promise<void>;
-}
+export function useGoals() {
+  const currentUserId = useAuthStore((state) => state.currentUserId)
+  const goals = useUserGoals(currentUserId ?? 0)
+  const loading = useGoalStore((state) => state.loading)
+  const error = useGoalStore((state) => state.error)
+  const storeCreateGoal = useGoalStore((state) => state.createGoal)
+  const storeUpdateGoal = useGoalStore((state) => state.updateGoal)
+  const storeDeleteGoal = useGoalStore((state) => state.deleteGoal)
 
-export function useGoals(userId: string | null): UseGoalsResult {
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const addGoal = (data: Omit<CreateGoalRequest, 'year'>) => {
+    if (!currentUserId) return Promise.resolve()
+    const firebaseUser = getCurrentUser()
+    if (!firebaseUser) return Promise.resolve()
+    return storeCreateGoal({
+      ...data,
+      year: new Date().getFullYear(),
+      userId: currentUserId,
+      firebaseUid: firebaseUser.uid,
+    })
+  }
 
-  const fetchGoals = useCallback(async () => {
-    if (!userId) {
-      setGoals([]);
-      setLoading(false);
-      return;
-    }
+  const editGoal = (goalId: number, data: UpdateGoalRequest) => storeUpdateGoal(goalId, data)
 
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getUserGoals(userId);
-      setGoals(data);
-    } catch (err) {
-      setError('Failed to fetch goals');
-      console.error('Error fetching goals:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [userId]);
+  const removeGoal = (goalId: number) => storeDeleteGoal(goalId)
 
-  useEffect(() => {
-    fetchGoals();
-  }, [fetchGoals]);
-
-  const addGoal = useCallback(
-    async (data: Omit<GoalDocument, 'current_value' | 'user_id'>) => {
-      if (!userId) return;
-
-      const optimisticGoal: Goal = {
-        id: `temp-${Date.now()}`,
-        ...data,
-        user_id: userId,
-        current_value: 0,
-      };
-      setGoals((prev) => [...prev, optimisticGoal]);
-
-      try {
-        const newId = await createGoal({ ...data, user_id: userId });
-        setGoals((prev) =>
-          prev.map((g) => (g.id === optimisticGoal.id ? { ...g, id: newId } : g))
-        );
-      } catch (err) {
-        setGoals((prev) => prev.filter((g) => g.id !== optimisticGoal.id));
-        setError('Failed to create goal');
-        console.error('Error creating goal:', err);
-      }
-    },
-    [userId]
-  );
-
-  const editGoal = useCallback(
-    async (id: string, data: Partial<GoalDocument>) => {
-      const originalGoal = goals.find((g) => g.id === id);
-      if (!originalGoal) return;
-
-      setGoals((prev) => prev.map((g) => (g.id === id ? { ...g, ...data } : g)));
-
-      try {
-        await updateGoal(id, data);
-      } catch (err) {
-        setGoals((prev) => prev.map((g) => (g.id === id ? originalGoal : g)));
-        setError('Failed to update goal');
-        console.error('Error updating goal:', err);
-      }
-    },
-    [goals]
-  );
-
-  return {
-    goals,
-    loading,
-    error,
-    addGoal,
-    editGoal,
-    refreshGoals: fetchGoals,
-  };
+  return { goals, loading, error, addGoal, editGoal, removeGoal }
 }

@@ -17,7 +17,7 @@ namespace SunriseApi.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.26")
+                .HasAnnotation("ProductVersion", "8.0.27")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -110,6 +110,9 @@ namespace SunriseApi.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("GroupOwnerUserId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int");
 
@@ -122,7 +125,52 @@ namespace SunriseApi.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("GroupOwnerUserId");
+
                     b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("SunriseApi.Models.Entities.GroupInvite", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.ToTable("GroupInvites");
                 });
 
             modelBuilder.Entity("SunriseApi.Models.Entities.User", b =>
@@ -153,8 +201,9 @@ namespace SunriseApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("FirebaseId")
-                        .HasColumnType("int");
+                    b.Property<string>("FirebaseUid")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -205,6 +254,28 @@ namespace SunriseApi.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SunriseApi.Models.Entities.Group", b =>
+                {
+                    b.HasOne("SunriseApi.Models.Entities.User", "GroupOwner")
+                        .WithMany()
+                        .HasForeignKey("GroupOwnerUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("GroupOwner");
+                });
+
+            modelBuilder.Entity("SunriseApi.Models.Entities.GroupInvite", b =>
+                {
+                    b.HasOne("SunriseApi.Models.Entities.Group", "Group")
+                        .WithMany("GroupInvites")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+                });
+
             modelBuilder.Entity("SunriseApi.Models.Entities.UserGroup", b =>
                 {
                     b.HasOne("SunriseApi.Models.Entities.Group", "Group")
@@ -226,6 +297,8 @@ namespace SunriseApi.Migrations
 
             modelBuilder.Entity("SunriseApi.Models.Entities.Group", b =>
                 {
+                    b.Navigation("GroupInvites");
+
                     b.Navigation("UserGroups");
                 });
 

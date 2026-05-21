@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getAllGoals, type Goal } from '@/services/goals';
+import { getAllGoals } from '@/api/goals.api';
+import type { Goal } from '@/types';
 
 interface UseCommunityGoalsResult {
   goals: Goal[];
@@ -31,40 +32,20 @@ export function useCommunityGoals(): UseCommunityGoalsResult {
     fetchGoals();
   }, [fetchGoals]);
 
-  return {
-    goals,
-    loading,
-    error,
-    refreshGoals: fetchGoals,
-  };
+  return { goals, loading, error, refreshGoals: fetchGoals };
 }
 
-export function groupGoalsByUser(goals: Goal[]): Record<string, Goal[]> {
-  return goals.reduce(
-    (acc, goal) => {
-      const userName = goal.user_name;
-      if (!acc[userName]) {
-        acc[userName] = [];
-      }
-      acc[userName].push(goal);
-      return acc;
-    },
-    {} as Record<string, Goal[]>
-  );
-}
 
 export function calculateCommunityProgress(goals: Goal[]): {
   totalCurrent: number;
   totalTarget: number;
   percentage: number;
 } {
-  const totalCurrent = goals.reduce((sum, g) => sum + g.current_value, 0);
-  const totalTarget = goals.reduce((sum, g) => sum + g.target_value, 0);
-  const percentage = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
-
+  const totalCurrent = goals.reduce((sum, g) => sum + g.currentValue, 0);
+  const totalTarget = goals.reduce((sum, g) => sum + g.targetValue, 0);
   return {
     totalCurrent,
     totalTarget,
-    percentage: Math.round(percentage),
+    percentage: totalTarget > 0 ? Math.round((totalCurrent / totalTarget) * 100) : 0,
   };
 }

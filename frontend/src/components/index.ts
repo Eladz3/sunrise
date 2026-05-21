@@ -12,12 +12,8 @@ export type { IconName, IconProps } from './ui/Icon'
 // Layout Components
 export { Header } from './layout/Header'
 
-// Community Components
-export { CommunityProgressBar } from './community/CommunityProgressBar'
-
 // Goal Components
-export { GoalCard } from './goal/GoalCard'
-export type { GoalCategory } from './goal/GoalCard'
+export { GoalCard, GoalCardSkeleton } from './goal/GoalCard'
 
-// Form Components
-// export { TextInput } from './forms/TextInput';
+// Group Components
+export { GroupsSidebar, MobileGroupsDrawer } from './groups'

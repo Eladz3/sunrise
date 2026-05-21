@@ -23,7 +23,6 @@
  *     - signInWithPopup: only in src/auth/auth.ts
  *     - signOut: only in src/auth/auth.ts
  *     - onAuthStateChanged: only in src/auth/auth.ts (wrapped as onAuthChange)
- *     - Note: calendar.ts has separate OAuth for calendar scopes (not main auth)
  *
  * [x] UI components consume auth via context only
  *     - Components use useAuth() hook, not Firebase directly
@@ -40,38 +39,64 @@
  *     - Renders children when authenticated
  */
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-  type ReactNode,
-} from 'react';
-import { onAuthChange, signInWithGoogle, signOut } from './auth';
-import type { User } from 'firebase/auth';
+import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react'
+import { onAuthChange, signInWithGoogle, signOut } from './auth'
+import type { User } from 'firebase/auth'
+import { syncBackendUser } from './users'
+import { useAuthStore } from '@/stores/authStore'
 
 interface AuthContextValue {
-  user: User | null;
-  loading: boolean;
-  login: () => Promise<void>;
-  logout: () => Promise<void>;
+  user: User | null
+  loading: boolean
+  login: () => Promise<void>
+  logout: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
 interface AuthProviderProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  // Schedule a token refresh 5 minutes before the token's actual expiry.
+  // Uses getIdTokenResult() to read the real expirationTime rather than assuming a fixed lifetime.
+  // Reschedules itself after each refresh so the timing stays accurate across multiple cycles.
+  useEffect(() => {
+    if (!user) return
+
+    let timeoutId: ReturnType<typeof setTimeout>
+
+    async function scheduleRefresh() {
+      try {
+        const tokenResult = await user!.getIdTokenResult()
+        const expiresAt = new Date(tokenResult.expirationTime).getTime()
+        const delay = Math.max(expiresAt - Date.now() - 5 * 60 * 1000, 0)
+
+        timeoutId = setTimeout(async () => {
+          try {
+            await user!.getIdToken(true)
+            scheduleRefresh()
+          } catch (error) {
+            console.error('[Auth] Token refresh failed:', error)
+          }
+        }, delay)
+      } catch (error) {
+        console.error('[Auth] Failed to schedule token refresh:', error)
+      }
+    }
+
+    scheduleRefresh()
+    return () => clearTimeout(timeoutId)
+  }, [user])
 
   useEffect(() => {
     // IMPORTANT: This is the ONE AND ONLY onAuthStateChanged listener.
     // Do not create additional listeners elsewhere in the app.
-    const unsubscribe = onAuthChange((authUser) => {
+    const unsubscribe = onAuthChange(async (authUser) => {
       // TEMPORARY: Debug logging for development only
       // TODO: Remove these logs before production release
       if (import.meta.env.DEV) {
@@ -79,38 +104,50 @@ export function AuthProvider({ children }: AuthProviderProps) {
           console.log('[Auth Debug] User signed in:', {
             uid: authUser.uid,
             email: authUser.email,
-          });
+            photo: authUser.photoURL,
+          })
           // NOTE: Never log tokens or sensitive credentials
         } else {
-          console.log('[Auth Debug] User signed out');
+          console.log('[Auth Debug] User signed out')
         }
       }
 
-      setUser(authUser);
-      setLoading(false);
-    });
+      if (authUser) {
+        try {
+          await syncBackendUser(authUser)
+          await useAuthStore.getState().bootstrapApplication(authUser.uid)
+        } catch (error) {
+          console.error('[Auth] Backend user sync failed:', error)
+        }
+      } else {
+        useAuthStore.getState().logout()
+      }
 
-    return () => unsubscribe();
-  }, []);
+      setUser(authUser)
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
+  }, [])
 
   const login = useCallback(async () => {
-    await signInWithGoogle();
+    await signInWithGoogle()
     // User state will be updated automatically via onAuthChange
-  }, []);
+  }, [])
 
   const logout = useCallback(async () => {
-    await signOut();
+    await signOut()
     // User state will be updated automatically via onAuthChange
-  }, []);
+  }, [])
 
   const value: AuthContextValue = {
     user,
     loading,
     login,
     logout,
-  };
+  }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 /**
@@ -122,11 +159,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
  * @throws Error if used outside AuthProvider
  */
 export function useAuth(): AuthContextValue {
-  const context = useContext(AuthContext);
+  const context = useContext(AuthContext)
 
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider')
   }
 
-  return context;
+  return context
 }

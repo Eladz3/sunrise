@@ -16,6 +16,7 @@ namespace SunriseApi.Data
         public DbSet<Group> Groups => Set<Group>();
         public DbSet<UserGroup> UserGroups => Set<UserGroup>();
         public DbSet<Goal> Goals => Set<Goal>();
+        public DbSet<GroupInvite> GroupInvites => Set<GroupInvite>();
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
@@ -76,6 +77,28 @@ namespace SunriseApi.Data
                 .HasOne(ug => ug.Group)
                 .WithMany(g => g.UserGroups)
                 .HasForeignKey(ug => ug.GroupId);
+
+            // -------------------------
+            // Group -> GroupOwner
+            // -------------------------
+            modelBuilder.Entity<Group>()
+                .HasOne(g => g.GroupOwner)
+                .WithMany()
+                .HasForeignKey(g => g.GroupOwnerUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // -------------------------
+            // GroupInvite -> Group
+            // -------------------------
+            modelBuilder.Entity<GroupInvite>()
+                .HasOne(gi => gi.Group)
+                .WithMany(g => g.GroupInvites)
+                .HasForeignKey(gi => gi.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<GroupInvite>()
+                .HasIndex(gi => gi.Token)
+                .IsUnique();
 
             // -------------------------
             // Goal -> User (many-to-one)
