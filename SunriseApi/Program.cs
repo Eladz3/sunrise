@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Diagnostics;
 using SunriseApi.Constants;
 using SunriseApi.Data;
 using SunriseApi.Mapping;
@@ -99,9 +100,26 @@ app.UseExceptionHandler(errorApp =>
             context.Response.Headers["Access-Control-Allow-Origin"] = origin;
             context.Response.Headers["Vary"] = "Origin";
         }
-        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+        var ex = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+        var (status, code, message) = ex switch
+        {
+            InvalidOperationException e when e.Message.Contains("not found", StringComparison.OrdinalIgnoreCase)
+                => (StatusCodes.Status404NotFound, "DOMAIN_NOT_FOUND", e.Message),
+            InvalidOperationException e
+                => (StatusCodes.Status400BadRequest, "DOMAIN_INVALID", e.Message),
+            UnauthorizedAccessException e
+                => (StatusCodes.Status403Forbidden, "PERMISSION_DENIED", e.Message),
+            DbUpdateException
+                => (StatusCodes.Status500InternalServerError, "DB_CONSTRAINT", "A database constraint was violated."),
+            _
+                => (StatusCodes.Status500InternalServerError, "UNKNOWN", "An unexpected error occurred.")
+        };
+
+        context.Response.StatusCode = status;
         context.Response.ContentType = "application/json";
-        await context.Response.WriteAsync("{\"error\":\"Internal server error\"}");
+        await context.Response.WriteAsJsonAsync(new { error = message, code, status });
     });
 });
 

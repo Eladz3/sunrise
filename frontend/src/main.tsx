@@ -5,6 +5,10 @@ import { AuthProvider } from '@/auth/AuthProvider';
 import App from './App';
 import './index.css';
 
+if (import.meta.env.DEV) {
+  import('@/dev/errorTests').then(m => m.registerErrorTests());
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
