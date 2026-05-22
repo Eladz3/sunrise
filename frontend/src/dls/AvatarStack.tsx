@@ -1,32 +1,48 @@
-// =============================================================================
-// DLS: AvatarStack
-// =============================================================================
-// Horizontally overlapping row of Avatar components with an optional overflow
-// count badge. Currently implemented inline in GroupCard.
-//
-// PROPS
-//   members    : Array<{ userId: number; displayName: string; profilePhoto?: string | null }>
-//   max?       : number  — how many avatars to show before collapsing to "+N"  (default: 4)
-//   size?      : 'xs' | 'sm'   — passed through to each Avatar  (default: 'xs')
-//   className? : string
-//
-// BEHAVIOR
-//   - Renders up to `max` Avatar elements with -space-x-2 overlap
-//   - If members.length > max, appends a "+N" circle using the same size/style
-//     as the avatars but with warmGray-200 bg and warmGray-600 text
-//   - Each Avatar gets a title={member.displayName} tooltip
-//
-// NOTES
-//   - Uses Avatar from dls/Avatar.tsx — do not inline the photo/initial logic here
-//   - The "+N" overflow chip should not be clickable; it's purely informational
-//   - z-index stacking: avatars laid out left-to-right, each subsequent avatar
-//     has lower z-index so the first avatar appears on top (matches current
-//     GroupCard behavior)
-//
-// USAGE (replaces)
-//   components/groups/GroupCard.tsx — the flex -space-x-2 member avatar block
-//
-// POTENTIAL FUTURE USE
-//   Any place that shows "who is in this group/thread/event" — e.g. a future
-//   group detail page or notification surfaces
-// =============================================================================
+import { Avatar } from './Avatar';
+
+interface StackMember {
+  userId: number;
+  displayName: string;
+  profilePhoto?: string | null;
+}
+
+type StackSize = 'xs' | 'sm';
+
+interface AvatarStackProps {
+  members: StackMember[];
+  max?: number;
+  size?: StackSize;
+  className?: string;
+}
+
+const overflowSize: Record<StackSize, string> = {
+  xs: 'w-6 h-6 text-[9px]',
+  sm: 'w-8 h-8 text-xs',
+};
+
+export function AvatarStack({ members, max = 4, size = 'xs', className = '' }: AvatarStackProps) {
+  const visible = members.slice(0, max);
+  const overflow = members.length - visible.length;
+
+  return (
+    <div className={`flex -space-x-2 ${className}`}>
+      {visible.map((member) => (
+        <Avatar
+          key={member.userId}
+          displayName={member.displayName}
+          profilePhoto={member.profilePhoto}
+          size={size}
+          title={member.displayName}
+          className="border-2 border-white"
+        />
+      ))}
+      {overflow > 0 && (
+        <div
+          className={`${overflowSize[size]} rounded-full border-2 border-white bg-warmGray-200 flex items-center justify-center font-bold text-warmGray-600 shrink-0`}
+        >
+          +{overflow}
+        </div>
+      )}
+    </div>
+  );
+}
