@@ -1,32 +1,33 @@
-// =============================================================================
-// DLS: Spinner
-// =============================================================================
-// Inline loading indicator. Formalizes the existing Spinner in
-// components/ui/Spinner.tsx — that file will be replaced by a re-export of
-// this one once implemented.
-//
-// SIZES
-//   sm — h-4 w-4  (used inline inside buttons)
-//   md — h-6 w-6  (default; used for card-level loading)
-//   lg — h-8 w-8  (used for page-level loading states in MyGoalsPage)
-//
-// PROPS
-//   size?      : 'sm' | 'md' | 'lg'  (default: 'md')
-//   className? : string               (merged onto the SVG element for color overrides)
-//
-// NOTES
-//   - Renders a single SVG circle (stroke, 25% opacity base arc + 75% opacity
-//     sweep arc) with animate-spin
-//   - Default color is currentColor so it inherits from parent text color;
-//     callers can pass className="text-sunrise-500" etc.
-//   - aria-hidden="true" on the SVG; callers are responsible for sr-only text
-//     if the spinner is the only loading affordance visible
-//
-// USAGE (replaces)
-//   components/ui/Spinner.tsx — identical API, just moves to DLS
-//
-// CONSUMERS
-//   pages/MyGoalsPage.tsx (page-level loading, size lg)
-//   dls/Button.tsx        (inline loading state, size sm — but Button has its
-//                          own self-contained SVG; Spinner is for standalone use)
-// =============================================================================
+import type { HTMLAttributes } from 'react';
+
+type SpinnerSize = 'sm' | 'md' | 'lg';
+
+const sizeClasses: Record<SpinnerSize, string> = {
+  sm: 'h-4 w-4',
+  md: 'h-6 w-6',
+  lg: 'h-8 w-8',
+};
+
+interface SpinnerProps extends HTMLAttributes<SVGSVGElement> {
+  size?: SpinnerSize;
+}
+
+export function Spinner({ size = 'md', className = '', ...props }: SpinnerProps) {
+  return (
+    <svg
+      className={`animate-spin ${sizeClasses[size]} ${className}`}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      {...props}
+    >
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
+  );
+}

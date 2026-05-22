@@ -1,53 +1,74 @@
-// =============================================================================
-// DLS: Input
-// =============================================================================
-// Text input field with consistent baseline styling and support for labels,
-// helper text, and error states. Currently all form inputs across 4+ modals
-// use raw <input> or <textarea> with ad-hoc Tailwind classes.
-//
-// VARIANTS
-//   default — white bg, slate-300 border, focus:ring-sunrise-500
-//   error   — red-300 border, red-50 bg tint, focus:ring-red-500
-//             (automatically applied when the `error` prop is set)
-//
-// TYPES COVERED
-//   Input     — wraps <input type="text | number | email | password | url">
-//   Textarea  — wraps <textarea> with identical styling; exported as Input.Textarea
-//               or as a separate named export TextareaInput (decide at implementation)
-//
-// PROPS (Input)
-//   label?        : string    — rendered as <label> above the input; tied via htmlFor/id
-//   placeholder?  : string
-//   error?        : string    — if set, renders below the field in red-600 text-sm;
-//                               also triggers the error variant styling
-//   hint?         : string    — helper text below the field in slate-500 text-sm
-//                               (mutually exclusive with error — error takes priority)
-//   className?    : string    — merged on the <input> element
-//   wrapperClass? : string    — merged on the outer <div> wrapper
-//   ...rest       : all native HTMLInputElement attributes (value, onChange, onBlur,
-//                   disabled, maxLength, autoFocus, etc.)
-//
-// ADDITIONAL PROPS (Textarea only)
-//   rows?         : number    (default: 3)
-//   resize?       : 'none' | 'vertical' | 'both'  (default: 'vertical')
-//
-// BASE STYLES
-//   w-full rounded-lg border px-3 py-2 text-sm text-slate-800
-//   placeholder:text-slate-400
-//   focus:outline-none focus:ring-2 focus:ring-offset-0
-//   disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-50
-//
-// USAGE (replaces inline inputs in)
-//   components/goal/GoalFormModal.tsx      — title, description (textarea), unit fields
-//   components/groups/CreateGroupModal.tsx — group name field
-//   components/groups/GroupActionModal.tsx — join-link field
-//   components/groups/GroupsSidebar.tsx    — inline join-code input
-//   components/groups/InviteModal.tsx      — read-only invite URL display field
-//
-// NOTES
-//   - The <select> element (GoalFormModal category dropdown, GoalFormModal target value)
-//     is a separate Select DLS component candidate but is lower priority given only
-//     one form uses it currently; for now GoalFormModal can keep its raw <select>
-//   - Number input in ProgressUpdateModal has special stepper buttons — keep that
-//     component's custom input logic; it should not use this generic Input
-// =============================================================================
+import { type InputHTMLAttributes, type TextareaHTMLAttributes, forwardRef } from 'react';
+
+const baseClasses =
+  'w-full rounded-lg border px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-50 transition-colors';
+
+const defaultClasses = 'border-slate-300 bg-white focus:border-sunrise-400 focus:ring-sunrise-500/20';
+const errorClasses   = 'border-red-300 bg-red-50 focus:border-red-400 focus:ring-red-500/20';
+
+interface InputBaseProps {
+  label?: string;
+  error?: string;
+  hint?: string;
+  wrapperClass?: string;
+}
+
+export type InputProps = InputBaseProps & InputHTMLAttributes<HTMLInputElement>;
+export type TextareaInputProps = InputBaseProps & TextareaHTMLAttributes<HTMLTextAreaElement>;
+
+function deriveId(id: string | undefined, label: string | undefined) {
+  return id ?? (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
+}
+
+function FieldMeta({ error, hint }: { error?: string; hint?: string }) {
+  if (error) return <p className="text-sm text-red-600">{error}</p>;
+  if (hint)  return <p className="text-sm text-slate-500">{hint}</p>;
+  return null;
+}
+
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  { label, error, hint, wrapperClass = '', className = '', id, ...props },
+  ref,
+) {
+  const inputId = deriveId(id, label);
+  return (
+    <div className={`flex flex-col gap-1 ${wrapperClass}`}>
+      {label && (
+        <label htmlFor={inputId} className="text-sm font-medium text-slate-700">
+          {label}
+        </label>
+      )}
+      <input
+        ref={ref}
+        id={inputId}
+        className={`${baseClasses} ${error ? errorClasses : defaultClasses} ${className}`}
+        {...props}
+      />
+      <FieldMeta error={error} hint={hint} />
+    </div>
+  );
+});
+
+export const TextareaInput = forwardRef<HTMLTextAreaElement, TextareaInputProps>(function TextareaInput(
+  { label, error, hint, wrapperClass = '', className = '', id, rows = 3, ...props },
+  ref,
+) {
+  const inputId = deriveId(id, label);
+  return (
+    <div className={`flex flex-col gap-1 ${wrapperClass}`}>
+      {label && (
+        <label htmlFor={inputId} className="text-sm font-medium text-slate-700">
+          {label}
+        </label>
+      )}
+      <textarea
+        ref={ref}
+        id={inputId}
+        rows={rows}
+        className={`${baseClasses} resize-vertical ${error ? errorClasses : defaultClasses} ${className}`}
+        {...props}
+      />
+      <FieldMeta error={error} hint={hint} />
+    </div>
+  );
+});
