@@ -1,53 +1,112 @@
-// =============================================================================
-// DLS: Modal
-// =============================================================================
-// Base modal shell providing backdrop, slide-up animation, scrollable body,
-// and optional sticky header/footer slots. All 6 feature modals currently
-// re-implement this wrapper; they will each become thin consumers of this shell.
-//
-// PROPS
-//   isOpen     : boolean           — controls visibility; when false the modal
-//                                    is not rendered (not just hidden)
-//   onClose    : () => void        — called when backdrop clicked or Escape pressed
-//   title?     : string            — text rendered in the sticky header; if omitted,
-//                                    no header bar is rendered
-//   children   : ReactNode         — scrollable body content
-//   footer?    : ReactNode         — sticky footer slot (typically action buttons)
-//   size?      : 'sm' | 'md' | 'lg'
-//                 sm — max-w-sm   (confirm/destructive dialogs: DeleteGroupModal)
-//                 md — max-w-md   (default; most feature modals)
-//                 lg — max-w-lg   (complex forms with multiple fields)
-//   className? : string            — merged on the modal panel (not the backdrop)
-//
-// BEHAVIOR
-//   - Backdrop: fixed inset-0 bg-black/50 backdrop-blur-sm z-50
-//   - Panel: centered with flex items-end sm:items-center so on mobile it anchors
-//     to bottom; on sm+ it centers vertically
-//   - Slide-up animation: uses the existing `slide-up` keyframe from index.css
-//     (translate-y from 100% to 0 over 0.3s ease-out)
-//   - Escape key: attaches a keydown listener when isOpen=true, calls onClose
-//   - Body scroll lock: adds/removes `overflow-hidden` on document.body
-//     (mirrors what index.css .modal-open class already does — decide one approach)
-//   - Sticky header: flex items-center justify-between p-4 border-b border-slate-100
-//     Title text: font-semibold text-slate-800
-//     Close button: X icon, ghost style, calls onClose
-//   - Sticky footer: p-4 border-t border-slate-100
-//
-// ACCESSIBILITY
-//   - role="dialog" aria-modal="true" aria-labelledby (ties to title element id)
-//   - Focus trap: on open, move focus to the first focusable element inside the panel;
-//     on close, restore focus to the trigger element
-//
-// USAGE (replaces the wrapper boilerplate in all of these)
-//   components/goal/GoalFormModal.tsx        (size: md)
-//   components/goal/ProgressUpdateModal.tsx  (size: sm)
-//   components/groups/CreateGroupModal.tsx   (size: sm)
-//   components/groups/GroupActionModal.tsx   (size: md)
-//   components/groups/DeleteGroupModal.tsx   (size: sm)
-//   components/groups/InviteModal.tsx        (size: sm)
-//
-// NOTES
-//   - Each feature modal keeps its own internal form/state logic; Modal only
-//     provides the chrome (backdrop, animation, header, footer slots)
-//   - Do NOT put form elements or buttons inside Modal itself; keep it a pure shell
-// =============================================================================
+import { type ReactNode, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+
+type ModalSize = 'sm' | 'md' | 'lg';
+
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  children: ReactNode;
+  footer?: ReactNode;
+  size?: ModalSize;
+  className?: string;
+}
+
+const sizeClasses: Record<ModalSize, string> = {
+  sm: 'sm:max-w-sm',
+  md: 'sm:max-w-md',
+  lg: 'sm:max-w-lg',
+};
+
+const FOCUSABLE = [
+  'a[href]',
+  'button:not([disabled])',
+  'textarea',
+  'input',
+  'select',
+  '[tabindex]:not([tabindex="-1"])',
+].join(', ');
+
+export function Modal({ isOpen, onClose, title, children, footer, size = 'md', className = '' }: ModalProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const panel = panelRef.current;
+    const getFocusable = () => panel?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [];
+
+    getFocusable()[0]?.focus();
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const els = Array.from(getFocusable());
+        if (els.length === 0) { e.preventDefault(); return; }
+        const first = els[0];
+        const last = els[els.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+        } else {
+          if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.body.classList.add('modal-open');
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.classList.remove('modal-open');
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? 'modal-title' : undefined}
+        className={`relative bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full ${sizeClasses[size]} sm:mx-4 max-h-[90vh] flex flex-col animate-slide-up ${className}`}
+      >
+        {title && (
+          <div className="sticky top-0 z-10 bg-white flex items-center justify-between p-4 border-b border-slate-100 rounded-t-2xl shrink-0">
+            <h2 id="modal-title" className="text-lg font-semibold text-slate-800">
+              {title}
+            </h2>
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              className="p-2 -mr-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
+
+        <div className="overflow-y-auto flex-1 min-h-0">
+          {children}
+        </div>
+
+        {footer && (
+          <div className="sticky bottom-0 bg-white border-t border-slate-100 p-4 shrink-0">
+            {footer}
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body,
+  );
+}
