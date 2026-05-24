@@ -7,5 +7,6 @@ namespace SunriseApi.Models.Requests
         public string? LastName { get; set; }
         public string? Email { get; set; }
         public string? ProfilePhoto { get; set; }
+        public string? ThemePreference { get; set; }
     }
 }

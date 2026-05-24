@@ -8,6 +8,7 @@ export type User = BaseEntity & {
   email: string;
   profilePhoto: string;
   firebaseUid: string;
+  themePreference: string | null;
 };
 
 export type CreateUserRequest = {

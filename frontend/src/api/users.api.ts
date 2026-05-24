@@ -7,6 +7,7 @@ export type UpdateUserRequest = {
   lastName?: string
   email?: string
   profilePhoto?: string
+  themePreference?: string
 }
 
 export const getUserByFirebaseUid = (firebaseUid: string) => client.get<User>(`/api/users/by-firebase-id/${encodeURIComponent(firebaseUid)}`)
