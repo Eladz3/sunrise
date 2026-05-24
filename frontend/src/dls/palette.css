@@ -1,0 +1,319 @@
+/*
+ * Sunrise Design System — Color Palette
+ *
+ * Modeled after Vercel Geist color tokens. All color values live here as
+ * CSS custom properties. Semantic aliases (--color-*) are the tokens that
+ * components should reference; raw scale tokens (--ds-gray-*, --ds-blue-*,
+ * etc.) exist for the rare case where you need a specific step.
+ *
+ * Theme is applied by setting data-theme="light" | "dark" on <html>.
+ * The ThemeProvider manages this attribute at runtime.
+ */
+
+/* ============================================================
+   LIGHT THEME (default)
+   ============================================================ */
+:root,
+[data-theme='light'] {
+  /* --- Gray Scale (100 = lightest, 1000 = darkest) --- */
+  --ds-gray-100: #fafafa;
+  --ds-gray-200: #ebebeb;
+  --ds-gray-300: #e1e1e1;
+  --ds-gray-400: #cacaca;
+  --ds-gray-500: #a8a8a8;
+  --ds-gray-600: #8a8a8a;
+  --ds-gray-700: #6f6f6f;
+  --ds-gray-800: #4c4c4c;
+  --ds-gray-900: #2e2e2e;
+  --ds-gray-1000: #111111;
+
+  /* --- Background Layers --- */
+  --ds-background-100: #ffffff;
+  --ds-background-200: #fafafa;
+
+  /* --- Blue --- */
+  --ds-blue-100: #d8eaff;
+  --ds-blue-200: #b7d5ff;
+  --ds-blue-300: #96c0ff;
+  --ds-blue-400: #72a9ff;
+  --ds-blue-500: #4488ff;
+  --ds-blue-600: #0070f3;
+  --ds-blue-700: #0060cc;
+  --ds-blue-800: #0050aa;
+  --ds-blue-900: #003d85;
+  --ds-blue-1000: #002966;
+
+  /* --- Red --- */
+  --ds-red-100: #ffe4e4;
+  --ds-red-200: #ffcccc;
+  --ds-red-300: #ffaaaa;
+  --ds-red-400: #ff8888;
+  --ds-red-500: #ff4444;
+  --ds-red-600: #e5484d;
+  --ds-red-700: #ce2c31;
+  --ds-red-800: #b82025;
+  --ds-red-900: #9b1115;
+  --ds-red-1000: #7d080d;
+
+  /* --- Green --- */
+  --ds-green-100: #d9f2e6;
+  --ds-green-200: #c2ead5;
+  --ds-green-300: #a8dfbf;
+  --ds-green-400: #84d0a5;
+  --ds-green-500: #52b788;
+  --ds-green-600: #1a9c5a;
+  --ds-green-700: #128751;
+  --ds-green-800: #106b42;
+  --ds-green-900: #0c5233;
+  --ds-green-1000: #083b25;
+
+  /* --- Yellow --- */
+  --ds-yellow-100: #fff8d8;
+  --ds-yellow-200: #fff0a5;
+  --ds-yellow-300: #ffe060;
+  --ds-yellow-400: #ffc70d;
+  --ds-yellow-500: #e5a106;
+  --ds-yellow-600: #cc8a00;
+  --ds-yellow-700: #9d6900;
+  --ds-yellow-800: #704c00;
+  --ds-yellow-900: #4a3300;
+  --ds-yellow-1000: #322300;
+
+  /* --- Purple --- */
+  --ds-purple-100: #f0e7ff;
+  --ds-purple-200: #dfd0ff;
+  --ds-purple-300: #cbb5ff;
+  --ds-purple-400: #b799ff;
+  --ds-purple-500: #9e7bf5;
+  --ds-purple-600: #8b5cf6;
+  --ds-purple-700: #7c3aed;
+  --ds-purple-800: #6d28d9;
+  --ds-purple-900: #5b21b6;
+  --ds-purple-1000: #3c1580;
+
+  /* --- Pink --- */
+  --ds-pink-100: #ffe8f0;
+  --ds-pink-200: #ffd3e5;
+  --ds-pink-300: #ffb8d5;
+  --ds-pink-400: #ff96c0;
+  --ds-pink-500: #ff70a8;
+  --ds-pink-600: #f43f93;
+  --ds-pink-700: #e11d81;
+  --ds-pink-800: #c5196c;
+  --ds-pink-900: #a31557;
+  --ds-pink-1000: #800e43;
+
+  /* --- Teal --- */
+  --ds-teal-100: #cafafa;
+  --ds-teal-200: #9aedf0;
+  --ds-teal-300: #6cdde0;
+  --ds-teal-400: #3ccecd;
+  --ds-teal-500: #0aa5a5;
+  --ds-teal-600: #0b8a8a;
+  --ds-teal-700: #0c7272;
+  --ds-teal-800: #0d5c5c;
+  --ds-teal-900: #0b4646;
+  --ds-teal-1000: #073131;
+
+  /* --- Orange (Sunrise brand) --- */
+  --ds-orange-100: #fff3e8;
+  --ds-orange-200: #ffe5c8;
+  --ds-orange-300: #ffd0a0;
+  --ds-orange-400: #ffb870;
+  --ds-orange-500: #ff9940;
+  --ds-orange-600: #f07800;
+  --ds-orange-700: #c46000;
+  --ds-orange-800: #994a00;
+  --ds-orange-900: #6d3500;
+  --ds-orange-1000: #3d1d00;
+
+  /* ============================================================
+     SEMANTIC ALIASES — use these in components
+     ============================================================ */
+
+  /* Background */
+  --color-bg: var(--ds-background-100);
+  --color-bg-raised: var(--ds-background-200);
+  --color-bg-overlay: #ffffff;
+
+  /* Text */
+  --color-text: var(--ds-gray-1000);
+  --color-text-secondary: var(--ds-gray-700);
+  --color-text-tertiary: var(--ds-gray-500);
+  --color-text-disabled: var(--ds-gray-400);
+  --color-text-on-accent: #ffffff;
+
+  /* Borders */
+  --color-border: var(--ds-gray-200);
+  --color-border-strong: var(--ds-gray-400);
+
+  /* Focus */
+  --color-focus: var(--ds-blue-600);
+
+  /* Accent — primary action */
+  --color-accent: var(--ds-blue-600);
+  --color-accent-hover: var(--ds-blue-700);
+  --color-accent-subtle: var(--ds-blue-100);
+
+  /* Semantic states */
+  --color-success: var(--ds-green-600);
+  --color-success-subtle: var(--ds-green-100);
+  --color-warning: var(--ds-yellow-600);
+  --color-warning-subtle: var(--ds-yellow-100);
+  --color-error: var(--ds-red-600);
+  --color-error-subtle: var(--ds-red-100);
+
+  /* Brand */
+  --color-brand: var(--ds-orange-600);
+  --color-brand-subtle: var(--ds-orange-100);
+}
+
+/* ============================================================
+   DARK THEME
+   ============================================================ */
+[data-theme='dark'] {
+  /* --- Gray Scale (inverted: 100 = darkest surface, 1000 = lightest text) --- */
+  --ds-gray-100: #1a1a1a;
+  --ds-gray-200: #282828;
+  --ds-gray-300: #333333;
+  --ds-gray-400: #404040;
+  --ds-gray-500: #6b6b6b;
+  --ds-gray-600: #8a8a8a;
+  --ds-gray-700: #b0b0b0;
+  --ds-gray-800: #d1d1d1;
+  --ds-gray-900: #e8e8e8;
+  --ds-gray-1000: #f5f5f5;
+
+  /* --- Background Layers --- */
+  --ds-background-100: #0a0a0a;
+  --ds-background-200: #111111;
+
+  /* --- Blue --- */
+  --ds-blue-100: #10243e;
+  --ds-blue-200: #102e54;
+  --ds-blue-300: #103870;
+  --ds-blue-400: #104d99;
+  --ds-blue-500: #2275d7;
+  --ds-blue-600: #388bfd;
+  --ds-blue-700: #52a8ff;
+  --ds-blue-800: #74b9ff;
+  --ds-blue-900: #a8d1ff;
+  --ds-blue-1000: #c5e2ff;
+
+  /* --- Red --- */
+  --ds-red-100: #3c1618;
+  --ds-red-200: #521b1f;
+  --ds-red-300: #6d2226;
+  --ds-red-400: #922b31;
+  --ds-red-500: #c43232;
+  --ds-red-600: #e5484d;
+  --ds-red-700: #ff6166;
+  --ds-red-800: #ff888b;
+  --ds-red-900: #ffaaad;
+  --ds-red-1000: #ffcccb;
+
+  /* --- Green --- */
+  --ds-green-100: #0c2e1a;
+  --ds-green-200: #0e3b20;
+  --ds-green-300: #114d28;
+  --ds-green-400: #145e30;
+  --ds-green-500: #2e8a57;
+  --ds-green-600: #3ead70;
+  --ds-green-700: #5ac88a;
+  --ds-green-800: #78d9a3;
+  --ds-green-900: #9de8bb;
+  --ds-green-1000: #bff0d1;
+
+  /* --- Yellow --- */
+  --ds-yellow-100: #2e2008;
+  --ds-yellow-200: #3c2a0a;
+  --ds-yellow-300: #4f370b;
+  --ds-yellow-400: #614a0e;
+  --ds-yellow-500: #8e6d11;
+  --ds-yellow-600: #b38a18;
+  --ds-yellow-700: #d4ac2c;
+  --ds-yellow-800: #ebc240;
+  --ds-yellow-900: #f5d457;
+  --ds-yellow-1000: #fded72;
+
+  /* --- Purple --- */
+  --ds-purple-100: #1c0d33;
+  --ds-purple-200: #231045;
+  --ds-purple-300: #2c1459;
+  --ds-purple-400: #371875;
+  --ds-purple-500: #5428b8;
+  --ds-purple-600: #7b4ae2;
+  --ds-purple-700: #9b6bff;
+  --ds-purple-800: #b592ff;
+  --ds-purple-900: #cbb5ff;
+  --ds-purple-1000: #dfd0ff;
+
+  /* --- Pink --- */
+  --ds-pink-100: #36112a;
+  --ds-pink-200: #4a1537;
+  --ds-pink-300: #611a47;
+  --ds-pink-400: #7a2059;
+  --ds-pink-500: #ad3080;
+  --ds-pink-600: #e03598;
+  --ds-pink-700: #f956ad;
+  --ds-pink-800: #ff7ec3;
+  --ds-pink-900: #ffa5d5;
+  --ds-pink-1000: #ffc5e4;
+
+  /* --- Teal --- */
+  --ds-teal-100: #04282a;
+  --ds-teal-200: #053135;
+  --ds-teal-300: #063c3f;
+  --ds-teal-400: #074b4c;
+  --ds-teal-500: #0c7979;
+  --ds-teal-600: #109899;
+  --ds-teal-700: #1ab7b8;
+  --ds-teal-800: #30cfcf;
+  --ds-teal-900: #5adada;
+  --ds-teal-1000: #8aeaea;
+
+  /* --- Orange (Sunrise brand) --- */
+  --ds-orange-100: #2e1500;
+  --ds-orange-200: #401e00;
+  --ds-orange-300: #552900;
+  --ds-orange-400: #6e3600;
+  --ds-orange-500: #9a5000;
+  --ds-orange-600: #c46f00;
+  --ds-orange-700: #e87e00;
+  --ds-orange-800: #ff9e33;
+  --ds-orange-900: #ffbc70;
+  --ds-orange-1000: #ffd5a8;
+
+  /* ============================================================
+     SEMANTIC ALIASES (dark overrides)
+     ============================================================ */
+
+  --color-bg: var(--ds-background-100);
+  --color-bg-raised: var(--ds-background-200);
+  --color-bg-overlay: #1a1a1a;
+
+  --color-text: var(--ds-gray-1000);
+  --color-text-secondary: var(--ds-gray-700);
+  --color-text-tertiary: var(--ds-gray-500);
+  --color-text-disabled: var(--ds-gray-400);
+  --color-text-on-accent: #ffffff;
+
+  --color-border: var(--ds-gray-200);
+  --color-border-strong: var(--ds-gray-400);
+
+  --color-focus: var(--ds-blue-600);
+
+  --color-accent: var(--ds-blue-600);
+  --color-accent-hover: var(--ds-blue-700);
+  --color-accent-subtle: var(--ds-blue-100);
+
+  --color-success: var(--ds-green-600);
+  --color-success-subtle: var(--ds-green-100);
+  --color-warning: var(--ds-yellow-600);
+  --color-warning-subtle: var(--ds-yellow-100);
+  --color-error: var(--ds-red-600);
+  --color-error-subtle: var(--ds-red-100);
+
+  --color-brand: var(--ds-orange-700);
+  --color-brand-subtle: var(--ds-orange-100);
+}

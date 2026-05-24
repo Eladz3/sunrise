@@ -56,6 +56,7 @@ namespace SunriseApi.Services
             if (request.LastName != null) user.LastName = request.LastName;
             if (request.Email != null) user.Email = request.Email;
             if (request.ProfilePhoto != null) user.ProfilePhoto = request.ProfilePhoto;
+            if (request.ThemePreference != null) user.ThemePreference = request.ThemePreference;
 
             if (_dbContext.Entry(user).Properties.Any(p => p.IsModified))
             {

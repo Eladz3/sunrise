@@ -11,6 +11,7 @@ namespace SunriseApi.Models.Entities
         public string Email { get; set; } = "";
         public string ProfilePhoto { get; set; } = "";
         public string FirebaseUid { get; set; } = "";
+        public string? ThemePreference { get; set; }
         public ICollection<Goal> Goals { get; set; } = new List<Goal>();
         [JsonIgnore]
         public ICollection<UserGroup> UserGroups { get; set; } = new List<UserGroup>();
