@@ -41,16 +41,9 @@ export default function Home() {
                 <Button size="lg">Go to Dashboard</Button>
               </Link>
             ) : (
-              <>
-                <Link to="/login">
-                  <Button size="lg">Get Started</Button>
-                </Link>
-                <Link to="/login">
-                  <Button variant="outline" size="lg">
-                    Sign In
-                  </Button>
-                </Link>
-              </>
+              <Link to="/login">
+                <Button size="lg">Get Started</Button>
+              </Link>
             )}
           </div>
         </div>

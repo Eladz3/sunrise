@@ -45,7 +45,8 @@
       "PowerShell(Invoke-WebRequest -Uri 'https://thesunrise-api.azurewebsites.net/health')",
       "PowerShell(curl.exe -s \"https://thesunrise-api.azurewebsites.net/health\")",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\frontend\\\\\" -Recurse -Directory | Select-Object -ExpandProperty FullName | head -30)",
-      "WebFetch(domain:support.google.com)"
+      "WebFetch(domain:support.google.com)",
+      "PowerShell(git worktree add \".claude/worktrees/elad.dls\" elad.dls)"
     ],
     "additionalDirectories": [
       "c:\\Users\\eladz\\Documents\\Dev\\sunrise\\.claude",

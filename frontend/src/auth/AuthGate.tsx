@@ -2,12 +2,12 @@
  * AuthGate - Authentication Gatekeeper Component
  *
  * Controls access to the app based on authentication state.
- * No redirects, no routing - just explicit conditional rendering.
+ * No routing logic in children — just explicit conditional rendering/redirect.
  */
 
 import type { ReactNode } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
-import { SignIn } from './SignIn';
 import { Spinner } from '@/components/ui/Spinner';
 
 interface AuthGateProps {
@@ -26,9 +26,9 @@ export function AuthGate({ children }: AuthGateProps) {
     );
   }
 
-  // STATE 2: Not authenticated - Show sign-in screen
+  // STATE 2: Not authenticated - Redirect to login page
   if (user === null) {
-    return <SignIn />;
+    return <Navigate to="/login" replace />;
   }
 
   // STATE 3: Authenticated - Render protected content
