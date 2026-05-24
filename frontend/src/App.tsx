@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import PrivacyPolicy from '@/pages/PrivacyPolicy'
 import TermsOfService from '@/pages/TermsOfService'
 import Home from '@/pages/Home'
+import Login from '@/pages/Login'
 import { DevApiToggle } from '@/components/dev/DevApiToggle'
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
       {import.meta.env.DEV && <DevApiToggle />}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route
