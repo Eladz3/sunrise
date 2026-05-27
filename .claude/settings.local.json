@@ -7,7 +7,12 @@
       "Bash(tree:*)",
       "Bash(npm run build:*)",
       "Bash(dotnet nuget add *)",
-      "Bash(dotnet tool install *)"
+      "Bash(dotnet tool install *)",
+      "Bash(Get-ChildItem *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\" -Force | Select-Object Name, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"Dir\"}else{\"File\"}}} | Format-Table -AutoSize)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\SunriseApi\" -Depth 1 | Select-Object Name, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"Dir\"}else{\"File\"}}} | Format-Table -AutoSize)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\" -File | Where-Object {$_.Name -match \"^\\\\.\" -or $_.Name -match \"\\(package|config|\\\\.json|\\\\.yaml|\\\\.yml|\\\\.toml\\)\"} | Select-Object Name | Format-List)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\frontend\" -Depth 1 | Select-Object Name, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"Dir\"}else{\"File\"}}} | Format-Table -AutoSize)"
     ]
   }
 }

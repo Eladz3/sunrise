@@ -1,0 +1,116 @@
+name: Production Deploy
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+            backend:
+              - 'SunriseApi/**'
+
+  frontend-build:
+    name: Frontend Build & Artifact
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+        env:
+          VITE_BUILD_SHA: ${{ github.sha }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist-${{ github.sha }}
+          path: frontend/dist/
+          retention-days: 30
+
+  backend-deploy:
+    name: Backend Deploy
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: SunriseApi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+      - name: Restore
+        run: dotnet restore
+      - name: Publish
+        run: >
+          dotnet publish
+          --configuration Release
+          --output ./publish
+          /p:BuildSha=${{ github.sha }}
+          /p:DeployTimestamp=${{ github.run_id }}
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_APP_NAME }}
+          package: SunriseApi/publish
+          startup-command: dotnet SunriseApi.dll
+        env:
+          BUILD_SHA: ${{ github.sha }}
+          BUILD_VERSION: ${{ github.ref_name }}
+          DEPLOY_TIMESTAMP: ${{ github.event.head_commit.timestamp }}
+
+  release-tag:
+    name: Create Release Tag
+    needs: [frontend-build, backend-deploy]
+    if: |
+      always() &&
+      (needs.frontend-build.result == 'success' || needs.frontend-build.result == 'skipped') &&
+      (needs.backend-deploy.result == 'success' || needs.backend-deploy.result == 'skipped') &&
+      (needs.frontend-build.result == 'success' || needs.backend-deploy.result == 'success')
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create release tag
+        id: tag
+        run: |
+          TAG="release-$(date -u '+%Y-%m-%d-%H%M')"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "$TAG" -m "Production release $TAG (SHA: ${{ github.sha }})"
+          git push origin "$TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Tagged release: $TAG"
