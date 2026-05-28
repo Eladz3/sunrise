@@ -6,7 +6,7 @@ on:
 
 concurrency:
   group: review-gate-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   detect-changes:
@@ -88,17 +88,23 @@ jobs:
 
   version-sync-check:
     name: Version Sync Check
-    needs: [frontend-review, backend-review]
-    if: |
-      always() &&
-      (needs.frontend-review.result == 'success' || needs.frontend-review.result == 'skipped') &&
-      (needs.backend-review.result == 'success' || needs.backend-review.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate shared contract
-        shell: bash
+      - name: Validate VERSION file
         run: |
-          echo "Frontend SHA: ${{ github.sha }}"
-          echo "Both frontend and backend build successfully — version sync OK"
-          # Future: compare OpenAPI spec against frontend API client types
+          if [ ! -f VERSION ]; then
+            echo "VERSION file missing from repo root"
+            exit 1
+          fi
+          version=$(cat VERSION)
+          if ! echo "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "VERSION file contains invalid semver: '$version'"
+            exit 1
+          fi
+          pkg_version=$(node -p "require('./frontend/package.json').version")
+          if [ "$version" != "$pkg_version" ]; then
+            echo "Version mismatch: VERSION=$version, frontend/package.json=$pkg_version"
+            exit 1
+          fi
+          echo "Version sync OK: $version"
