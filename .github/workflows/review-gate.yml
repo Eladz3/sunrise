@@ -84,7 +84,6 @@ jobs:
           fi
       - name: Dependency vulnerability scan
         run: dotnet list package --vulnerable --include-transitive
-        continue-on-error: true
 
   version-sync-check:
     name: Version Sync Check

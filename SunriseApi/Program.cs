@@ -23,6 +23,7 @@ builder.Services.AddScoped<IGoalsService, GoalsService>();
 builder.Services.AddScoped<IGroupsService, GroupsService>();
 builder.Services.AddScoped<IMetricsService, MetricsService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IVersionService, VersionService>();
 
 var connectionString = builder.Configuration.GetConnectionString("SunriseSQLDatabaseConnectionString");
 
