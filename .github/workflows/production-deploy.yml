@@ -70,26 +70,38 @@ jobs:
       - name: Restore
         run: dotnet restore
       - name: Publish
-        run: >
-          dotnet publish
-          --configuration Release
-          --output ./publish
-          /p:BuildSha=${{ github.sha }}
-          /p:DeployTimestamp=${{ github.run_id }}
+        run: dotnet publish --configuration Release --output ./publish -r linux-x64 --self-contained false
+      - name: Package as zip
+        run: cd publish && zip -r ../publish.zip .
       - name: Login to Azure
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ vars.AZURE_APP_NAME }}
-          package: SunriseApi/publish
-          startup-command: dotnet SunriseApi.dll
-        env:
-          BUILD_SHA: ${{ github.sha }}
-          BUILD_VERSION: ${{ github.ref_name }}
-          DEPLOY_TIMESTAMP: ${{ github.event.head_commit.timestamp }}
+      - name: Set build metadata on App Service
+        run: |
+          az webapp config appsettings set \
+            --resource-group thesunrise-rg \
+            --name ${{ vars.AZURE_APP_NAME }} \
+            --settings \
+              BUILD_SHA="${{ github.sha }}" \
+              BUILD_VERSION="${{ github.ref_name }}" \
+              DEPLOY_TIMESTAMP="${{ github.event.head_commit.timestamp }}"
+      - name: Deploy zip to Azure App Service
+        run: |
+          az webapp deploy \
+            --resource-group thesunrise-rg \
+            --name ${{ vars.AZURE_APP_NAME }} \
+            --src-path ./publish.zip \
+            --type zip
+      - name: Verify deployment
+        run: |
+          sleep 15
+          status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "https://${{ vars.AZURE_APP_NAME }}.azurewebsites.net/health")
+          if [ "$status" != "200" ]; then
+            echo "Post-deploy health check failed — HTTP $status"
+            exit 1
+          fi
+          echo "Deployment verified (HTTP $status)"
 
   release-tag:
     name: Create Release Tag

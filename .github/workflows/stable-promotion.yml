@@ -50,6 +50,7 @@ jobs:
     name: Promote to Stable
     needs: smoke-tests
     runs-on: ubuntu-latest
+    environment: stable
     steps:
       - uses: actions/checkout@v4
         with:
