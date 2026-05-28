@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { useAuth } from './AuthProvider';
+import { useAuth } from './useAuth';
 
 export function SignIn() {
   const { login } = useAuth();

@@ -46,7 +46,8 @@
       "PowerShell(curl.exe -s \"https://thesunrise-api.azurewebsites.net/health\")",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\frontend\\\\\" -Recurse -Directory | Select-Object -ExpandProperty FullName | head -30)",
       "WebFetch(domain:support.google.com)",
-      "PowerShell(git worktree add \".claude/worktrees/elad.dls\" elad.dls)"
+      "PowerShell(git worktree add \".claude/worktrees/elad.dls\" elad.dls)",
+      "Bash(Remove-Item \"c:\\\\Users\\\\eladz\\\\Documents\\\\Dev\\\\sunrise\\\\frontend\\\\src\\\\auth\\\\AuthContext.tsx\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\eladz\\Documents\\Dev\\sunrise\\.claude",
