@@ -1,0 +1,38 @@
+name: Open Feature PR
+
+on:
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  open-pr:
+    name: Open PR → develop
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Open PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD: ${{ github.ref_name }}
+        run: |
+          if [ "$HEAD" = "develop" ] || [ "$HEAD" = "review" ] || [ "$HEAD" = "main" ] || [ "$HEAD" = "stable" ]; then
+            echo "Cannot open a feature PR from branch: $HEAD"
+            exit 1
+          fi
+
+          existing=$(gh pr list --base develop --head "$HEAD" --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            echo "PR #$existing already open — nothing to do"
+            gh pr view "$existing"
+            exit 0
+          fi
+
+          gh pr create \
+            --base develop \
+            --head "$HEAD" \
+            --title "$HEAD" \
+            --body "Opened via Actions. Fill in description before merging."

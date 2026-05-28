@@ -1,0 +1,56 @@
+name: Promote Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      promotion:
+        description: Which promotion to run
+        required: true
+        type: choice
+        options:
+          - develop → review
+          - review → main
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  promote:
+    name: Open promotion PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set promotion targets
+        id: targets
+        run: |
+          if [ "${{ inputs.promotion }}" = "develop → review" ]; then
+            echo "head=develop" >> "$GITHUB_OUTPUT"
+            echo "base=review" >> "$GITHUB_OUTPUT"
+          else
+            echo "head=review" >> "$GITHUB_OUTPUT"
+            echo "base=main" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create promotion PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD: ${{ steps.targets.outputs.head }}
+          BASE: ${{ steps.targets.outputs.base }}
+        run: |
+          existing=$(gh pr list --base "$BASE" --head "$HEAD" --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            echo "PR #$existing already open — nothing to do"
+            gh pr view "$existing"
+            exit 0
+          fi
+
+          DATE=$(date -u '+%Y-%m-%d')
+          BODY="Triggered manually from the Actions tab. Merge when all status checks pass."
+
+          gh pr create \
+            --base "$BASE" \
+            --head "$HEAD" \
+            --title "Promote $HEAD → $BASE ($DATE)" \
+            --body "$BODY"
