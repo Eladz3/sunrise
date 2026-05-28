@@ -52,7 +52,10 @@
       "Bash(cat .prettierrc)",
       "Bash(cat .prettierrc.json)",
       "Bash(cat .prettierrc.js)",
-      "Bash(cat prettier.config.js)"
+      "Bash(cat prettier.config.js)",
+      "Bash(gh api *)",
+      "Bash(wait)",
+      "WebFetch(domain:api.github.com)"
     ],
     "additionalDirectories": [
       "c:\\Users\\eladz\\Documents\\Dev\\sunrise\\.claude",

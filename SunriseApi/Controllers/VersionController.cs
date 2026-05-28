@@ -1,20 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
+using SunriseApi.Services.Interfaces;
 
 namespace SunriseApi.Controllers
 {
     [ApiController]
     [Route("version")]
-    public class VersionController : ControllerBase
+    public class VersionController(IVersionService versionService) : ControllerBase
     {
         [HttpGet]
-        public IActionResult Get()
-        {
-            return Ok(new
-            {
-                sha = Environment.GetEnvironmentVariable("BUILD_SHA") ?? "unknown",
-                version = Environment.GetEnvironmentVariable("BUILD_VERSION") ?? "unknown",
-                deployedAt = Environment.GetEnvironmentVariable("DEPLOY_TIMESTAMP") ?? "unknown"
-            });
-        }
+        public IActionResult Get() => Ok(versionService.GetVersion());
     }
 }

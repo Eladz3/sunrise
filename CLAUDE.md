@@ -120,4 +120,4 @@ All routes except `/swagger` and `/health` require a valid Firebase JWT in the `
 
 **CORS**: Allowed origins are centralized in `Constants/CorsOrigins.cs`. Both `AddCors` and the exception handler's manual CORS logic reference `CorsOrigins.All` — add new origins there only.
 
-**Deployment**: Runs inside AWS Lambda via `AddAWSLambdaHosting(LambdaEventSource.HttpApi)`. HTTPS redirect is only enabled in production.
+**Deployment**: Runs on Azure App Service. Deployed via `az webapp deploy` in `production-deploy.yml`. HTTPS redirect is only enabled in production.
