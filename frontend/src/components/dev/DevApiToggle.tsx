@@ -1,19 +1,19 @@
-import { useState } from 'react';
-import { setApiEnv, API_URLS } from '@/api/client';
+import { useState } from 'react'
+import { setApiEnv, API_URLS } from '@/api/client'
 
-type ApiEnv = 'prod' | 'local';
+type ApiEnv = 'prod' | 'local'
 
 function currentEnv(): ApiEnv {
-  return localStorage.getItem('api_env') === 'local' ? 'local' : 'prod';
+  return localStorage.getItem('api_env') === 'local' ? 'local' : 'prod'
 }
 
 export function DevApiToggle() {
-  const [env, setEnv] = useState<ApiEnv>(currentEnv);
+  const [env, setEnv] = useState<ApiEnv>(currentEnv)
 
   function toggle() {
-    const next: ApiEnv = env === 'prod' ? 'local' : 'prod';
-    setApiEnv(next);
-    setEnv(next);
+    const next: ApiEnv = env === 'prod' ? 'local' : 'prod'
+    setApiEnv(next)
+    setEnv(next)
   }
 
   return (
@@ -40,5 +40,5 @@ export function DevApiToggle() {
     >
       API: {env}
     </button>
-  );
+  )
 }

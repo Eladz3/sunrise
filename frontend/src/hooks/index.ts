@@ -3,7 +3,7 @@
  * Import hooks like: import { useAuth, useGoals } from '@/hooks'
  */
 
-export { useAuth } from './useAuth';
-export { useGoals } from './useGoals';
-export { useCommunityGoals, calculateCommunityProgress } from './useCommunityGoals';
-export { useUser } from './useUser';
+export { useAuth } from './useAuth'
+export { useGoals } from './useGoals'
+export { useCommunityGoals, calculateCommunityProgress } from './useCommunityGoals'
+export { useUser } from './useUser'

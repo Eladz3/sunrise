@@ -79,12 +79,13 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Set build metadata on App Service
         run: |
+          VERSION=$(cat ../VERSION)
           az webapp config appsettings set \
             --resource-group thesunrise-rg \
             --name ${{ vars.AZURE_APP_NAME }} \
             --settings \
               BUILD_SHA="${{ github.sha }}" \
-              BUILD_VERSION="${{ github.ref_name }}" \
+              BUILD_VERSION="$VERSION" \
               DEPLOY_TIMESTAMP="${{ github.event.head_commit.timestamp }}"
       - name: Deploy zip to Azure App Service
         run: |

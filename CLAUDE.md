@@ -19,8 +19,21 @@ npm run build        # tsc + vite build
 npm run tc           # Type-check only (no emit)
 npm run lint         # ESLint (zero warnings policy)
 npm run lint:fix     # ESLint with auto-fix
-npm run format       # Prettier
+npm run format       # Prettier (auto-fix)
 ```
+
+### Formatting
+
+All `src/**/*.{ts,tsx,css}` files must be formatted with Prettier before committing. The config (`.prettierrc`) enforces:
+
+- No semicolons (`semi: false`)
+- Single quotes (`singleQuote: true`)
+- 2-space indentation (`tabWidth: 2`)
+- Trailing commas in ES5 positions (`trailingComma: "es5"`)
+- No line-length wrapping (`printWidth: 9999`)
+- Tailwind CSS class sorting via `prettier-plugin-tailwindcss`
+
+**Rule: always run `npm run format` after editing frontend files.** To verify compliance without modifying files, run `npx prettier --check "src/**/*.{ts,tsx,css}"` from `frontend/`.
 
 ### Architecture
 

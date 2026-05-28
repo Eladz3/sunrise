@@ -1,12 +1,12 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from '@/auth/AuthProvider';
-import App from './App';
-import './index.css';
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import { AuthProvider } from '@/auth/AuthProvider'
+import App from './App'
+import './index.css'
 
 if (import.meta.env.DEV) {
-  import('@/dev/errorTests').then(m => m.registerErrorTests());
+  import('@/dev/errorTests').then((m) => m.registerErrorTests())
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -17,4 +17,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
-);
+)
