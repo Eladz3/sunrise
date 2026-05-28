@@ -18,7 +18,7 @@ export function MyGoalsPage() {
   const [progressGoalId, setProgressGoalId] = useState<number | null>(null)
 
   const editingGoal = editingGoalId !== null ? goals.find((g) => g.id === editingGoalId) : null
-  const progressGoal = progressGoalId !== null ? goals.find((g) => g.id === progressGoalId) ?? null : null
+  const progressGoal = progressGoalId !== null ? (goals.find((g) => g.id === progressGoalId) ?? null) : null
 
   const handleAddGoal = async (data: GoalFormData) => {
     await addGoal({
@@ -84,10 +84,7 @@ export function MyGoalsPage() {
             <span className="font-semibold">{Math.round(overallProgress)}%</span>
           </div>
           <div className="h-3 w-full rounded-full bg-white/30">
-            <div
-              className="h-3 rounded-full bg-white transition-all duration-500"
-              style={{ width: `${Math.min(100, overallProgress)}%` }}
-            />
+            <div className="h-3 rounded-full bg-white transition-all duration-500" style={{ width: `${Math.min(100, overallProgress)}%` }} />
           </div>
         </div>
       </header>
@@ -103,7 +100,10 @@ export function MyGoalsPage() {
 
         {goals.length === 0 ? (
           <button
-            onClick={() => { setEditingGoalId(null); setIsModalOpen(true); }}
+            onClick={() => {
+              setEditingGoalId(null)
+              setIsModalOpen(true)
+            }}
             className="w-full rounded-xl bg-white p-8 text-center shadow-sm transition-all hover:bg-sunrise-50 hover:shadow-md active:scale-95"
           >
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sunrise-50">
@@ -115,7 +115,7 @@ export function MyGoalsPage() {
             <p className="text-sm text-warmGray-500">Tap here to add your first goal!</p>
           </button>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {goals.map((goal) => (
               <GoalCard
                 key={goal.id}
@@ -124,7 +124,10 @@ export function MyGoalsPage() {
                 targetValue={goal.targetValue}
                 unit={goal.unit}
                 category={goal.category}
-                onEdit={() => { setEditingGoalId(goal.id); setIsModalOpen(true) }}
+                onEdit={() => {
+                  setEditingGoalId(goal.id)
+                  setIsModalOpen(true)
+                }}
                 onLogProgress={() => setProgressGoalId(goal.id)}
               />
             ))}
@@ -133,7 +136,10 @@ export function MyGoalsPage() {
       </section>
 
       <button
-        onClick={() => { setEditingGoalId(null); setIsModalOpen(true); }}
+        onClick={() => {
+          setEditingGoalId(null)
+          setIsModalOpen(true)
+        }}
         className="fixed bottom-20 right-4 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-sunrise-500 to-dawn-500 text-2xl text-white shadow-lg transition-all hover:from-sunrise-600 hover:to-dawn-600"
         aria-label="Add new goal"
       >
@@ -142,18 +148,16 @@ export function MyGoalsPage() {
 
       <GoalFormModal
         isOpen={isModalOpen}
-        onClose={() => { setIsModalOpen(false); setEditingGoalId(null); }}
+        onClose={() => {
+          setIsModalOpen(false)
+          setEditingGoalId(null)
+        }}
         onSubmit={handleSubmit}
         initialData={getInitialFormData()}
         mode={editingGoalId !== null ? 'edit' : 'add'}
       />
 
-      <ProgressUpdateModal
-        goal={progressGoal}
-        isOpen={progressGoalId !== null}
-        onClose={() => setProgressGoalId(null)}
-        onSave={handleSaveProgress}
-      />
+      <ProgressUpdateModal goal={progressGoal} isOpen={progressGoalId !== null} onClose={() => setProgressGoalId(null)} onSave={handleSaveProgress} />
     </div>
   )
 }

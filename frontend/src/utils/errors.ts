@@ -4,7 +4,7 @@
  * Custom error classes and error handling helpers.
  */
 
-import type { FirebaseError } from '@/types';
+import type { FirebaseError } from '@/types'
 
 /**
  * Custom error class for service-level errors
@@ -15,8 +15,8 @@ export class ServiceError extends Error {
     public code: string,
     public originalError?: Error
   ) {
-    super(message);
-    this.name = 'ServiceError';
+    super(message)
+    this.name = 'ServiceError'
   }
 }
 
@@ -28,8 +28,8 @@ export class ValidationError extends Error {
     message: string,
     public field?: string
   ) {
-    super(message);
-    this.name = 'ValidationError';
+    super(message)
+    this.name = 'ValidationError'
   }
 }
 
@@ -38,8 +38,8 @@ export class ValidationError extends Error {
  */
 export class NotFoundError extends Error {
   constructor(message: string) {
-    super(message);
-    this.name = 'NotFoundError';
+    super(message)
+    this.name = 'NotFoundError'
   }
 }
 
@@ -48,8 +48,8 @@ export class NotFoundError extends Error {
  */
 export class PermissionError extends Error {
   constructor(message: string) {
-    super(message);
-    this.name = 'PermissionError';
+    super(message)
+    this.name = 'PermissionError'
   }
 }
 
@@ -80,16 +80,16 @@ export function getFirebaseErrorMessage(error: FirebaseError): string {
     'already-exists': 'This resource already exists.',
     'resource-exhausted': 'Resource limit exceeded.',
     'failed-precondition': 'Operation failed precondition check.',
-    'aborted': 'Operation was aborted.',
+    aborted: 'Operation was aborted.',
     'out-of-range': 'Value is out of range.',
-    'unimplemented': 'This operation is not implemented.',
-    'internal': 'Internal server error.',
-    'unavailable': 'Service is currently unavailable.',
+    unimplemented: 'This operation is not implemented.',
+    internal: 'Internal server error.',
+    unavailable: 'Service is currently unavailable.',
     'data-loss': 'Data loss or corruption.',
-    'unauthenticated': 'You must be signed in to perform this action.',
-  };
+    unauthenticated: 'You must be signed in to perform this action.',
+  }
 
-  return errorMessages[error.code] || error.message || 'An unexpected error occurred.';
+  return errorMessages[error.code] || error.message || 'An unexpected error occurred.'
 }
 
 /**
@@ -99,12 +99,7 @@ export function getFirebaseErrorMessage(error: FirebaseError): string {
  * @returns true if Firebase error
  */
 export function isFirebaseError(error: unknown): error is FirebaseError {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    'message' in error
-  );
+  return typeof error === 'object' && error !== null && 'code' in error && 'message' in error
 }
 
 /**
@@ -114,24 +109,17 @@ export function isFirebaseError(error: unknown): error is FirebaseError {
  * @param context - Context for error logging
  * @returns Result or throws error
  */
-export async function handleAsync<T>(
-  operation: () => Promise<T>,
-  context: string
-): Promise<T> {
+export async function handleAsync<T>(operation: () => Promise<T>, context: string): Promise<T> {
   try {
-    return await operation();
+    return await operation()
   } catch (error) {
-    console.error(`Error in ${context}:`, error);
+    console.error(`Error in ${context}:`, error)
 
     if (isFirebaseError(error)) {
-      throw new ServiceError(
-        getFirebaseErrorMessage(error),
-        error.code,
-        error as Error
-      );
+      throw new ServiceError(getFirebaseErrorMessage(error), error.code, error as Error)
     }
 
-    throw error;
+    throw error
   }
 }
 
@@ -144,14 +132,14 @@ export async function handleAsync<T>(
  */
 export function validateRequired<T>(value: T | null | undefined, fieldName: string): T {
   if (value === null || value === undefined) {
-    throw new ValidationError(`${fieldName} is required`, fieldName);
+    throw new ValidationError(`${fieldName} is required`, fieldName)
   }
 
   if (typeof value === 'string' && value.trim() === '') {
-    throw new ValidationError(`${fieldName} cannot be empty`, fieldName);
+    throw new ValidationError(`${fieldName} cannot be empty`, fieldName)
   }
 
-  return value;
+  return value
 }
 
 /**
@@ -161,10 +149,10 @@ export function validateRequired<T>(value: T | null | undefined, fieldName: stri
  * @throws ValidationError if email is invalid
  */
 export function validateEmail(email: string): void {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
   if (!emailRegex.test(email)) {
-    throw new ValidationError('Invalid email format', 'email');
+    throw new ValidationError('Invalid email format', 'email')
   }
 }
 
@@ -176,14 +164,14 @@ export function validateEmail(email: string): void {
  * @throws ValidationError if date is in the past
  */
 export function validateFutureDate(date: Date, fieldName: string): void {
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
 
-  const checkDate = new Date(date);
-  checkDate.setHours(0, 0, 0, 0);
+  const checkDate = new Date(date)
+  checkDate.setHours(0, 0, 0, 0)
 
   if (checkDate.getTime() < now.getTime()) {
-    throw new ValidationError(`${fieldName} must be in the future`, fieldName);
+    throw new ValidationError(`${fieldName} must be in the future`, fieldName)
   }
 }
 
@@ -196,23 +184,12 @@ export function validateFutureDate(date: Date, fieldName: string): void {
  * @param max - Maximum length
  * @throws ValidationError if length is invalid
  */
-export function validateLength(
-  value: string,
-  fieldName: string,
-  min: number,
-  max: number
-): void {
+export function validateLength(value: string, fieldName: string, min: number, max: number): void {
   if (value.length < min) {
-    throw new ValidationError(
-      `${fieldName} must be at least ${min} characters`,
-      fieldName
-    );
+    throw new ValidationError(`${fieldName} must be at least ${min} characters`, fieldName)
   }
 
   if (value.length > max) {
-    throw new ValidationError(
-      `${fieldName} must be no more than ${max} characters`,
-      fieldName
-    );
+    throw new ValidationError(`${fieldName} must be no more than ${max} characters`, fieldName)
   }
 }

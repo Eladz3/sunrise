@@ -5,25 +5,18 @@
  * All methods are async and return promises.
  */
 
-import {
-  signInWithPopup,
-  signOut as firebaseSignOut,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  type User,
-  type UserCredential,
-} from 'firebase/auth';
-import { auth } from './firebase';
-import type { AuthUser, FirebaseError } from '@/types';
+import { signInWithPopup, signOut as firebaseSignOut, GoogleAuthProvider, onAuthStateChanged, type User, type UserCredential } from 'firebase/auth'
+import { auth } from './firebase'
+import type { AuthUser, FirebaseError } from '@/types'
 
 /**
  * Google OAuth Provider Configuration
  */
-const googleProvider = new GoogleAuthProvider();
+const googleProvider = new GoogleAuthProvider()
 
 googleProvider.setCustomParameters({
   prompt: 'select_account',
-});
+})
 
 /**
  * Sign in with Google popup
@@ -33,11 +26,11 @@ googleProvider.setCustomParameters({
  */
 export async function signInWithGoogle(): Promise<UserCredential> {
   try {
-    return await signInWithPopup(auth, googleProvider);
+    return await signInWithPopup(auth, googleProvider)
   } catch (error) {
-    const firebaseError = error as FirebaseError;
-    console.error('Google sign-in error:', firebaseError.code, firebaseError.message);
-    throw error;
+    const firebaseError = error as FirebaseError
+    console.error('Google sign-in error:', firebaseError.code, firebaseError.message)
+    throw error
   }
 }
 
@@ -49,11 +42,11 @@ export async function signInWithGoogle(): Promise<UserCredential> {
  */
 export async function signOut(): Promise<void> {
   try {
-    await firebaseSignOut(auth);
+    await firebaseSignOut(auth)
   } catch (error) {
-    const firebaseError = error as FirebaseError;
-    console.error('Sign-out error:', firebaseError.code, firebaseError.message);
-    throw error;
+    const firebaseError = error as FirebaseError
+    console.error('Sign-out error:', firebaseError.code, firebaseError.message)
+    throw error
   }
 }
 
@@ -63,7 +56,7 @@ export async function signOut(): Promise<void> {
  * @returns Current user or null if not authenticated
  */
 export function getCurrentUser(): User | null {
-  return auth.currentUser;
+  return auth.currentUser
 }
 
 /**
@@ -79,7 +72,7 @@ export function toAuthUser(user: User): AuthUser {
     displayName: user.displayName,
     photoURL: user.photoURL,
     emailVerified: user.emailVerified,
-  };
+  }
 }
 
 /**
@@ -101,7 +94,7 @@ export function toAuthUser(user: User): AuthUser {
  * return () => unsubscribe();
  */
 export function onAuthChange(callback: (user: User | null) => void): () => void {
-  return onAuthStateChanged(auth, callback);
+  return onAuthStateChanged(auth, callback)
 }
 
 /**
@@ -110,7 +103,7 @@ export function onAuthChange(callback: (user: User | null) => void): () => void 
  * @returns true if user is signed in, false otherwise
  */
 export function isAuthenticated(): boolean {
-  return auth.currentUser !== null;
+  return auth.currentUser !== null
 }
 
 /**
@@ -120,13 +113,13 @@ export function isAuthenticated(): boolean {
  * @returns Promise with ID token or null if not authenticated
  */
 export async function getIdToken(forceRefresh = false): Promise<string | null> {
-  const user = auth.currentUser;
-  if (!user) return null;
+  const user = auth.currentUser
+  if (!user) return null
 
   try {
-    return await user.getIdToken(forceRefresh);
+    return await user.getIdToken(forceRefresh)
   } catch (error) {
-    console.error('Failed to get ID token:', error);
-    return null;
+    console.error('Failed to get ID token:', error)
+    return null
   }
 }

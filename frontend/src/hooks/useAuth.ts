@@ -3,4 +3,4 @@
  * Import from @/hooks instead of @/auth/AuthProvider
  */
 
-export { useAuth } from '@/auth/useAuth';
+export { useAuth } from '@/auth/useAuth'
