@@ -3,6 +3,8 @@ name: Review Gate
 on:
   pull_request:
     branches: [review]
+  push:
+    branches: [review]
 
 concurrency:
   group: review-gate-${{ github.ref }}
@@ -11,6 +13,7 @@ concurrency:
 jobs:
   detect-changes:
     name: Detect Changes
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
@@ -87,6 +90,7 @@ jobs:
 
   version-sync-check:
     name: Version Sync Check
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -107,3 +111,31 @@ jobs:
             exit 1
           fi
           echo "Version sync OK: $version"
+
+  auto-promote:
+    name: Auto-create review → main PR
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Create promotion PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          existing=$(gh pr list --base main --head review --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            echo "PR #$existing already open — skipping"
+            exit 0
+          fi
+          DATE=$(date -u '+%Y-%m-%d')
+          VERSION=$(cat VERSION)
+          gh pr create \
+            --base main \
+            --head review \
+            --title "Promote review → main — v$VERSION ($DATE)" \
+            --body "Auto-created after changes landed on \`review\`. Merge when ready to deploy to production."
