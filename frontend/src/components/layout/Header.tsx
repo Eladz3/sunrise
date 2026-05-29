@@ -34,61 +34,36 @@ export function Header() {
           {/* Logo / Brand */}
           <Link to="/" className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-sunrise-400 to-dawn-500 shadow-sm">
-              <svg
-                className="h-5 w-5 text-white"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
+              <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z" />
               </svg>
             </div>
-            <span className="bg-gradient-to-r from-sunrise-600 to-dawn-600 bg-clip-text text-xl font-bold text-transparent">
-              Sunrise
-            </span>
+            <span className="bg-gradient-to-r from-sunrise-600 to-dawn-600 bg-clip-text text-xl font-bold text-transparent">Sunrise</span>
           </Link>
 
           {/* Navigation */}
           <nav className="flex items-center gap-6">
             {user ? (
               <>
-                <Link
-                  to="/dashboard"
-                  className="font-medium text-gray-700 hover:text-sunrise-600"
-                >
+                <Link to="/dashboard" className="font-medium text-gray-700 hover:text-sunrise-600">
                   Dashboard
                 </Link>
 
                 {/* User Menu */}
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-3">
-                    {user.photoURL && (
-                      <img
-                        src={user.photoURL}
-                        alt={user.displayName || 'User'}
-                        className="h-8 w-8 rounded-full"
-                      />
-                    )}
-                    <span className="hidden text-sm text-gray-700 sm:block">
-                      {user.displayName}
-                    </span>
+                    {user.photoURL && <img src={user.photoURL} alt={user.displayName || 'User'} className="h-8 w-8 rounded-full" />}
+                    <span className="hidden text-sm text-gray-700 sm:block">{user.displayName}</span>
                   </div>
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleLogout}
-                    loading={loggingOut}
-                  >
+                  <Button variant="outline" size="sm" onClick={handleLogout} loading={loggingOut}>
                     Sign Out
                   </Button>
                 </div>
               </>
             ) : (
               <>
-                <Link
-                  to="/"
-                  className="font-medium text-gray-700 hover:text-sunrise-600"
-                >
+                <Link to="/" className="font-medium text-gray-700 hover:text-sunrise-600">
                   Home
                 </Link>
                 <Link to="/login">

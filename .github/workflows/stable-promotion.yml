@@ -1,0 +1,74 @@
+name: Stable Promotion
+
+on:
+  workflow_run:
+    workflows: ["Production Deploy"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-tests:
+    name: Smoke Tests
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Backend health check
+        run: |
+          url="${{ vars.PRODUCTION_API_URL }}/health"
+          status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$url")
+          if [ "$status" != "200" ]; then
+            echo "Backend health check failed — HTTP $status from $url"
+            exit 1
+          fi
+          echo "Backend health check passed (HTTP $status)"
+      - name: Frontend availability check
+        run: |
+          url="${{ vars.PRODUCTION_FRONTEND_URL }}"
+          status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$url")
+          if [ "$status" != "200" ]; then
+            echo "Frontend check failed — HTTP $status from $url"
+            exit 1
+          fi
+          echo "Frontend check passed (HTTP $status)"
+      - name: Version endpoint check
+        run: |
+          url="${{ vars.PRODUCTION_API_URL }}/version"
+          response=$(curl -s --max-time 10 "$url")
+          echo "Version info: $response"
+          sha=$(echo "$response" | grep -o '"sha":"[^"]*"' | cut -d'"' -f4)
+          expected="${{ github.event.workflow_run.head_sha }}"
+          if [ "$sha" != "$expected" ] && [ "$sha" != "unknown" ]; then
+            echo "SHA mismatch: deployed=$sha expected=$expected"
+            exit 1
+          fi
+          echo "Version check passed"
+
+  promote-stable:
+    name: Promote to Stable
+    needs: smoke-tests
+    runs-on: ubuntu-latest
+    environment: stable
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_sha }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update stable branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git push origin HEAD:stable --force
+          echo "Promoted to stable: $(git rev-parse HEAD)"
+      - name: Tag stable release
+        run: |
+          SHA="${{ github.event.workflow_run.head_sha }}"
+          TAG="stable-$(date -u '+%Y-%m-%d-%H%M')"
+          git tag "$TAG" "$SHA" -m "Stable promotion $TAG"
+          git push origin "$TAG"
+          echo "Stable tag created: $TAG"

@@ -1,0 +1,31 @@
+language: "en-US"
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - "review"
+  path_instructions:
+    - path: "frontend/**"
+      instructions: |
+        React 18 + TypeScript + Vite SPA. Verify:
+        - TypeScript strictness — no implicit `any`, proper generics
+        - Zustand store patterns: writes go through upsert* or entityWriter (never direct set from outside stores)
+        - syncService.emit() called after any mutation that affects another store's data
+        - useShallow used on array selectors to prevent unnecessary re-renders
+        - Zero ESLint warnings policy
+    - path: "SunriseApi/**"
+      instructions: |
+        ASP.NET Core 8 Web API. Verify:
+        - Thin controllers — business logic belongs in services, not controllers
+        - Firebase JWT auth — all non-public endpoints must receive decoded token via context.Items["User"]
+        - EF Core: no raw SQL unless necessary, migrations for all schema changes
+        - AutoMapper via MappingProfile — no manual mapping in controllers
+        - CORS origins added only to Constants/CorsOrigins.cs
