@@ -28,7 +28,7 @@ stable         (Stable Promotion: branch + tag updated)
 
 ### `ci-develop.yml` — Lightweight CI
 
-- **Triggers**: pushes to `develop`, PRs into `develop`
+- **Triggers**: PRs into `develop`
 - **Path-aware**: frontend CI only runs if `frontend/**` changed; backend CI only if `SunriseApi/**` changed
 - **Frontend**: lint (zero warnings), format check (Prettier), type-check (tsc), build
 - **Backend**: restore, build (Release), tests (skipped if no test projects found)
@@ -36,7 +36,7 @@ stable         (Stable Promotion: branch + tag updated)
 
 ### `review-gate.yml` — Review Gate
 
-- **Triggers**: PRs from `develop` into `review` only
+- **Triggers**: PRs targeting `review` (any source branch); pushes to `review`
 - **Path-aware**: same frontend/backend filtering
 - **Frontend**: full CI + `npm audit --audit-level=high`
 - **Backend**: full CI + `dotnet list package --vulnerable`
@@ -137,7 +137,7 @@ The `stable` branch always represents the last smoke-test-verified production de
 ```json
 {
   "sha": "abc1234...",
-  "version": "main",
+  "version": "1.2.3",
   "deployedAt": "2026-05-27T12:00:00Z"
 }
 ```
