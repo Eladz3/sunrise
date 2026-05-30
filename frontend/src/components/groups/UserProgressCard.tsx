@@ -1,14 +1,15 @@
 import type { GroupMemberSummary } from '@/types'
+import { Avatar, ProgressBar, Skeleton } from '@/dls'
 
 export function UserProgressCardSkeleton() {
   return (
     <div className="animate-pulse rounded-lg bg-gray-50 p-4">
       <div className="mb-2 flex items-center gap-3">
-        <div className="h-10 w-10 shrink-0 rounded-full bg-gray-200" />
-        <div className="h-4 w-32 rounded bg-gray-200" />
+        <Skeleton width="w-10" height="h-10" rounded="rounded-full" />
+        <Skeleton width="w-32" height="h-4" />
       </div>
-      <div className="h-2 w-full rounded-full bg-gray-200" />
-      <div className="mt-1 h-3 w-20 rounded bg-gray-200" />
+      <Skeleton height="h-2" rounded="rounded-full" />
+      <Skeleton width="w-20" height="h-3" className="mt-1" />
     </div>
   )
 }
@@ -24,12 +25,10 @@ export function UserProgressCard({ member }: UserProgressCardProps) {
   return (
     <div className="rounded-lg bg-gray-50 p-4">
       <div className="mb-2 flex items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-sunrise-400 to-dawn-500">{profilePhoto ? <img src={profilePhoto} alt={displayName} className="h-full w-full object-cover" /> : <span className="font-medium text-white">{displayName.charAt(0).toUpperCase()}</span>}</div>
+        <Avatar displayName={displayName} profilePhoto={profilePhoto} size="md" />
         <span className="font-medium text-gray-700">{displayName}</span>
       </div>
-      <div className="h-2 w-full rounded-full bg-gray-200">
-        <div className="h-2 rounded-full bg-gradient-to-r from-sunrise-400 to-dawn-500 transition-all duration-300" style={{ width: `${progress}%` }} />
-      </div>
+      <ProgressBar value={progress} max={100} />
       <p className="mt-1 text-xs text-gray-500">{Math.round(progress)}% overall progress</p>
     </div>
   )

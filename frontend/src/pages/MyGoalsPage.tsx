@@ -5,6 +5,15 @@ import { ProgressUpdateModal } from '@/components/goal/ProgressUpdateModal'
 import { useGoals } from '@/hooks/useGoals'
 import { useUserMetrics } from '@/hooks/useUserMetrics'
 import { useAuthStore } from '@/stores/authStore'
+import { EmptyState } from '@/dls'
+
+function IconPlus() {
+  return (
+    <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+    </svg>
+  )
+}
 
 export function MyGoalsPage() {
   const { goals, loading, error, addGoal, editGoal } = useGoals()
@@ -21,32 +30,17 @@ export function MyGoalsPage() {
   const progressGoal = progressGoalId !== null ? (goals.find((g) => g.id === progressGoalId) ?? null) : null
 
   const handleAddGoal = async (data: GoalFormData) => {
-    await addGoal({
-      title: data.title,
-      description: data.description,
-      category: data.category,
-      targetValue: data.targetValue,
-      unit: data.unit,
-    })
+    await addGoal({ title: data.title, description: data.description, category: data.category, targetValue: data.targetValue, unit: data.unit })
   }
 
   const handleEditGoal = async (data: GoalFormData) => {
     if (editingGoalId === null) return
-    await editGoal(editingGoalId, {
-      title: data.title,
-      description: data.description,
-      category: data.category,
-      targetValue: data.targetValue,
-      unit: data.unit,
-    })
+    await editGoal(editingGoalId, { title: data.title, description: data.description, category: data.category, targetValue: data.targetValue, unit: data.unit })
   }
 
   const handleSubmit = async (data: GoalFormData) => {
-    if (editingGoalId !== null) {
-      await handleEditGoal(data)
-    } else {
-      await handleAddGoal(data)
-    }
+    if (editingGoalId !== null) await handleEditGoal(data)
+    else await handleAddGoal(data)
   }
 
   const handleSaveProgress = async (goalId: number, newValue: number) => {
@@ -55,13 +49,7 @@ export function MyGoalsPage() {
 
   const getInitialFormData = (): GoalFormData | undefined => {
     if (!editingGoal) return undefined
-    return {
-      title: editingGoal.title,
-      description: editingGoal.description,
-      category: editingGoal.category,
-      targetValue: editingGoal.targetValue,
-      unit: editingGoal.unit,
-    }
+    return { title: editingGoal.title, description: editingGoal.description, category: editingGoal.category, targetValue: editingGoal.targetValue, unit: editingGoal.unit }
   }
 
   if (loading) {
@@ -78,6 +66,7 @@ export function MyGoalsPage() {
         <h1 className="mb-1 text-2xl font-bold">My Goals</h1>
         <p className="mb-4 text-sm text-sunrise-100">Your path to a brighter you</p>
 
+        {/* White-on-gradient progress bar — kept as raw div */}
         <div>
           <div className="mb-2 flex justify-between text-sm">
             <span className="text-sunrise-100">Overall Progress</span>
@@ -104,15 +93,9 @@ export function MyGoalsPage() {
               setEditingGoalId(null)
               setIsModalOpen(true)
             }}
-            className="w-full rounded-xl bg-white p-8 text-center shadow-sm transition-all hover:bg-sunrise-50 hover:shadow-md active:scale-95"
+            className="w-full"
           >
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sunrise-50">
-              <svg className="h-8 w-8 text-sunrise-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </div>
-            <p className="mb-1 font-medium text-warmGray-700">No goals yet</p>
-            <p className="text-sm text-warmGray-500">Tap here to add your first goal!</p>
+            <EmptyState icon={<IconPlus />} title="No goals yet" description="Tap here to add your first goal!" className="rounded-xl bg-white shadow-sm transition-all hover:bg-sunrise-50 hover:shadow-md" />
           </button>
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">

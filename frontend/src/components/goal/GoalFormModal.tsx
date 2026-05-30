@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { GoalCategory } from '@/constants/goal-category.constants'
+import { Button, Input, Modal, TextareaInput } from '@/dls'
 
 export interface GoalFormData {
   title: string
@@ -52,21 +53,10 @@ export function GoalFormModal({ isOpen, onClose, onSubmit, initialData, mode = '
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof GoalFormData, string>> = {}
-
-    if (!formData.title.trim()) {
-      newErrors.title = 'Title is required'
-    } else if (formData.title.length > 100) {
-      newErrors.title = 'Title must be less than 100 characters'
-    }
-
-    if (formData.targetValue <= 0) {
-      newErrors.targetValue = 'Target value must be greater than 0'
-    }
-
-    if (!formData.unit.trim()) {
-      newErrors.unit = 'Unit is required'
-    }
-
+    if (!formData.title.trim()) newErrors.title = 'Title is required'
+    else if (formData.title.length > 100) newErrors.title = 'Title must be less than 100 characters'
+    if (formData.targetValue <= 0) newErrors.targetValue = 'Target value must be greater than 0'
+    if (!formData.unit.trim()) newErrors.unit = 'Unit is required'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -90,79 +80,40 @@ export function GoalFormModal({ isOpen, onClose, onSubmit, initialData, mode = '
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }))
   }
 
-  if (!isOpen) return null
-
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+    <Modal isOpen={isOpen} onClose={onClose} title={mode === 'add' ? 'Add New Goal' : 'Edit Goal'}>
+      <form onSubmit={handleSubmit} className="space-y-5 p-4">
+        <Input label="Title" id="title" type="text" value={formData.title} onChange={(e) => handleChange('title', e.target.value)} error={errors.title} placeholder="e.g., Run 100 miles" autoFocus />
 
-      <div className="animate-slide-up relative max-h-[90vh] w-full overflow-y-auto rounded-t-2xl bg-white shadow-xl sm:mx-4 sm:max-w-md sm:rounded-2xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white p-4">
-          <h2 className="text-lg font-semibold text-gray-900">{mode === 'add' ? 'Add New Goal' : 'Edit Goal'}</h2>
-          <button onClick={onClose} className="-mr-2 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600" aria-label="Close modal">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+        <TextareaInput label="Description" id="description" value={formData.description} onChange={(e) => handleChange('description', e.target.value)} placeholder="Describe your goal..." rows={3} />
+
+        <div>
+          <label htmlFor="category" className="mb-1 block text-sm font-medium text-slate-700">
+            Category
+          </label>
+          <select id="category" value={formData.category} onChange={(e) => handleChange('category', e.target.value as GoalCategory)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-sunrise-400 focus:outline-none focus:ring-2 focus:ring-sunrise-500/20">
+            {categories.map((cat) => (
+              <option key={cat.value} value={cat.value}>
+                {cat.label}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5 p-4">
-          <div>
-            <label htmlFor="title" className="mb-2 block text-sm font-medium text-gray-700">
-              Title <span className="text-red-500">*</span>
-            </label>
-            <input type="text" id="title" value={formData.title} onChange={(e) => handleChange('title', e.target.value)} className={`w-full rounded-xl border px-4 py-3 text-base focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sunrise-500 ${errors.title ? 'border-red-500 bg-red-50' : 'border-gray-300'}`} placeholder="e.g., Run 100 miles" autoFocus />
-            {errors.title && <p className="mt-2 text-sm text-red-500">{errors.title}</p>}
-          </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="Target" id="targetValue" type="number" value={formData.targetValue || ''} onChange={(e) => handleChange('targetValue', Number(e.target.value))} error={errors.targetValue} placeholder="100" min="1" inputMode="numeric" />
+          <Input label="Unit" id="unit" type="text" value={formData.unit} onChange={(e) => handleChange('unit', e.target.value)} error={errors.unit} placeholder="miles" />
+        </div>
 
-          <div>
-            <label htmlFor="description" className="mb-2 block text-sm font-medium text-gray-700">
-              Description
-            </label>
-            <textarea id="description" value={formData.description} onChange={(e) => handleChange('description', e.target.value)} className="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sunrise-500" placeholder="Describe your goal..." rows={3} />
-          </div>
-
-          <div>
-            <label htmlFor="category" className="mb-2 block text-sm font-medium text-gray-700">
-              Category
-            </label>
-            <select id="category" value={formData.category} onChange={(e) => handleChange('category', e.target.value as GoalCategory)} className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sunrise-500">
-              {categories.map((cat) => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="targetValue" className="mb-2 block text-sm font-medium text-gray-700">
-                Target <span className="text-red-500">*</span>
-              </label>
-              <input type="number" id="targetValue" value={formData.targetValue || ''} onChange={(e) => handleChange('targetValue', Number(e.target.value))} className={`w-full rounded-xl border px-4 py-3 text-base focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sunrise-500 ${errors.targetValue ? 'border-red-500 bg-red-50' : 'border-gray-300'}`} placeholder="100" min="1" inputMode="numeric" />
-              {errors.targetValue && <p className="mt-2 text-sm text-red-500">{errors.targetValue}</p>}
-            </div>
-
-            <div>
-              <label htmlFor="unit" className="mb-2 block text-sm font-medium text-gray-700">
-                Unit <span className="text-red-500">*</span>
-              </label>
-              <input type="text" id="unit" value={formData.unit} onChange={(e) => handleChange('unit', e.target.value)} className={`w-full rounded-xl border px-4 py-3 text-base focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sunrise-500 ${errors.unit ? 'border-red-500 bg-red-50' : 'border-gray-300'}`} placeholder="miles" />
-              {errors.unit && <p className="mt-2 text-sm text-red-500">{errors.unit}</p>}
-            </div>
-          </div>
-
-          <div className="pb-safe flex gap-3 pt-2">
-            <button type="button" onClick={onClose} disabled={isSubmitting} className="flex-1 rounded-xl bg-gray-100 px-4 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-200 active:bg-gray-300 disabled:opacity-50">
-              Cancel
-            </button>
-            <button type="submit" disabled={isSubmitting} className="flex-1 rounded-xl bg-gradient-to-r from-sunrise-500 to-dawn-500 px-4 py-3 font-medium text-white shadow-sm transition-all hover:from-sunrise-600 hover:to-dawn-600 active:from-sunrise-700 active:to-dawn-700 disabled:cursor-not-allowed disabled:opacity-50">
-              {isSubmitting ? 'Saving...' : mode === 'add' ? 'Add Goal' : 'Save Changes'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="pb-safe flex gap-3 pt-2">
+          <Button type="button" variant="ghost" className="flex-1" onClick={onClose} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="primary" className="flex-1" loading={isSubmitting}>
+            {mode === 'add' ? 'Add Goal' : 'Save Changes'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }

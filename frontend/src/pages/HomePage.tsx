@@ -4,10 +4,40 @@ import { GroupsSidebar, MobileGroupsDrawer, UserProgressCard, UserProgressCardSk
 import { useGroupStore } from '@/stores/groupStore'
 import { useGoalStore } from '@/stores/goalStore'
 import { useGroupMetrics } from '@/hooks/useGroupMetrics'
+import { EmptyState, Tabs } from '@/dls'
 import type { Goal } from '@/types'
 import { BOTTOM_NAV_HEIGHT } from '@/constants/layout.constants'
 
 type HomeTab = 'members' | 'goals'
+
+const homeTabs = [
+  { key: 'members', label: 'Members' },
+  { key: 'goals', label: 'Goals' },
+]
+
+function IconHamburger() {
+  return (
+    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  )
+}
+
+function IconPeople() {
+  return (
+    <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  )
+}
+
+function IconClipboard() {
+  return (
+    <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+    </svg>
+  )
+}
 
 export function HomePage() {
   const [activeTab, setActiveTab] = useState<HomeTab>('members')
@@ -43,16 +73,14 @@ export function HomePage() {
 
   return (
     <div className="flex items-start gap-4">
-      {/* Desktop sidebar — full viewport height */}
       <div className="sticky top-0 hidden w-56 shrink-0 self-start lg:block xl:w-64">
         <div className="overflow-hidden rounded-2xl bg-white shadow-sm" style={{ height: `calc(100vh - 2rem - ${BOTTOM_NAV_HEIGHT}px)` }}>
           <GroupsSidebar />
         </div>
       </div>
 
-      {/* Right column: banner + content */}
       <div className="min-w-0 flex-1 space-y-4">
-        {/* Metrics banner */}
+        {/* Metrics banner — white-on-gradient progress bar, kept as raw div */}
         <section className="rounded-2xl bg-gradient-to-br from-sunrise-500 via-dawn-500 to-rose-500 p-6 text-white shadow-lg">
           <h1 className="mb-1 text-center text-2xl font-bold">{selectedGroup ? selectedGroup.name : 'Community Progress'}</h1>
           <p className="mb-4 text-center text-sm text-sunrise-100">Rising together towards our goals</p>
@@ -62,14 +90,10 @@ export function HomePage() {
           <p className="mt-3 text-center text-lg font-semibold text-sunrise-100">{groupProgress}% complete</p>
         </section>
 
-        {/* Content column */}
         <div className="min-w-0">
-          {/* Mobile hamburger */}
           <div className="mb-4 lg:hidden">
             <button onClick={() => setDrawerOpen(true)} className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:border-sunrise-300" aria-label="Open groups">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <IconHamburger />
               Groups
             </button>
           </div>
@@ -80,28 +104,11 @@ export function HomePage() {
             </div>
           )}
 
-          {selectedGroupId == null && (
-            <div className="rounded-2xl bg-white p-8 text-center shadow-sm">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-sunrise-50">
-                <svg className="h-8 w-8 text-sunrise-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <p className="font-medium text-gray-600">Select or create a group</p>
-              <p className="mt-1 text-sm text-gray-400">Open the groups panel to get started.</p>
-            </div>
-          )}
+          {selectedGroupId == null && <EmptyState icon={<IconPeople />} title="Select or create a group" description="Open the groups panel to get started." />}
 
           {selectedGroupId != null && (
             <section className="rounded-2xl bg-white p-4 shadow-sm">
-              <div className="mb-4 flex rounded-xl bg-gray-100 p-1">
-                <button onClick={() => setActiveTab('members')} className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${activeTab === 'members' ? 'bg-white text-sunrise-600 shadow-sm' : 'text-warmGray-500 hover:text-warmGray-700'}`}>
-                  Members
-                </button>
-                <button onClick={() => setActiveTab('goals')} className={`flex-1 rounded-lg py-2.5 text-sm font-medium transition-all ${activeTab === 'goals' ? 'bg-white text-sunrise-600 shadow-sm' : 'text-warmGray-500 hover:text-warmGray-700'}`}>
-                  Goals
-                </button>
-              </div>
+              <Tabs tabs={homeTabs} activeTab={activeTab} onChange={(key) => setActiveTab(key as HomeTab)} variant="pill" className="mb-4" />
 
               {activeTab === 'members' &&
                 (membersLoading ? (
@@ -132,15 +139,7 @@ export function HomePage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="py-12 text-center">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-                      <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                    </div>
-                    <p className="font-medium text-gray-600">No goals yet in this group</p>
-                    <p className="mt-1 text-sm text-gray-400">Members' goals will appear here.</p>
-                  </div>
+                  <EmptyState icon={<IconClipboard />} title="No goals yet in this group" description="Members' goals will appear here." />
                 ))}
             </section>
           )}

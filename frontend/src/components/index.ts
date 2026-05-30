@@ -3,9 +3,8 @@
  * Import components like: import { Button, Header } from '@/components'
  */
 
-// UI Components
-export { Button } from './ui/Button'
-export { Spinner } from './ui/Spinner'
+// UI Components — sourced from the DLS
+export { Button, Spinner } from '@/dls'
 
 // Layout Components
 export { Header } from './layout/Header'

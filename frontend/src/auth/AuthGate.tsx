@@ -8,7 +8,7 @@
 import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from './useAuth'
-import { Spinner } from '@/components/ui/Spinner'
+import { Spinner } from '@/dls'
 
 interface AuthGateProps {
   children: ReactNode

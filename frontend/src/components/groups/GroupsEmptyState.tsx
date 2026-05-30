@@ -1,7 +1,16 @@
 import { useState } from 'react'
 import { useGroupStore } from '@/stores/groupStore'
 import { useAuthStore } from '@/stores/authStore'
+import { Button, EmptyState, Input } from '@/dls'
 import { CreateGroupModal } from './CreateGroupModal'
+
+function IconGroup() {
+  return (
+    <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  )
+}
 
 export function GroupsEmptyState() {
   const [showCreate, setShowCreate] = useState(false)
@@ -36,39 +45,36 @@ export function GroupsEmptyState() {
 
   return (
     <>
-      <div className="flex flex-col items-center px-3 py-6 text-center">
-        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-sunrise-100">
-          <svg className="h-6 w-6 text-sunrise-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </div>
-        <p className="mb-1 text-sm font-semibold text-gray-800">No groups yet</p>
-        <p className="mb-4 text-xs text-gray-500">Create one or join with an invite link.</p>
-
-        <button onClick={() => setShowCreate(true)} className="mb-3 w-full rounded-xl bg-gradient-to-r from-sunrise-500 to-dawn-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:from-sunrise-600 hover:to-dawn-600">
-          Create a group
-        </button>
-
-        <div className="w-full">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={inviteInput}
-              onChange={(e) => {
-                setInviteInput(e.target.value)
-                setJoinError('')
-              }}
-              placeholder="Paste invite link…"
-              className={`min-w-0 flex-1 rounded-xl border px-3 py-2 text-xs focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sunrise-500 ${joinError ? 'border-red-400 bg-red-50' : 'border-gray-300'}`}
-              onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
-            />
-            <button onClick={handleJoin} disabled={joining || !inviteInput.trim()} className="shrink-0 rounded-xl border border-sunrise-300 px-3 py-2 text-xs font-medium text-sunrise-600 transition-colors hover:bg-sunrise-50 disabled:opacity-40">
-              {joining ? '…' : 'Join'}
-            </button>
+      <EmptyState
+        icon={<IconGroup />}
+        title="No groups yet"
+        description="Create one or join with an invite link."
+        className="py-6"
+        action={
+          <div className="w-full space-y-2">
+            <Button variant="primary" className="w-full" onClick={() => setShowCreate(true)}>
+              Create a group
+            </Button>
+            <div className="flex gap-2">
+              <Input
+                type="text"
+                value={inviteInput}
+                onChange={(e) => {
+                  setInviteInput(e.target.value)
+                  setJoinError('')
+                }}
+                placeholder="Paste invite link…"
+                error={joinError || undefined}
+                onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
+                className="text-xs"
+              />
+              <Button type="button" variant="outline" onClick={handleJoin} disabled={joining || !inviteInput.trim()}>
+                {joining ? '…' : 'Join'}
+              </Button>
+            </div>
           </div>
-          {joinError && <p className="mt-1.5 text-xs text-red-500">{joinError}</p>}
-        </div>
-      </div>
+        }
+      />
 
       {showCreate && <CreateGroupModal onConfirm={handleCreate} onCancel={() => setShowCreate(false)} />}
     </>

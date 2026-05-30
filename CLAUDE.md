@@ -96,6 +96,38 @@ Components should consume data through hooks, not stores directly. High-level ho
 
 ---
 
+### Design Language System (DLS)
+
+All frontend UI is built on the DLS — a set of reusable primitives and composites in `src/dls/`. Import from `@/dls`.
+
+**Rule: before writing any UI element, check whether an existing DLS component covers the use case. If it does, use it. If it doesn't exist yet, create the DLS component first, then use it in the feature component.**
+
+Do not write raw `<button>`, `<input>`, or `<textarea>` elements inside feature components unless the DLS component is fundamentally unsuitable for the use case.
+
+Available DLS components:
+
+| Component | Use for |
+|---|---|
+| `Button` | All clickable actions with a visible text label |
+| `Spinner` | Loading indicators |
+| `ProgressBar` | Any progress or completion visualization |
+| `Skeleton` | Placeholder content during loading |
+| `Input` | Text inputs, with optional label / error / hint |
+| `TextareaInput` | Multi-line text inputs |
+| `IconButton` | Icon-only buttons — `label` prop is required (maps to `aria-label`) |
+| `Badge` | Category labels and semantic status chips |
+| `Avatar` | User profile photo or initial circle |
+| `AvatarStack` | Overlapping row of user avatars |
+| `Card` | Surface container; renders as `<button>` when `onClick` is provided |
+| `EmptyState` | Zero-data layouts with icon + title + optional action |
+| `Tabs` | Tab switchers — `underline` (default) or `pill` variant |
+| `Modal` | Overlay dialogs rendered via `createPortal` |
+| `Drawer` | Slide-in panels via `createPortal` — `left`, `right`, or `bottom` |
+
+When adding a new DLS component: implement it in `src/dls/<Name>.tsx`, export it from `src/dls/index.ts`, and add a row to the table above.
+
+---
+
 ## Backend
 
 ### Commands (run from `SunriseApi/`)

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Button, Input, Modal } from '@/dls'
 
 interface CreateGroupModalProps {
   onConfirm: (name: string) => Promise<void>
@@ -32,14 +33,11 @@ export function CreateGroupModal({ onConfirm, onCancel }: CreateGroupModalProps)
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-        <h2 className="mb-1 text-lg font-semibold text-gray-900">Create a group</h2>
-        <p className="mb-5 text-sm text-gray-500">Give your group a name to get started.</p>
-
-        <form onSubmit={handleSubmit}>
-          <input
+    <Modal isOpen={true} onClose={onCancel} title="Create a group" size="sm">
+      <div className="p-4">
+        <p className="mb-4 text-sm text-gray-500">Give your group a name to get started.</p>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
             type="text"
             value={name}
             onChange={(e) => {
@@ -47,21 +45,19 @@ export function CreateGroupModal({ onConfirm, onCancel }: CreateGroupModalProps)
               setError('')
             }}
             placeholder="e.g., 2025 Goals Crew"
+            error={error || undefined}
             autoFocus
-            className={`mb-1 w-full rounded-xl border px-4 py-3 text-base focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sunrise-500 ${error ? 'border-red-400 bg-red-50' : 'border-gray-300'}`}
           />
-          {error && <p className="mb-3 text-sm text-red-500">{error}</p>}
-
-          <div className="mt-4 flex gap-3">
-            <button type="button" onClick={onCancel} disabled={loading} className="flex-1 rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-50">
+          <div className="flex gap-3">
+            <Button type="button" variant="ghost" className="flex-1" onClick={onCancel} disabled={loading}>
               Cancel
-            </button>
-            <button type="submit" disabled={loading || !name.trim()} className="flex-1 rounded-xl bg-gradient-to-r from-sunrise-500 to-dawn-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:from-sunrise-600 hover:to-dawn-600 disabled:opacity-50">
-              {loading ? 'Creating...' : 'Create'}
-            </button>
+            </Button>
+            <Button type="submit" variant="primary" className="flex-1" loading={loading} disabled={!name.trim()}>
+              Create
+            </Button>
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   )
 }

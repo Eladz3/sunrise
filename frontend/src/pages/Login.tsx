@@ -9,7 +9,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
-import { Spinner } from '@/components/ui/Spinner'
+import { Spinner } from '@/dls'
 
 // Sunset gradient: deep violet sky → rich purple → crimson → vivid orange → warm amber → pale horizon
 const SUNSET_GRADIENT = 'linear-gradient(to bottom, #0d0221 0%, #1a0533 10%, #6e1141 26%, #c0384a 43%, #e85d20 60%, #f4a032 76%, #fad278 90%, #fef0c7 100%)'

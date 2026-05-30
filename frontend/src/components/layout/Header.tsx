@@ -8,7 +8,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { Button } from '@/components'
+import { Avatar, Button } from '@/dls'
 
 export function Header() {
   const { user, logout } = useAuth()
@@ -52,7 +52,7 @@ export function Header() {
                 {/* User Menu */}
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-3">
-                    {user.photoURL && <img src={user.photoURL} alt={user.displayName || 'User'} className="h-8 w-8 rounded-full" />}
+                    <Avatar displayName={user.displayName ?? user.email ?? '?'} profilePhoto={user.photoURL ?? undefined} size="sm" />
                     <span className="hidden text-sm text-gray-700 sm:block">{user.displayName}</span>
                   </div>
 
