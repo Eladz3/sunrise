@@ -4,6 +4,7 @@
   base = "frontend"
   command = "npm run build"
   publish = "dist"
+  ignore = "git diff --quiet HEAD^ HEAD -- frontend netlify.toml"
 
 # Production builds (main branch only) — embed git SHA
 [context.production]
