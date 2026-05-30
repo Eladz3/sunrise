@@ -81,9 +81,7 @@ export const useAuthStore = create<AuthStore>()(
               // Sync theme preference from account (server value wins over local cache)
               if (user.themePreference) {
                 const { useThemeStore } = await import('./themeStore')
-                useThemeStore.getState().setPreference(
-                  user.themePreference as import('@/constants/theme.constants').ThemePreference
-                )
+                useThemeStore.getState().setPreference(user.themePreference as import('@/constants/theme.constants').ThemePreference)
               }
 
               // Hydrate groups

@@ -1,14 +1,14 @@
-import { create } from 'zustand';
-import { devtools, persist, createJSONStorage } from 'zustand/middleware';
-import type { ThemePreference, ResolvedTheme } from '@/constants/theme.constants';
+import { create } from 'zustand'
+import { devtools, persist, createJSONStorage } from 'zustand/middleware'
+import type { ThemePreference, ResolvedTheme } from '@/constants/theme.constants'
 
 type ThemeStore = {
-  preference: ThemePreference;
-  resolved: ResolvedTheme;
+  preference: ThemePreference
+  resolved: ResolvedTheme
 
-  setPreference: (pref: ThemePreference) => void;
-  setResolved: (theme: ResolvedTheme) => void;
-};
+  setPreference: (pref: ThemePreference) => void
+  setResolved: (theme: ResolvedTheme) => void
+}
 
 export const useThemeStore = create<ThemeStore>()(
   devtools(
@@ -29,4 +29,4 @@ export const useThemeStore = create<ThemeStore>()(
     ),
     { name: 'ThemeStore' }
   )
-);
+)
