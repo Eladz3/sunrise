@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { Spinner } from '@/dls'
+import { Icon } from '@/components/ui/Icon'
 
 // Sunset gradient: deep violet sky → rich purple → crimson → vivid orange → warm amber → pale horizon
 const SUNSET_GRADIENT = 'linear-gradient(to bottom, #0d0221 0%, #1a0533 10%, #6e1141 26%, #c0384a 43%, #e85d20 60%, #f4a032 76%, #fad278 90%, #fef0c7 100%)'
@@ -58,9 +59,7 @@ export default function Login() {
         <div className="rounded-t-2xl bg-gradient-to-r from-sunrise-500 via-dawn-500 to-rose-500 px-8 py-6 text-center">
           {/* Sun icon */}
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 shadow-inner">
-            <svg className="h-8 w-8 text-white drop-shadow" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L13.09 8.26L18 6L14.74 10.91L21 12L14.74 13.09L18 18L13.09 15.74L12 22L10.91 15.74L6 18L9.26 13.09L3 12L9.26 10.91L6 6L10.91 8.26L12 2Z" />
-            </svg>
+            <Icon name="sunrise" size={32} className="text-white drop-shadow" />
           </div>
           <h1 className="text-2xl font-bold text-white drop-shadow-sm">Welcome to Sunrise</h1>
           <p className="mt-1 text-sm text-white/80">Sign in to continue your journey</p>

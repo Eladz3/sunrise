@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Icon } from '@/components/ui/Icon'
 import { GoalCard, GoalCardSkeleton } from '@/components'
 import { GroupsSidebar, MobileGroupsDrawer, UserProgressCard, UserProgressCardSkeleton } from '@/components/groups'
 import { useGroupStore } from '@/stores/groupStore'
@@ -14,14 +15,6 @@ const homeTabs = [
   { key: 'members', label: 'Members' },
   { key: 'goals', label: 'Goals' },
 ]
-
-function IconHamburger() {
-  return (
-    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-    </svg>
-  )
-}
 
 function IconPeople() {
   return (
@@ -93,7 +86,7 @@ export function HomePage() {
         <div className="min-w-0">
           <div className="mb-4 lg:hidden">
             <button onClick={() => setDrawerOpen(true)} className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:border-sunrise-300" aria-label="Open groups">
-              <IconHamburger />
+              <Icon name="menu" size={16} />
               Groups
             </button>
           </div>
