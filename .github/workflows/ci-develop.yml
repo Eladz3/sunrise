@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [develop]
 
+permissions:
+  contents: read
+  pull-requests: read
+
 concurrency:
   group: ci-pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
@@ -16,8 +20,8 @@ jobs:
       frontend: ${{ steps.filter.outputs.frontend }}
       backend: ${{ steps.filter.outputs.backend }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590 # v3
         id: filter
         with:
           filters: |
@@ -35,8 +39,8 @@ jobs:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
           cache: npm
@@ -63,8 +67,8 @@ jobs:
       run:
         working-directory: SunriseApi
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           dotnet-version: 8.x
       - name: Restore
@@ -76,7 +80,7 @@ jobs:
         run: |
           test_projects=$(find . -name "*Tests.csproj" -o -name "*Test.csproj" 2>/dev/null | head -1)
           if [ -n "$test_projects" ]; then
-            dotnet test --no-build --configuration Release --verbosity normal
+            dotnet test "$test_projects" --no-build --configuration Release --verbosity normal
           else
             echo "No test projects found — skipping"
           fi

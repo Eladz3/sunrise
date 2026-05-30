@@ -55,7 +55,13 @@
       "Bash(cat prettier.config.js)",
       "Bash(gh api *)",
       "Bash(wait)",
-      "WebFetch(domain:api.github.com)"
+      "WebFetch(domain:api.github.com)",
+      "Bash(curl -s https://api.github.com/repos/actions/checkout/git/ref/tags/v4)",
+      "Bash(curl -s https://api.github.com/repos/dorny/paths-filter/git/ref/tags/v3)",
+      "Bash(curl -s https://api.github.com/repos/actions/setup-node/git/ref/tags/v4)",
+      "Bash(curl -s https://api.github.com/repos/actions/setup-dotnet/git/ref/tags/v4)",
+      "Bash(curl -s https://api.github.com/repos/dorny/paths-filter/git/tags/6852f92c20ea7fd3b0c25de3b5112db3a98da050)",
+      "PowerShell(gh api repos/actions/checkout/git/ref/tags/v4 --jq \".object | {type, sha}\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\eladz\\Documents\\Dev\\sunrise\\.claude",

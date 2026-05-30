@@ -2,17 +2,17 @@
 
 ## Branch Model
 
-| Branch | Purpose |
-|---|---|
-| `feature/*` | Development; PRs target `develop` |
-| `develop` | Primary development intake; lightweight CI only |
-| `review` | Intentional review gate; AI review + deep validation |
-| `main` | Production source; auto-deploys frontend, gates backend |
-| `stable` | Last verified production state; rollback source |
+| Branch      | Purpose                                                 |
+| ----------- | ------------------------------------------------------- |
+| `feature/*` | Development; PRs target `develop`                       |
+| `develop`   | Primary development intake; lightweight CI only         |
+| `review`    | Intentional review gate; AI review + deep validation    |
+| `main`      | Production source; auto-deploys frontend, gates backend |
+| `stable`    | Last verified production state; rollback source         |
 
 ## Promotion Flow
 
-```
+```text
 feature/*
    ↓ PR
 develop        (CI: lint, format, type-check, build)
@@ -27,6 +27,7 @@ stable         (Stable Promotion: branch + tag updated)
 ## Workflows
 
 ### `ci-develop.yml` — Lightweight CI
+
 - **Triggers**: pushes to `develop`, PRs into `develop`
 - **Path-aware**: frontend CI only runs if `frontend/**` changed; backend CI only if `SunriseApi/**` changed
 - **Frontend**: lint (zero warnings), format check (Prettier), type-check (tsc), build
@@ -34,6 +35,7 @@ stable         (Stable Promotion: branch + tag updated)
 - **Does NOT run**: CodeRabbit, integration tests, deploys
 
 ### `review-gate.yml` — Review Gate
+
 - **Triggers**: PRs from `develop` into `review` only
 - **Path-aware**: same frontend/backend filtering
 - **Frontend**: full CI + `npm audit --audit-level=high`
@@ -42,6 +44,7 @@ stable         (Stable Promotion: branch + tag updated)
 - **Version sync**: validates both projects build cleanly together
 
 ### `production-deploy.yml` — Production Promotion
+
 - **Triggers**: push to `main` only
 - **Frontend**: builds with `VITE_BUILD_SHA`, uploads artifact (30-day retention)
 - **Backend**: requires manual approval via GitHub Environment `production`, then deploys to Azure
@@ -49,6 +52,7 @@ stable         (Stable Promotion: branch + tag updated)
 - **Netlify**: auto-deploys from `main` (configured in Netlify dashboard)
 
 ### `stable-promotion.yml` — Stable Promotion
+
 - **Triggers**: `workflow_run` on `production-deploy` completion (main branch only)
 - **Smoke tests**: health check, frontend check, version SHA verification
 - **Promotes**: force-pushes `main` HEAD to `stable` branch
@@ -58,17 +62,17 @@ stable         (Stable Promotion: branch + tag updated)
 
 ### GitHub Secrets Required
 
-| Secret | Description |
-|---|---|
+| Secret              | Description                                               |
+| ------------------- | --------------------------------------------------------- |
 | `AZURE_CREDENTIALS` | Azure service principal JSON (`az ad sp create-for-rbac`) |
 
 ### GitHub Variables Required
 
-| Variable | Example |
-|---|---|
-| `AZURE_APP_NAME` | `sunrise-api` |
-| `PRODUCTION_API_URL` | `https://your-api.azurewebsites.net` |
-| `PRODUCTION_FRONTEND_URL` | `https://your-app.netlify.app` |
+| Variable                  | Example                              |
+| ------------------------- | ------------------------------------ |
+| `AZURE_APP_NAME`          | `sunrise-api`                        |
+| `PRODUCTION_API_URL`      | `https://your-api.azurewebsites.net` |
+| `PRODUCTION_FRONTEND_URL` | `https://your-app.netlify.app`       |
 
 ### GitHub Environment Setup
 
@@ -80,19 +84,23 @@ stable         (Stable Promotion: branch + tag updated)
 ### GitHub Branch Protection Rules
 
 **`develop`**
+
 - Require status checks: `Frontend CI`, `Backend CI`
 - Do not require CodeRabbit
 
 **`review`**
+
 - Require status checks: `Frontend Review`, `Backend Review`, `Version Sync Check`
 - Require CodeRabbit review (once CodeRabbit app is installed and auto-review is confirmed)
 
 **`main`**
+
 - Require status checks: all passing
 - Require at least 1 approved PR review
 - No direct pushes
 
 **`stable`**
+
 - No direct pushes (workflow-only updates via `stable-promotion.yml`)
 - Enable "Restrict who can push" — allow only GitHub Actions
 
@@ -135,6 +143,7 @@ The `stable` branch always represents the last smoke-test-verified production de
 ```
 
 Set via environment variables on the Azure App Service:
+
 - `BUILD_SHA` — git SHA at deploy time
 - `BUILD_VERSION` — branch/tag name
 - `DEPLOY_TIMESTAMP` — ISO timestamp of deployment

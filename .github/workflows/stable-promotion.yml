@@ -40,7 +40,7 @@ jobs:
           echo "Version info: $response"
           sha=$(echo "$response" | grep -o '"sha":"[^"]*"' | cut -d'"' -f4)
           expected="${{ github.event.workflow_run.head_sha }}"
-          if [ "$sha" != "$expected" ] && [ "$sha" != "unknown" ]; then
+          if [ "$sha" != "$expected" ]; then
             echo "SHA mismatch: deployed=$sha expected=$expected"
             exit 1
           fi
@@ -54,7 +54,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 1
           ref: ${{ github.event.workflow_run.head_sha }}

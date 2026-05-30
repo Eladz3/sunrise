@@ -20,7 +20,8 @@ public class FirebaseAuthMiddleware
         var authHeader = context.Request.Headers["Authorization"].ToString();
 
         if (context.Request.Path.StartsWithSegments("/swagger") ||
-            context.Request.Path.StartsWithSegments("/health"))
+            context.Request.Path.StartsWithSegments("/health") ||
+            context.Request.Path.StartsWithSegments("/version"))
         {
             await _next(context);
             return;
