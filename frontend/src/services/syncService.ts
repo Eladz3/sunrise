@@ -1,11 +1,6 @@
 import { useMetricsStore } from '@/stores/metricsStore'
 
-export type SyncEvent =
-  | { type: 'goal:created'; userId: number; groupIds: number[] }
-  | { type: 'goal:updated'; userId: number; groupIds: number[] }
-  | { type: 'goal:deleted'; userId: number; groupIds: number[] }
-  | { type: 'group:deleted'; userId: number; groupId: number }
-  | { type: 'group:joined'; userId: number; groupId: number }
+export type SyncEvent = { type: 'goal:created'; userId: number; groupIds: number[] } | { type: 'goal:updated'; userId: number; groupIds: number[] } | { type: 'goal:deleted'; userId: number; groupIds: number[] } | { type: 'group:deleted'; userId: number; groupId: number } | { type: 'group:joined'; userId: number; groupId: number }
 
 async function emit(event: SyncEvent): Promise<void> {
   const metrics = useMetricsStore.getState()

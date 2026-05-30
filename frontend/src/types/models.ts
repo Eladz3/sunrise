@@ -5,7 +5,7 @@
  * Each interface represents a Firestore document structure.
  */
 
-import type { FirestoreTimestamp } from './firebase';
+import type { FirestoreTimestamp } from './firebase'
 
 /**
  * User Model
@@ -16,50 +16,50 @@ import type { FirestoreTimestamp } from './firebase';
  */
 export interface User {
   /** User's unique identifier (same as Firebase Auth UID) */
-  id: string;
+  id: string
 
   /** User's email address (from Google OAuth) */
-  email: string;
+  email: string
 
   /** User's display name (from Google profile) */
-  displayName: string;
+  displayName: string
 
   /** URL to user's profile picture (from Google profile) */
-  photoURL: string | null;
+  photoURL: string | null
 
   /** Total number of goals created by this user */
-  goalsCount: number;
+  goalsCount: number
 
   /** Number of goals completed by this user */
-  goalsCompletedCount: number;
+  goalsCompletedCount: number
 
   /** User's current streak in days */
-  currentStreak: number;
+  currentStreak: number
 
   /** User's longest streak in days */
-  longestStreak: number;
+  longestStreak: number
 
   /** Last date user completed a goal (for streak tracking) */
-  lastCompletionDate: FirestoreTimestamp | null;
+  lastCompletionDate: FirestoreTimestamp | null
 
   /** User's timezone (e.g., "America/New_York") */
-  timezone: string;
+  timezone: string
 
   /** User's notification preferences */
   notificationPreferences: {
     /** Send email notifications */
-    email: boolean;
+    email: boolean
     /** Send goal reminders */
-    reminders: boolean;
+    reminders: boolean
     /** Send weekly summary */
-    weeklySummary: boolean;
-  };
+    weeklySummary: boolean
+  }
 
   /** When the user account was created */
-  createdAt: FirestoreTimestamp;
+  createdAt: FirestoreTimestamp
 
   /** When the user data was last updated */
-  updatedAt: FirestoreTimestamp;
+  updatedAt: FirestoreTimestamp
 }
 
 /**
@@ -71,61 +71,61 @@ export interface User {
  */
 export interface Goal {
   /** Goal's unique identifier */
-  id: string;
+  id: string
 
   /** User ID who created this goal (references User.id) */
-  userId: string;
+  userId: string
 
   /** Goal title/name */
-  title: string;
+  title: string
 
   /** Detailed description of the goal */
-  description: string;
+  description: string
 
   /** Goal category for organization */
-  category: GoalCategory;
+  category: GoalCategory
 
   /** Current status of the goal */
-  status: GoalStatus;
+  status: GoalStatus
 
   /** Goal priority level */
-  priority: GoalPriority;
+  priority: GoalPriority
 
   /** When the goal should start */
-  startDate: FirestoreTimestamp;
+  startDate: FirestoreTimestamp
 
   /** Target completion date */
-  dueDate: FirestoreTimestamp;
+  dueDate: FirestoreTimestamp
 
   /** When the goal was actually completed */
-  completedAt: FirestoreTimestamp | null;
+  completedAt: FirestoreTimestamp | null
 
   /** Whether this goal is recurring */
-  recurring: boolean;
+  recurring: boolean
 
   /** Recurrence pattern if recurring is true */
-  recurrencePattern: RecurrencePattern | null;
+  recurrencePattern: RecurrencePattern | null
 
   /** Tags for filtering and search */
-  tags: string[];
+  tags: string[]
 
   /** Whether this goal contributes to global stats */
-  isPublic: boolean;
+  isPublic: boolean
 
   /** Number of days until due date (computed field for queries) */
-  daysUntilDue: number;
+  daysUntilDue: number
 
   /** Whether the goal is overdue (computed field) */
-  isOverdue: boolean;
+  isOverdue: boolean
 
   /** Notes or progress updates */
-  notes: string;
+  notes: string
 
   /** When the goal was created */
-  createdAt: FirestoreTimestamp;
+  createdAt: FirestoreTimestamp
 
   /** When the goal was last updated */
-  updatedAt: FirestoreTimestamp;
+  updatedAt: FirestoreTimestamp
 }
 
 /**
@@ -133,28 +133,21 @@ export interface Goal {
  *
  * Predefined categories for organizing goals
  */
-export type GoalCategory =
-  | 'personal'
-  | 'work'
-  | 'health'
-  | 'learning'
-  | 'social'
-  | 'finance'
-  | 'other';
+export type GoalCategory = 'personal' | 'work' | 'health' | 'learning' | 'social' | 'finance' | 'other'
 
 /**
  * Goal Status
  *
  * Lifecycle states of a goal
  */
-export type GoalStatus = 'todo' | 'in_progress' | 'completed' | 'cancelled' | 'archived';
+export type GoalStatus = 'todo' | 'in_progress' | 'completed' | 'cancelled' | 'archived'
 
 /**
  * Goal Priority
  *
  * Importance level of a goal
  */
-export type GoalPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type GoalPriority = 'low' | 'medium' | 'high' | 'urgent'
 
 /**
  * Recurrence Pattern
@@ -163,22 +156,22 @@ export type GoalPriority = 'low' | 'medium' | 'high' | 'urgent';
  */
 export interface RecurrencePattern {
   /** Type of recurrence */
-  type: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  type: 'daily' | 'weekly' | 'monthly' | 'yearly'
 
   /** How many intervals between recurrences (e.g., every 2 weeks) */
-  interval: number;
+  interval: number
 
   /** Days of week for weekly recurrence (0 = Sunday, 6 = Saturday) */
-  daysOfWeek?: number[];
+  daysOfWeek?: number[]
 
   /** Day of month for monthly recurrence (1-31) */
-  dayOfMonth?: number;
+  dayOfMonth?: number
 
   /** When the recurrence ends */
-  endDate?: FirestoreTimestamp | null;
+  endDate?: FirestoreTimestamp | null
 
   /** Maximum number of occurrences */
-  occurrences?: number | null;
+  occurrences?: number | null
 }
 
 /**
@@ -186,13 +179,13 @@ export interface RecurrencePattern {
  */
 
 /** Type for creating a new User (without Firestore metadata) */
-export type CreateUser = Omit<User, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateUser = Omit<User, 'id' | 'createdAt' | 'updatedAt'>
 
 /** Type for updating a User (partial fields) */
-export type UpdateUser = Partial<Omit<User, 'id' | 'createdAt' | 'updatedAt'>>;
+export type UpdateUser = Partial<Omit<User, 'id' | 'createdAt' | 'updatedAt'>>
 
 /** Type for creating a new Goal (without Firestore metadata) */
-export type CreateGoal = Omit<Goal, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateGoal = Omit<Goal, 'id' | 'createdAt' | 'updatedAt'>
 
 /** Type for updating a Goal (partial fields) */
-export type UpdateGoal = Partial<Omit<Goal, 'id' | 'createdAt' | 'updatedAt'>>;
+export type UpdateGoal = Partial<Omit<Goal, 'id' | 'createdAt' | 'updatedAt'>>

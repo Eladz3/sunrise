@@ -43,6 +43,7 @@ coverage
 *.local
 
 claude.txt
+.claude/worktrees/
 
 # =========================
 # Build output (.NET)

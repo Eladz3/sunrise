@@ -12,8 +12,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { Spinner } from '@/components/ui/Spinner'
 
 // Sunset gradient: deep violet sky → rich purple → crimson → vivid orange → warm amber → pale horizon
-const SUNSET_GRADIENT =
-  'linear-gradient(to bottom, #0d0221 0%, #1a0533 10%, #6e1141 26%, #c0384a 43%, #e85d20 60%, #f4a032 76%, #fad278 90%, #fef0c7 100%)'
+const SUNSET_GRADIENT = 'linear-gradient(to bottom, #0d0221 0%, #1a0533 10%, #6e1141 26%, #c0384a 43%, #e85d20 60%, #f4a032 76%, #fad278 90%, #fef0c7 100%)'
 
 export default function Login() {
   const { user, loading, login } = useAuth()
@@ -45,20 +44,16 @@ export default function Login() {
   // While Firebase is resolving auth state, show a minimal spinner
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: SUNSET_GRADIENT }}>
+      <div className="flex min-h-screen items-center justify-center" style={{ background: SUNSET_GRADIENT }}>
         <Spinner size="lg" />
       </div>
     )
   }
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 py-12"
-      style={{ background: SUNSET_GRADIENT }}
-    >
+    <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12" style={{ background: SUNSET_GRADIENT }}>
       {/* ── Card ── */}
       <div className="w-full max-w-sm rounded-2xl border border-white/40 bg-white/90 shadow-2xl backdrop-blur-md">
-
         {/* Card header band */}
         <div className="rounded-t-2xl bg-gradient-to-r from-sunrise-500 via-dawn-500 to-rose-500 px-8 py-6 text-center">
           {/* Sun icon */}
@@ -73,7 +68,6 @@ export default function Login() {
 
         {/* Card body */}
         <div className="px-8 py-7">
-
           {/* Divider label */}
           <div className="mb-5 flex items-center gap-3">
             <div className="h-px flex-1 bg-warmGray-200" />
@@ -82,11 +76,7 @@ export default function Login() {
           </div>
 
           {/* Google Sign-In button */}
-          <button
-            onClick={handleSignIn}
-            disabled={isLoading}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-warmGray-200 bg-white px-4 py-3 text-sm font-medium text-warmGray-700 shadow-sm transition-all hover:border-sunrise-300 hover:bg-sunrise-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-sunrise-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          >
+          <button onClick={handleSignIn} disabled={isLoading} className="flex w-full items-center justify-center gap-3 rounded-xl border border-warmGray-200 bg-white px-4 py-3 text-sm font-medium text-warmGray-700 shadow-sm transition-all hover:border-sunrise-300 hover:bg-sunrise-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-sunrise-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
             {isLoading ? (
               <Spinner size="sm" />
             ) : (
@@ -109,7 +99,7 @@ export default function Login() {
 
           {/* Back link */}
           <p className="mt-6 text-center text-sm text-warmGray-500">
-            <Link to="/" className="font-medium text-sunrise-600 hover:text-sunrise-700 transition-colors">
+            <Link to="/" className="font-medium text-sunrise-600 transition-colors hover:text-sunrise-700">
               ← Back to home
             </Link>
           </p>
@@ -119,11 +109,11 @@ export default function Login() {
         <div className="rounded-b-2xl border-t border-warmGray-100 bg-warmGray-50/60 px-8 py-4 text-center">
           <p className="text-xs text-warmGray-400">
             By signing in you agree to our{' '}
-            <Link to="/terms-of-service" className="underline hover:text-warmGray-600 transition-colors">
+            <Link to="/terms-of-service" className="underline transition-colors hover:text-warmGray-600">
               Terms
             </Link>{' '}
             &amp;{' '}
-            <Link to="/privacy-policy" className="underline hover:text-warmGray-600 transition-colors">
+            <Link to="/privacy-policy" className="underline transition-colors hover:text-warmGray-600">
               Privacy Policy
             </Link>
           </p>
@@ -131,9 +121,7 @@ export default function Login() {
       </div>
 
       {/* Subtle page footer */}
-      <p className="mt-8 text-xs text-white/40">
-        &copy; {new Date().getFullYear()} Sunrise
-      </p>
+      <p className="mt-8 text-xs text-white/40">&copy; {new Date().getFullYear()} Sunrise</p>
     </div>
   )
 }

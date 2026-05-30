@@ -4,6 +4,23 @@
   base = "frontend"
   command = "npm run build"
   publish = "dist"
+  ignore = "git diff --quiet HEAD^ HEAD -- frontend netlify.toml"
+
+# Production builds (main branch only) — embed git SHA
+[context.production]
+  command = "VITE_BUILD_SHA=$COMMIT_REF npm run build"
+
+# Deploy previews for PRs (into develop or review)
+[context.deploy-preview]
+  command = "VITE_BUILD_SHA=$COMMIT_REF npm run build"
+  [context.deploy-preview.environment]
+    VITE_ENV = "preview"
+
+# Branch deploys (develop, review) — never promoted to production
+[context.branch-deploy]
+  command = "VITE_BUILD_SHA=$COMMIT_REF npm run build"
+  [context.branch-deploy.environment]
+    VITE_ENV = "branch"
 
 # SPA routing: redirect all requests to index.html
 [[redirects]]

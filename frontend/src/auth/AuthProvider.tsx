@@ -39,20 +39,12 @@
  *     - Renders children when authenticated
  */
 
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react'
+import { useEffect, useState, useCallback, type ReactNode } from 'react'
 import { onAuthChange, signInWithGoogle, signOut } from './auth'
 import type { User } from 'firebase/auth'
 import { syncBackendUser } from './users'
 import { useAuthStore } from '@/stores/authStore'
-
-interface AuthContextValue {
-  user: User | null
-  loading: boolean
-  login: () => Promise<void>
-  logout: () => Promise<void>
-}
-
-const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+import { AuthContext, type AuthContextValue } from './AuthContext'
 
 interface AuthProviderProps {
   children: ReactNode
@@ -148,22 +140,4 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-/**
- * useAuth Hook
- *
- * Access authentication state and methods from any component.
- * Must be used within AuthProvider.
- *
- * @throws Error if used outside AuthProvider
- */
-export function useAuth(): AuthContextValue {
-  const context = useContext(AuthContext)
-
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-
-  return context
 }

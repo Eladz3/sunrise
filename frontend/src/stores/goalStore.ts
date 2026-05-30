@@ -199,24 +199,18 @@ export const useGoalStore = create<GoalStore>()(
           }
 
           // Update the userId → goalIds index
-          const userIds = (state.goalIdsByUserId[goal.userId] ?? []).filter(
-            (id) => id !== opts?.replacingId && id !== goal.id
-          )
+          const userIds = (state.goalIdsByUserId[goal.userId] ?? []).filter((id) => id !== opts?.replacingId && id !== goal.id)
           const goalIdsByUserId = { ...state.goalIdsByUserId, [goal.userId]: [...userIds, goal.id] }
 
           // Update every group index the user belongs to
           const goalIdsByGroupId = { ...state.goalIdsByGroupId }
           for (const gid of groupIds) {
-            const existing = (goalIdsByGroupId[gid] ?? []).filter(
-              (id) => id !== opts?.replacingId && id !== goal.id
-            )
+            const existing = (goalIdsByGroupId[gid] ?? []).filter((id) => id !== opts?.replacingId && id !== goal.id)
             goalIdsByGroupId[gid] = [...existing, goal.id]
           }
 
           // Clear both the confirmed ID and any temp ID from pendingGoalIds
-          const pendingGoalIds = state.pendingGoalIds.filter(
-            (id) => id !== goal.id && (opts?.replacingId == null || id !== opts.replacingId)
-          )
+          const pendingGoalIds = state.pendingGoalIds.filter((id) => id !== goal.id && (opts?.replacingId == null || id !== opts.replacingId))
 
           return { goalsById, goalIdsByUserId, goalIdsByGroupId, pendingGoalIds }
         })

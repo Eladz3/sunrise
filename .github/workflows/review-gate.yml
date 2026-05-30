@@ -1,0 +1,145 @@
+name: Review Gate
+
+on:
+  pull_request:
+    branches: [review]
+  push:
+    branches: [review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: review-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    name: Detect Changes
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590 # v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+            backend:
+              - 'SunriseApi/**'
+
+  frontend-review:
+    name: Frontend Review
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Format check
+        run: npx prettier --check "src/**/*.{ts,tsx,css}"
+      - name: Type check
+        run: npm run tc
+      - name: Build
+        run: npm run build
+        env:
+          VITE_BUILD_SHA: ${{ github.sha }}
+      - name: Dependency security audit
+        run: npm audit --audit-level=high
+
+  backend-review:
+    name: Backend Review
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: SunriseApi
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: 8.x
+      - name: Restore
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+      - name: Test
+        shell: bash
+        run: |
+          test_projects=$(find . -name "*Tests.csproj" -o -name "*Test.csproj" 2>/dev/null | head -1)
+          if [ -n "$test_projects" ]; then
+            dotnet test "$test_projects" --no-build --configuration Release --verbosity normal
+          else
+            echo "No test projects found — skipping"
+          fi
+      - name: Dependency vulnerability scan
+        run: dotnet list package --vulnerable --include-transitive
+
+  version-sync-check:
+    name: Version Sync Check
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Validate VERSION file
+        run: |
+          if [ ! -f VERSION ]; then
+            echo "VERSION file missing from repo root"
+            exit 1
+          fi
+          version=$(cat VERSION)
+          if ! echo "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "VERSION file contains invalid semver: '$version'"
+            exit 1
+          fi
+          pkg_version=$(node -p "require('./frontend/package.json').version")
+          if [ "$version" != "$pkg_version" ]; then
+            echo "Version mismatch: VERSION=$version, frontend/package.json=$pkg_version"
+            exit 1
+          fi
+          echo "Version sync OK: $version"
+
+  auto-promote:
+    name: Auto-create review → main PR
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 1
+      - name: Create promotion PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          existing=$(gh pr list --base main --head review --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            echo "PR #$existing already open — skipping"
+            exit 0
+          fi
+          DATE=$(date -u '+%Y-%m-%d')
+          VERSION=$(cat VERSION)
+          gh pr create \
+            --base main \
+            --head review \
+            --title "Promote review → main — v$VERSION ($DATE)" \
+            --body "Auto-created after changes landed on \`review\`. Merge when ready to deploy to production."

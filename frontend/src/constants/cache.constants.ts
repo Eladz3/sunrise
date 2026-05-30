@@ -4,4 +4,4 @@ export const CACHE_TIMES = {
   groupMembers: 2 * 60 * 1000,
   goals: 2 * 60 * 1000,
   metrics: 30 * 1000,
-} as const;
+} as const

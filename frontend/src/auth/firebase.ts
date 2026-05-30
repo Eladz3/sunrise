@@ -16,10 +16,7 @@ const missingVars = Object.entries(requiredEnvVars)
   .map(([key]) => `VITE_FIREBASE_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`)
 
 if (missingVars.length > 0) {
-  throw new Error(
-    `Missing required Firebase environment variables:\n${missingVars.join('\n')}\n\n` +
-      'Please check your .env file and ensure all Firebase variables are set.'
-  )
+  throw new Error(`Missing required Firebase environment variables:\n${missingVars.join('\n')}\n\n` + 'Please check your .env file and ensure all Firebase variables are set.')
 }
 
 const firebaseConfig = {

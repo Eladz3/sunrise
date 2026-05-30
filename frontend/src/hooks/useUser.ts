@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { getUserByFirebaseUid } from '@/auth/users'
 import type { User } from '@/types'
 
@@ -14,7 +14,7 @@ export function useUser(userId: string | null): UseUserReturn {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!userId) {
       setProfile(null)
       setLoading(false)
@@ -32,11 +32,11 @@ export function useUser(userId: string | null): UseUserReturn {
     } finally {
       setLoading(false)
     }
-  }
+  }, [userId])
 
   useEffect(() => {
     fetchProfile()
-  }, [userId])
+  }, [fetchProfile])
 
   return {
     profile,
